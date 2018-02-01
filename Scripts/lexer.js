@@ -10,7 +10,6 @@ function lex() {
 
     var tokens = [];
     var lineNum = 0;
-    var terminated = false;
 
     // TODO: Give credit for this
     DELIMITER_PATTERN = /([a-z]+)|(\d+)|("[^"]*")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\S)|(\n)/g;
@@ -23,8 +22,10 @@ function lex() {
 
     // match for anything but whitespace
     if (/\S/.test(sourceCode)) {
-        // split input by by line
+
+        // split input by line
         var lines = sourceCode.trim().split("\n");
+
         // analyze each line individually
         for (var i = 0; i < lines.length; i++) {
             lineNum++;
@@ -32,19 +33,32 @@ function lex() {
             line = line.split(DELIMITER_PATTERN);
             line = line.filter(checkUndefined);
             for (var j = 0; j < line.length; j++) {
-                alert("test" + line[j]);
+                lexeme = line[j];
 
                 // TODO: assess whitespace, comments, and invalid lexemes
+                if (lexeme === "") {
+                    // do nothing, ignore whitespace
+                } else if (lexeme.match(/^(\/\*[^\/\*]*\*\/)$/)) {
+                    // Ignore multi-line comments, increase lineNum for each \n encountered
+                    lineNum = lineNum + lexeme.replace(/[^\n]/g, "").length;
+                }
+                else if (isValid(lexeme)) {
+                    newToken = Token.build(getKind(lexeme), lexeme, lineNum)
+                    tokens.push(newToken);
+                    alert("LEXER: " + newToken.kind.name);
+                    document.getElementById("taOutput").value += "LEXER: " + lexeme;
+                } else {
+                    // return error cause the input text area was empty
+                }
 
             }
 
         }
 
-        return lines;
+        return tokens;
 
     } else {
-        // return error cause the input text area was empty
-        return sourceCode;
+        return tokens
     }
 
 }
