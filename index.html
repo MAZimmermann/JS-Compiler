@@ -53,10 +53,19 @@
 
         function compile() {
             init();
-            // get tokens from the lexer
+            // Get tokens from the lexer
             tokens = lex();
-            document.getElementById("taOutput").value = tokens;
-            // parser to be built in project 2
+            tokens = tokens.filter(checkUndefined);
+            document.getElementById("taOutput").value += "\n";
+            if (tokens.length != 0) {
+                for (var i = 0; i < tokens.length; i++) {
+                    /*alert(tokens[i].kind.name);*/
+                    /*document.getElementById("taOutput").value += tokens[i].kind.name += "\n";*/
+                }
+            } else {
+                document.getElementById("taOutput").value = "";
+            }
+            // Parser to be built in project 2
             // parse();
         }
 

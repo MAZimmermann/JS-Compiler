@@ -1,62 +1,74 @@
 /*
-token.js
-defines tokens
- including kind, value, and line
+ * token.js
+ *
+ * Includes:
+ *  Token class via token constructor
+ *  Token build function
+ *  Enumeration of acceptable token kinds
+ *
  */
 
+// Token constructor
 function Token(kind, value, line) {
     this.kind = kind;
     this.value = value;
     this.line = line;
 }
 
+// Token build function
 Token.build = function(kind, value, line) {
     return new Token(kind, value, line)
 }
 
+/*
+ * Enumeration of token kind
+ * Inspiration for this portion of the lexer
+ *  - Justin Svegliato's "Svegliator"
+ *
+ */
 Token.Kind = {
     ID: {
-        name: "Identifier",
+        name: "ID",
         pattern: /^[a-z]$/,
     },
     L_BRACE: {
-        name: "Left Brace",
+        name: "L_BRACE",
         pattern: /^{$/
     },
     R_BRACE: {
-        name: "Right Brace",
+        name: "R_BRACE",
         pattern: /^}$/
     },
     L_PAREN: {
-        name: "Left Parenthesis",
+        name: "L_PAREN",
         pattern: /^\($/
     },
     R_PAREN: {
-        name: "Right Parenthesis",
+        name: "R_PAREN",
         pattern: /^\)$/
     },
-    PRINT: {
-        name: "Print",
+    PRINT_STATEMENT: {
+        name: "PRINT_STATEMENT",
         pattern: /^print$/
     },
-    WHILE: {
-        name: "While",
+    WHILE_STATEMENT: {
+        name: "WHILE_STATEMENT",
         pattern: /^while$/
     },
-    IF: {
-        name: "If",
+    IF_STATEMENT: {
+        name: "IF_STATEMENT",
         pattern: /^if$/
     },
     QUOTE: {
-        name: "Quote",
+        name: "QUOTE",
         pattern: /^"$/
     },
     CHAR: {
-        name: "Char",
+        name: "CHAR",
         pattern: /^[a-z]$/
     },
-    VAR_TYPE: {
-        name: "Variable Type",
+    VARIABLE_TYPE: {
+        name: "VARIABLE_TYPE",
         pattern: /^(int|string|boolean)$/,
     },
     DIGIT: {
@@ -64,27 +76,31 @@ Token.Kind = {
         pattern: /^\d$/
     },
     STRING: {
-        name: "String",
+        name: "STRING",
         pattern: /^"[a-z\s]*"$/
     },
     BOOLEAN: {
-        name: "Boolean",
+        name: "BOOLEAN",
         pattern: /^(true|false)$/
     },
-    EQUALITY_OP: {
-        name: "Equality Operator",
+    EQUALITY_OPERATOR: {
+        name: "EQUALITY_OPERATOR",
         pattern: /^==$/
     },
-    INEQUALITY_OP: {
-        name: "Inequality Operator",
+    INEQUALITY_OPERATOR: {
+        name: "INEQUALITY_OPERATOR",
         pattern: /^!=$/
     },
-    ADDITION_OP: {
-        name: "Addition Operator",
+    ADDITION_OPERATOR: {
+        name: "ADDITION_OPERATOR",
         pattern: /^\+$/
     },
-    ASSIGNMENT_OP: {
-        name: "Assignment Operator",
+    ASSIGNMENT_OPERATOR: {
+        name: "ASSIGNMENT_OPERATOR",
         pattern: /^=$/
+    },
+    END_OF_FILE: {
+        name: "END_OF_FILE",
+        pattern: /^\$$/
     }
 }
