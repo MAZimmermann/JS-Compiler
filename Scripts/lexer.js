@@ -7,11 +7,11 @@
  *
  * - Splits input by line, \n
  *
- * - Splits line by DELIMITER_PATTERN, see below
+ * - Splits line by DELIMITER_PATTERN(s), see below
  *
- * - Assesses each lexeme, line[j],
- *  and produces new token for token array
- *  if the lexeme is a valid token
+ * - Assesses each lexeme, line[_],
+ *    and produces new token for token array
+ *    if the lexeme is a valid token
  *
  */
 
@@ -53,6 +53,7 @@ function lex() {
             lineNum++;
             line = lines[i].trim();
 
+            // TODO: definitely come up with a better naming scheme here...
             line = line.split(DELIMITER_1);
             line = line.filter(checkUndefined);
 
@@ -111,14 +112,25 @@ function lex() {
 
         // Check for $[EOP] marker, add $[EOP] marker if not it is not found
         if (tokens[tokens.length - 1].kind != Token.Kind.END_OF_FILE) {
+            warnings.push("LEXER --> | ERROR: Missing $[EOP] marker on last line\n" +
+                "$[EOP] marker added to last line\n");
             newToken = Token.build(Token.Kind.END_OF_FILE, "$", (tokens.length - 1))
             tokens.push(newToken);
             document.getElementById("taOutput").value += "LEXER --> | " +
-                "ERROR: Missing $[EOP] marker on last line" + "\n";
+                "ERROR: Missing $[EOP] marker on last line\n";
             document.getElementById("taOutput").value += "LEXER --> | " +
-                "$[EOP] marker added to last line" + "\n";
+                "$[EOP] marker added to last line\n";
             document.getElementById("taInput").value += "$\n";
             return tokens;
+        }
+
+        // TODO: Give own Description
+        // Return format inspired by previous hall of fame projects
+        var lexReturns = {
+            tokenArray: tokens,
+            astLexemes: codeFrag,
+            warningCount: lexWarningCount,
+            errorCount: lexErrorCount
         }
 
         return tokens;

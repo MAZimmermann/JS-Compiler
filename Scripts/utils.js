@@ -2,9 +2,11 @@
  * util.js
  *
  * Utility functions
- *  - checkUndefined
- *  - isValid
- *  - getKind
+ *
+ * Includes:
+ *  checkUndefined
+ *  isValid
+ *  getKind
  *
  */
 

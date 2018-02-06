@@ -19,7 +19,7 @@
 
         <div class="row">
             <div class="six columns" height="250px">
-                <textarea id="taInput" class="u-full-width" placeholder="Enter Source Code"></textarea>
+                <textarea id="taInput" class="u-full-width" placeholder="Enter Source Code..."></textarea>
             </div>
 
             <div class="six columns" height="250px">
@@ -43,37 +43,24 @@
     <script type="text/javascript" src="Scripts/lexer.js"></script>
     <script type="text/javascript">
         // Declare and define global variables
-        var tokens = "";
-        var tokenIndex = 0;
-        var currentToken = "";
-        var errorCount = 0;
-        var EOF = "$";
+        var tokens = [];
+        // ...
 
         // Initialisation function triggered onload
         function init() {
             // Start with blank taOutput
+            document.getElementById("taInput").placeholder = "Enter Source Code...";
             document.getElementById("taOutput").value = "";
             // Set initial values for global variables
-            tokens = "";
-            tokenIndex = 0;
-            currentToken = ' ';
-            errorCount = 0;
+            // var tokens = "";
+            // ...
         }
 
         function compile() {
             init();
             // Get tokens from the lexer
-            tokens = lex();
-            tokens = tokens.filter(checkUndefined);
-            document.getElementById("taOutput").value += "\n";
-            if (tokens.length != 0) {
-                for (var i = 0; i < tokens.length; i++) {
-                    /*alert(tokens[i].kind.name);*/
-                    /*document.getElementById("taOutput").value += tokens[i].kind.name += "\n";*/
-                }
-            } else {
-                document.getElementById("taOutput").value = "";
-            }
+            var lexReturns = lex();
+            tokens = lexReturns.tokens;
             // Parser to be built in project 2
             // parse();
         }
