@@ -42,6 +42,10 @@ function lex() {
     DELIMITER_2 = /(print)|(while)|(if)/g;
     DELIMITER_3 = /(int)/g;
 
+    // Delimiters used to test for poor comment structure
+    DELIMITER_4 = /(\/\*[^\/\*]*\s)/g;
+    DELIMITER_5 = /([^\/\*]*\*\/)/g;
+
     // Match for anything but whitespace
     if (/\S/.test(sourceCode)) {
 
@@ -53,17 +57,28 @@ function lex() {
             lineNum++;
             line = lines[i].trim();
 
-            // TODO: definitely come up with a better naming scheme here...
-            line = line.split(DELIMITER_1);
-            line = line.filter(checkUndefined);
+            if (DELIMITER_4.test(line)) {
+                lineNum++; i++;
+                line = lines[i].trim();
+                while (!DELIMITER_5.test(line)) {
+                    lineNum++; i++;
+                    line = lines[i].trim();
+                }
+            } else {
+                // TODO: definitely come up with a better naming scheme here...
+                line = line.split(DELIMITER_1);
+                line = line.filter(checkUndefined);
 
-            line2 = [];
+                line2 = [];
 
-            for (var j = 0; j < line.length; j++) {
-                newLine = line[j].split(DELIMITER_2);
-                newLine = newLine.filter(checkUndefined);
-                for (var k = 0; k < newLine.length; k++) {
-                    if (!newLine[k].match(/^\s$/) && newLine[k] != "") {
+                for (var j = 0; j < line.length; j++) {
+                    newLine = line[j].split(DELIMITER_2);
+                    newLine = newLine.filter(checkUndefined);
+
+
+
+                    for (var k = 0; k < newLine.length; k++) {
+                        if (!newLine[k].match(/^\s$/) && newLine[k] != "") {
                             if (!newLine[k].match(/^print$/) && !newLine[k].match(/^(\/\*[^\/\*]*\*\/)$/)) {
                                 newerLine = newLine[k].split(DELIMITER_3);
                                 for (var l = 0; l < newerLine.length; l++) {
@@ -72,38 +87,40 @@ function lex() {
                             } else {
                                 line2.push(newLine[k]);
                             }
+                        }
                     }
                 }
-            }
 
-            for (var l = 0; l < line2.length; l++) {
-                document.getElementById("lineOutput").value += "[" + line2[l] + "] ";
-            }
-
-            document.getElementById("lineOutput").value += "\n";
-
-            line = line2;
-
-            for (var l = 0; l < line.length; l++) {
-                lexeme = line[l];
-                // TODO: assess whitespace, comments, and invalid lexemes
-                if (lexeme === "") {
-                    // do nothing, ignore whitespace
-                } else if (lexeme.match(/^(\/\*[^\/\*]*\*\/)$/)) {
-                    // Ignore multi-line comments, increase lineNum for each \n encountered
-                    lineNum = lineNum + lexeme.replace(/[^\n]/g, "").length;
+                for (var l = 0; l < line2.length; l++) {
+                    document.getElementById("lineOutput").value += "[" + line2[l] + "] ";
                 }
-                else if (isValid(lexeme)) {
-                    newToken = Token.build(getKind(lexeme), lexeme, lineNum)
-                    tokens.push(newToken);
-                    /!*alert("LEXER: " + newToken.kind.name);*!/
-                    document.getElementById("taOutput").value += "LEXER --> | " +
-                        newToken.kind.name + " [ " + newToken.value + " ] " +
-                        " on line " + lineNum + "..." + "\n";
-                } else {
-                    document.getElementById("taOutput").value += "LEXER --> | " +
-                        "ERROR: Invalid lexeme found on line " + lineNum + "\n";
-                    // TODO:
+
+                document.getElementById("lineOutput").value += "\n";
+
+                line = line2;
+
+                for (var l = 0; l < line.length; l++) {
+                    lexeme = line[l];
+                    // TODO: assess whitespace, comments, and invalid lexemes
+                    if (lexeme === "") {
+                        // do nothing, ignore whitespace
+                    } else if (lexeme.match(/^(\/\*[^\/\*]*\*\/)$/)) {
+                        // Ignore multi-line comments, increase lineNum for each \n encountered
+                        lineNum = lineNum + lexeme.replace(/[^\n]/g, "").length;
+                    }
+                    else if (isValid(lexeme)) {
+                        newToken = Token.build(getKind(lexeme), lexeme, lineNum)
+                        tokens.push(newToken);
+                        /!*alert("LEXER: " + newToken.kind.name);*!/
+                        document.getElementById("taOutput").value += "LEXER --> | " +
+                            newToken.kind.name + " [ " + newToken.value + " ] " +
+                            " on line " + lineNum + "..." + "\n";
+                    } else {
+                        document.getElementById("taOutput").value += "LEXER --> | " +
+                            "ERROR: Invalid lexeme found on line " + lineNum + "\n";
+                        // TODO:
+                    }
+
                 }
 
             }
