@@ -118,9 +118,8 @@ function lex() {
                             lexemeSplit = lexeme.split("");
                             lexemeSplit = lexemeSplit.filter(checkUndefined);
                             for (var n = 0; n < lexemeSplit.length; n++) {
-                                value = lexemeSplit[i];
-                                alert(value);
-                                newToken = Token.build(getKind(lexemeSplit[n]), value, lineNum);
+                                newId = lexemeSplit[n];
+                                newToken = Token.build(Token.Kind.ID, newId, lineNum);
                                 tokens.push(newToken);
                                 /*alert("LEXER: " + newToken.kind.name);*/
                                 document.getElementById("taOutput").value += "LEXER --> | " +
