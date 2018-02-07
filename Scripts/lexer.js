@@ -33,19 +33,21 @@ function lex() {
     // array containing list of warnings
     var warnings = []; var warningCount = 0;
 
-    // TODO: Give credit for this;
-    // TODO: Determine/write other portions ^delimiter pattern^ for clarification
+    // Delimiter patterns pulled from online and previous hall of fame projects
     DELIMITER_1 = /([a-z]+)|(\d+)|("[^"]*")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\S)|(\n)/g;
     DELIMITER_2 = /(print)|(while)|(if)/g;
     DELIMITER_3 = /(int)/g;
 
-    // Delimiters used to test for improper comment structure
+    // Delimiters used to test for invalid comment break
     DELIMITER_4 = /(\/\*[^\/\*]*$)/g;
     DELIMITER_5 = /([^\/\*]*\*\/)/g;
 
-    // Delimiters used to test for improper string structure
-    DELIMITER_6 = "";
-    DELIMITER_7 = "";
+    // Delimiters used to test for invalid string break
+    DELIMITER_6 = /("[a-z\s]*$)/g;
+    DELIMITER_7 = /([a-z\s]*")/g;
+
+    // tbd...
+    DELIMITER_8 = /([a-z])/g;
 
     // Match for anything but whitespace
     if (/\S/.test(sourceCode)) {
@@ -60,9 +62,15 @@ function lex() {
 
             if (DELIMITER_4.test(line)) {
                 errors.push("Improper comment starting on line " + lineNum);
-                errorCount++; lineNum++; i++;
-                line = lines[i].trim();
+                errorCount++;
                 while (!DELIMITER_5.test(line)) {
+                    lineNum++; i++;
+                    line = lines[i].trim();
+                }
+            } else if (DELIMITER_6.test(line)) {
+                errors.push("Improper string starting on line " + lineNum);
+                errorCount++;
+                while (!DELIMITER_7.test(line)) {
                     lineNum++; i++;
                     line = lines[i].trim();
                 }
@@ -71,39 +79,34 @@ function lex() {
                 line = line.split(DELIMITER_1);
                 line = line.filter(checkUndefined);
 
-                line2 = [];
+                lineSplit = [];
 
                 for (var j = 0; j < line.length; j++) {
                     newLine = line[j].split(DELIMITER_2);
                     newLine = newLine.filter(checkUndefined);
-
-
 
                     for (var k = 0; k < newLine.length; k++) {
                         if (!newLine[k].match(/^\s$/) && newLine[k] != "") {
                             if (!newLine[k].match(/^print$/) && !newLine[k].match(/^(\/\*[^\/\*]*\*\/)$/)) {
                                 newerLine = newLine[k].split(DELIMITER_3);
                                 for (var l = 0; l < newerLine.length; l++) {
-                                    line2.push(newerLine[l]);
+                                    lineSplit.push(newerLine[l]);
                                 }
                             } else {
-                                line2.push(newLine[k]);
+                                lineSplit.push(newLine[k]);
                             }
                         }
                     }
                 }
 
-                for (var l = 0; l < line2.length; l++) {
-                    document.getElementById("lineOutput").value += "[" + line2[l] + "] ";
-                }
+/*                for (var l = 0; l < lineSplit.length; l++) {
+                    document.getElementById("lineOutput").value += "[" + lineSplit[l] + "] ";
+                } document.getElementById("lineOutput").value += "\n";*/
 
-                document.getElementById("lineOutput").value += "\n";
+                line = lineSplit;
 
-                line = line2;
-
-                for (var l = 0; l < line.length; l++) {
-                    lexeme = line[l];
-                    // TODO: assess whitespace, comments, and invalid lexemes
+                for (var m = 0; m < line.length; m++) {
+                    lexeme = line[m];
                     if (lexeme === "") {
                         // do nothing, ignore whitespace
                     } else if (lexeme.match(/^(\/\*[^\/\*]*\*\/)$/)) {
@@ -111,12 +114,27 @@ function lex() {
                         lineNum = lineNum + lexeme.replace(/[^\n]/g, "").length;
                     }
                     else if (isValid(lexeme)) {
-                        newToken = Token.build(getKind(lexeme), lexeme, lineNum)
-                        tokens.push(newToken);
-                        /!*alert("LEXER: " + newToken.kind.name);*!/
-                        document.getElementById("taOutput").value += "LEXER --> | " +
-                            newToken.kind.name + " [ " + newToken.value + " ] " +
-                            " on line " + lineNum + "..." + "\n";
+                        if (getKind(lexeme) === Token.Kind.ID) {
+                            lexemeSplit = lexeme.split("");
+                            lexemeSplit = lexemeSplit.filter(checkUndefined);
+                            for (var n = 0; n < lexemeSplit.length; n++) {
+                                value = lexemeSplit[i];
+                                alert(value);
+                                newToken = Token.build(getKind(lexemeSplit[n]), value, lineNum);
+                                tokens.push(newToken);
+                                /*alert("LEXER: " + newToken.kind.name);*/
+                                document.getElementById("taOutput").value += "LEXER --> | " +
+                                    newToken.kind.name + " [ " + newToken.value + " ] " +
+                                    " on line " + lineNum + "..." + "\n";
+                            }
+                        } else {
+                            newToken = Token.build(getKind(lexeme), lexeme, lineNum)
+                            tokens.push(newToken);
+                            /*alert("LEXER: " + newToken.kind.name);*/
+                            document.getElementById("taOutput").value += "LEXER --> | " +
+                                newToken.kind.name + " [ " + newToken.value + " ] " +
+                                " on line " + lineNum + "..." + "\n";
+                        }
                     } else {
                         document.getElementById("taOutput").value += "LEXER --> | " +
                             "ERROR: Invalid lexeme found on line " + lineNum + "\n";
@@ -169,7 +187,7 @@ function lex() {
 
         // No input provided
         // TODO: set up error cases
-        return lexReturns;;
+        return lexReturns;
 
     }
 

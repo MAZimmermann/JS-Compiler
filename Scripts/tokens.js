@@ -22,8 +22,7 @@ Token.build = function(kind, value, line) {
 
 /*
  * Enumeration of token kind
- * Inspiration for this portion of the lexer
- *  - Justin Svegliato's "Svegliator"
+ * Inspired by the "Svegliator"
  *
  */
 Token.Kind = {
