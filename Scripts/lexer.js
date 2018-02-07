@@ -46,8 +46,6 @@ function lex() {
     DELIMITER_6 = /("[a-z\s]*$)/g;
     DELIMITER_7 = /([a-z\s]*")/g;
 
-    // tbd...
-    DELIMITER_8 = /([a-z])/g;
 
     // Match for anything but whitespace
     if (/\S/.test(sourceCode)) {
@@ -60,15 +58,15 @@ function lex() {
             lineNum++;
             line = lines[i].trim();
 
-            if (DELIMITER_4.test(line)) {
-                errors.push("Improper comment starting on line " + lineNum);
+            if (DELIMITER_4.test(line)) { // test for invalid comment break
+                errors.push("Invalid comment break starting on line " + lineNum);
                 errorCount++;
                 while (!DELIMITER_5.test(line)) {
                     lineNum++; i++;
                     line = lines[i].trim();
                 }
-            } else if (DELIMITER_6.test(line)) {
-                errors.push("Improper string starting on line " + lineNum);
+            } else if (DELIMITER_6.test(line)) { // test for invalid string break
+                errors.push("Invalid string break starting on line " + lineNum);
                 errorCount++;
                 while (!DELIMITER_7.test(line)) {
                     lineNum++; i++;
@@ -76,19 +74,23 @@ function lex() {
                 }
             } else {
                 // TODO: definitely come up with a better naming scheme here...
+                // Split the current line according to DELIMITER_1
                 line = line.split(DELIMITER_1);
                 line = line.filter(checkUndefined);
 
                 lineSplit = [];
 
                 for (var j = 0; j < line.length; j++) {
+                    // Split the current line according to DELIMITER_2
                     newLine = line[j].split(DELIMITER_2);
                     newLine = newLine.filter(checkUndefined);
 
                     for (var k = 0; k < newLine.length; k++) {
                         if (!newLine[k].match(/^\s$/) && newLine[k] != "") {
                             if (!newLine[k].match(/^print$/) && !newLine[k].match(/^(\/\*[^\/\*]*\*\/)$/)) {
+                                // Split the current line according to DELIMITER_3
                                 newerLine = newLine[k].split(DELIMITER_3);
+                                newerLine = newerLine.filter(checkUndefined);
                                 for (var l = 0; l < newerLine.length; l++) {
                                     lineSplit.push(newerLine[l]);
                                 }
@@ -98,10 +100,6 @@ function lex() {
                         }
                     }
                 }
-
-/*                for (var l = 0; l < lineSplit.length; l++) {
-                    document.getElementById("lineOutput").value += "[" + lineSplit[l] + "] ";
-                } document.getElementById("lineOutput").value += "\n";*/
 
                 line = lineSplit;
 
@@ -114,7 +112,9 @@ function lex() {
                         lineNum = lineNum + lexeme.replace(/[^\n]/g, "").length;
                     }
                     else if (isValid(lexeme)) {
+                        // lexemes like abc will be seen as an identifier up until this point
                         if (getKind(lexeme) === Token.Kind.ID) {
+                            // split lexeme into char array, create token id for each char
                             lexemeSplit = lexeme.split("");
                             lexemeSplit = lexemeSplit.filter(checkUndefined);
                             for (var n = 0; n < lexemeSplit.length; n++) {

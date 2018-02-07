@@ -26,81 +26,84 @@ Token.build = function(kind, value, line) {
  *
  */
 Token.Kind = {
+
+    //TODO: Think carfeully about the order here...
+
     L_BRACE: {
         name: "L_BRACE",
-        pattern: /{/
+        pattern: /^{$/
     },
     R_BRACE: {
         name: "R_BRACE",
-        pattern: /}/
+        pattern: /^}$/
     },
     L_PAREN: {
         name: "L_PAREN",
-        pattern: /\(/
+        pattern: /^\($/
     },
     R_PAREN: {
         name: "R_PAREN",
-        pattern: /\)/
-    },
-    VARIABLE_TYPE: {
-        name: "VARIABLE_TYPE",
-        pattern: /(int|string|boolean)/,
-    },
-    STRING: {
-        name: "STRING",
-        pattern: /"[a-z\s]*"/
-    },
-    BOOLEAN: {
-        name: "BOOLEAN",
-        pattern: /(true|false)/
+        pattern: /^\)$/
     },
     PRINT_STATEMENT: {
         name: "PRINT_STATEMENT",
-        pattern: /print/
+        pattern: /^print$/
     },
     WHILE_STATEMENT: {
         name: "WHILE_STATEMENT",
-        pattern: /while/
+        pattern: /^while$/
     },
     IF_STATEMENT: {
         name: "IF_STATEMENT",
-        pattern: /if/
+        pattern: /^if$/
+    },
+    VARIABLE_TYPE: {
+        name: "VARIABLE_TYPE",
+        pattern: /^(int|string|boolean)$/,
+    },
+    STRING: {
+        name: "STRING",
+        pattern: /^"[a-z\s]*"$/
+    },
+    BOOLEAN: {
+        name: "BOOLEAN",
+        pattern: /^(true|false)$/
     },
     ID: {
         name: "ID",
-        pattern: /[a-z]/,
+        pattern: /^[a-z]$/,
     },
     QUOTE: {
         name: "QUOTE",
-        pattern: /"/
+        pattern: /^"$/
     },
     CHAR: {
         name: "CHAR",
-        pattern: /[a-z]/
+        pattern: /^[a-z]$/
     },
     DIGIT: {
         name: "DIGIT",
-        pattern: /\d/
+        pattern: /^\d$/
     },
     EQUALITY_OPERATOR: {
         name: "EQUALITY_OPERATOR",
-        pattern: /==/
+        pattern: /^==$/
     },
     INEQUALITY_OPERATOR: {
         name: "INEQUALITY_OPERATOR",
-        pattern: /!=/
+        pattern: /^!=$/
     },
     ADDITION_OPERATOR: {
         name: "ADDITION_OPERATOR",
-        pattern: /\+/
+        pattern: /^\+$/
     },
     ASSIGNMENT_OPERATOR: {
         name: "ASSIGNMENT_OPERATOR",
-        pattern: /=/
+        pattern: /^=$/
     },
     END_OF_FILE: {
         name: "END_OF_FILE",
-        pattern: /\$/
+        pattern: /^\$$/
     }
 }
 
