@@ -44,7 +44,8 @@
     <script type="text/javascript">
         // Declare and define global variables
         var tokens = [];
-        // ...
+        var errors = [];
+        var warnings = [];
 
         // Initialisation function triggered onload
         function init() {
@@ -60,9 +61,37 @@
             init();
             // Get tokens from the lexer
             var lexReturns = lex();
-            tokens = lexReturns.tokens;
-            // Parser to be built in project 2
-            // parse();
+            if (lexReturns.errorCount == 0) {
+                warnings = lexReturns.warningArray;
+                var warningCount = lexReturns.warningCount;
+                document.getElementById("lineOutput").value += "\n";
+                document.getElementById("lineOutput").value += "Found " + warningCount + " warning(s)" + "\n";
+                for (var i = 0; i < warningCount; i++) {
+                    document.getElementById("lineOutput").value += warnings[i] + "\n";
+                }
+
+                document.getElementById("lineOutput").value += "Found 0 error(s)" + "\n";
+
+                tokens = lexReturns.tokens;
+                // Parser to be built in project 2
+                // parse();
+            } else {
+                warnings = lexReturns.warningArray;
+                var warningCount = lexReturns.warningCount;
+                document.getElementById("lineOutput").value += "\n";
+                document.getElementById("lineOutput").value += "Found " + warningCount + " warning(s)" + "\n";
+                for (var i = 0; i < warningCount; i++) {
+                    document.getElementById("lineOutput").value += warnings[i] + "\n";
+                }
+
+                errors = lexReturns.errorArray;
+                var errorCount = lexReturns.errorCount;
+                document.getElementById("lineOutput").value += "\n";
+                document.getElementById("lineOutput").value += "Found " + errorCount + " error(s)" + "\n";
+                for (var i = 0; i < errorCount; i++) {
+                    document.getElementById("lineOutput").value += errors[i] + "\n";
+                }
+            }
         }
 
     </script>

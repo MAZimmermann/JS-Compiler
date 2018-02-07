@@ -28,13 +28,10 @@ function lex() {
     // Declare/define line number
     var lineNum = 0;
 
-    // errors
-    var errors = [];
-    // warnings
-    var warnings = [];
-    // If an invalid lexeme is found,
-    //  we quit the lexer and return the location of the invalid lexeme
-    var invalidLexeme = false;
+    // array containing list of errors
+    var errors = []; var errorCount = 0;
+    // array containing list of warnings
+    var warnings = []; var warningCount = 0;
 
     // TODO: Give credit for this;
     // TODO: Determine/write other portions ^delimiter pattern^ for clarification
@@ -42,9 +39,13 @@ function lex() {
     DELIMITER_2 = /(print)|(while)|(if)/g;
     DELIMITER_3 = /(int)/g;
 
-    // Delimiters used to test for poor comment structure
-    DELIMITER_4 = /(\/\*[^\/\*]*\s)/g;
+    // Delimiters used to test for improper comment structure
+    DELIMITER_4 = /(\/\*[^\/\*]*$)/g;
     DELIMITER_5 = /([^\/\*]*\*\/)/g;
+
+    // Delimiters used to test for improper string structure
+    DELIMITER_6 = "";
+    DELIMITER_7 = "";
 
     // Match for anything but whitespace
     if (/\S/.test(sourceCode)) {
@@ -58,7 +59,8 @@ function lex() {
             line = lines[i].trim();
 
             if (DELIMITER_4.test(line)) {
-                lineNum++; i++;
+                errors.push("Improper comment starting on line " + lineNum);
+                errorCount++; lineNum++; i++;
                 line = lines[i].trim();
                 while (!DELIMITER_5.test(line)) {
                     lineNum++; i++;
@@ -129,8 +131,8 @@ function lex() {
 
         // Check for $[EOP] marker, add $[EOP] marker if not it is not found
         if (tokens[tokens.length - 1].kind != Token.Kind.END_OF_FILE) {
-            warnings.push("LEXER --> | ERROR: Missing $[EOP] marker on last line\n" +
-                "$[EOP] marker added to last line\n");
+            warnings.push("Missing $[EOP] marker on last line. $[EOP] marker added to last line.");
+            warningCount++;
             newToken = Token.build(Token.Kind.END_OF_FILE, "$", (tokens.length - 1))
             tokens.push(newToken);
             document.getElementById("taOutput").value += "LEXER --> | " +
@@ -138,24 +140,36 @@ function lex() {
             document.getElementById("taOutput").value += "LEXER --> | " +
                 "$[EOP] marker added to last line\n";
             document.getElementById("taInput").value += "$\n";
-            return tokens;
         }
 
         // TODO: Give own Description
         // Return format inspired by previous hall of fame projects
         var lexReturns = {
             tokenArray: tokens,
-            astLexemes: codeFrag,
-            warningCount: lexWarningCount,
-            errorCount: lexErrorCount
+            errorArray: errors,
+            errorCount: errorCount,
+            warningArray: warnings,
+            warningCount: warningCount
         }
 
-        return tokens;
+        return lexReturns;
 
     } else {
+
+        errors.push("No source code provided");
+        errorCount++;
+
+        var lexReturns = {
+            tokenArray: tokens,
+            errorArray: errors,
+            errorCount: errorCount,
+            warningArray: warnings,
+            warningCount: warningCount
+        }
+
         // No input provided
         // TODO: set up error cases
-        return tokens;
+        return lexReturns;;
 
     }
 
