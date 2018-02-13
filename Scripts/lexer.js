@@ -87,7 +87,9 @@ function lex() {
 
                     for (var k = 0; k < newLine.length; k++) {
                         if (!newLine[k].match(/^\s$/) && newLine[k] != "") {
-                            if (!newLine[k].match(/^print$/) && !newLine[k].match(/^(\/\*[^\/\*]*\*\/)$/)) {
+                            if (!newLine[k].match(Token.Kind.PRINT_STATEMENT.pattern) &&
+                                !newLine[k].match(/^(\/\*[^\/\*]*\*\/)$/) &&
+                                !newLine[k].match(Token.Kind.STRING.pattern)) {
                                 // Split the current line according to DELIMITER_3
                                 newerLine = newLine[k].split(DELIMITER_3);
                                 newerLine = newerLine.filter(checkUndefined);
@@ -133,6 +135,10 @@ function lex() {
                             document.getElementById("taOutput").value += "LEXER --> | " +
                                 newToken.kind.name + " [ " + newToken.value + " ] " +
                                 " on line " + lineNum + "..." + "\n";
+
+                            if (getKind(lexeme) === Token.Kind.END_OF_FILE) {
+                                document.getElementById("taOutput").value += "\n";
+                            }
                         }
                     } else {
                         document.getElementById("taOutput").value += "LEXER --> | " +
