@@ -15,6 +15,15 @@
  *
  */
 
+/*
+ * TODO:
+ *  - Explain Delimiters
+ *  - Fix Invalid String Check
+ *  - Explain LastLine Check
+ *  - Change naming scheme
+ *  - Revise error cases
+ */
+
 function lex() {
 
     document.getElementById("taOutput").value += "Begin Lexical Analysis... \n";
@@ -33,19 +42,27 @@ function lex() {
     // array containing list of warnings
     var warnings = []; var warningCount = 0;
 
-    // Delimiter patterns pulled from online and previous hall of fame projects
-    DELIMITER_1 = /([a-z]+)|(\d+)|("[^"]*")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\S)|(\n)/g;
-    DELIMITER_2 = /(print)|(while)|(if)/g;
-    DELIMITER_3 = /(int)/g;
+    /* Delimiter patterns pulled from online and previous hall of fame projects
+     * DELIMITER_1: lowercase letters a-z, digits, zero or more non-quotes inside quotes (strings)
+     *   boolops, anything but whitespace, and new lines
+     */ DELIMITER_1 = /([a-z]+)|(\d+)|("[^"]*")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\S)|(\n)/g;
+
+    /* TODO: Explanation
+     *
+     */ DELIMITER_2 = /(print)|(while)|(if)/g;
+
+    /* TODO: Explanation
+     *
+     */ DELIMITER_3 = /(int)|(string)|(boolean)/g;
 
     // Delimiters used to test for invalid comment break
     DELIMITER_4 = /(\/\*[^\/\*]*$)/g;
     DELIMITER_5 = /([^\/\*]*\*\/)/g;
 
     // Delimiters used to test for invalid string break
-    DELIMITER_6 = /("[a-z\s]*$)/g;
-    DELIMITER_7 = /([a-z\s]*")/g;
-
+    // TODO: FIX --> currently counts valid comments as invalid
+    DELIMITER_6 = /("[^"]*$)/g;
+    DELIMITER_7 = /([^"]*")/g;
 
     // Match for anything but whitespace
     if (/\S/.test(sourceCode)) {
@@ -53,24 +70,47 @@ function lex() {
         // Split input by line
         var lines = sourceCode.trim().split("\n");
 
+        // TODO: explain this
+        lastLine = false;
+        lastLineContent = "";
+
         // analyze each line individually
         for (var i = 0; i < lines.length; i++) {
             lineNum++;
             line = lines[i].trim();
 
+            if (i === lines.length - 1) {
+                lastLine = true;
+                lastLineContent = line;
+            }
+
             if (DELIMITER_4.test(line)) { // test for invalid comment break
+                document.getElementById("taOutput").value += "LEXER --> | ";
+                document.getElementById("taOutput").value += "Invalid comment break starting on line ";
+                document.getElementById("taOutput").value += lineNum + "\n";
                 errors.push("Invalid comment break starting on line " + lineNum);
                 errorCount++;
                 while (!DELIMITER_5.test(line)) {
-                    lineNum++; i++;
-                    line = lines[i].trim();
+                    if (lastLine) {
+                        break
+                    } else {
+                        lineNum++; i++;
+                        line = lines[i].trim();
+                    }
                 }
             } else if (DELIMITER_6.test(line)) { // test for invalid string break
+                document.getElementById("taOutput").value += "LEXER --> | ";
+                document.getElementById("taOutput").value += "Invalid string break starting on line ";
+                document.getElementById("taOutput").value += lineNum + "\n";
                 errors.push("Invalid string break starting on line " + lineNum);
                 errorCount++;
                 while (!DELIMITER_7.test(line)) {
-                    lineNum++; i++;
-                    line = lines[i].trim();
+                    if (lastLine) {
+                        break
+                    } else {
+                        lineNum++; i++;
+                        line = lines[i].trim();
+                    }
                 }
             } else {
                 // TODO: definitely come up with a better naming scheme here...
@@ -87,9 +127,7 @@ function lex() {
 
                     for (var k = 0; k < newLine.length; k++) {
                         if (!newLine[k].match(/^\s$/) && newLine[k] != "") {
-                            if (!newLine[k].match(Token.Kind.PRINT_STATEMENT.pattern) &&
-                                !newLine[k].match(/^(\/\*[^\/\*]*\*\/)$/) &&
-                                !newLine[k].match(Token.Kind.STRING.pattern)) {
+                            if (!newLine[k].match(DELIMITER_2) && !newLine[k].match(/^(\/\*[^\/\*]*\*\/)$/)) {
                                 // Split the current line according to DELIMITER_3
                                 newerLine = newLine[k].split(DELIMITER_3);
                                 newerLine = newerLine.filter(checkUndefined);
@@ -107,6 +145,7 @@ function lex() {
 
                 for (var m = 0; m < line.length; m++) {
                     lexeme = line[m];
+                    document.getElementById("lineOutput").value += lexeme + "\n";
                     if (lexeme === "") {
                         // do nothing, ignore whitespace
                     } else if (lexeme.match(/^(\/\*[^\/\*]*\*\/)$/)) {
@@ -139,6 +178,7 @@ function lex() {
                             if (getKind(lexeme) === Token.Kind.END_OF_FILE) {
                                 document.getElementById("taOutput").value += "\n";
                             }
+
                         }
                     } else {
                         document.getElementById("taOutput").value += "LEXER --> | " +
@@ -153,7 +193,7 @@ function lex() {
         }
 
         // Check for $[EOP] marker, add $[EOP] marker if not it is not found
-        if (tokens[tokens.length - 1].kind != Token.Kind.END_OF_FILE) {
+        if (!lastLineContent.slice(-1).trim().match(/\$/)) {
             warnings.push("Missing $[EOP] marker on last line. $[EOP] marker added to last line.");
             warningCount++;
             newToken = Token.build(Token.Kind.END_OF_FILE, "$", (tokens.length - 1))
@@ -191,7 +231,6 @@ function lex() {
         }
 
         // No input provided
-        // TODO: set up error cases
         return lexReturns;
 
     }
