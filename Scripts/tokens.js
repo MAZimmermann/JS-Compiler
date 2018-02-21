@@ -81,6 +81,10 @@ Token.Kind = {
         name: "CHAR",
         pattern: /^[a-z]$/
     },
+    WHITESPACE: {
+        name: "WHITESPACE",
+        pattern: /^\s$/
+    },
     DIGIT: {
         name: "DIGIT",
         pattern: /^\d$/

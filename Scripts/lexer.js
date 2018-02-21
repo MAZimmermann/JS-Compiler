@@ -24,6 +24,10 @@
  *  - Revise error cases
  */
 
+/*
+TODO: FINISH COMMENT/STRING HANDLING
+ */
+
 function lex() {
 
     document.getElementById("taOutput").value += "Begin Lexical Analysis... \n";
@@ -43,26 +47,23 @@ function lex() {
     var warnings = []; var warningCount = 0;
 
     /* Delimiter patterns pulled from online and previous hall of fame projects
-     * DELIMITER_1: lowercase letters a-z, digits, zero or more non-quotes inside quotes (strings)
-     *   boolops, anything but whitespace, and new lines
-     */ DELIMITER_1 = /([a-z]+)|(\d+)|("[^"]*")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\S)|(\n)/g;
+     * DELIMITER_1: lowercase letters a-z, digits, quote, comments, boolops, anything but whitespace, and new lines
+     */ DELIMITER_1 = /([a-z]+)|(\d)|(")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\S)|(\n)/g;
 
     /* TODO: Explanation
-     *
-     */ DELIMITER_2 = /(print)|(while)|(if)/g;
+     */ DELIMITER_2 = /(print)|(while)|(if)|(string)|(boolean)/g;
 
     /* TODO: Explanation
-     *
-     */ DELIMITER_3 = /(int)|(string)|(boolean)/g;
+     */ DELIMITER_3 = /(int)/g;
 
     // Delimiters used to test for invalid comment break
     DELIMITER_4 = /(\/\*[^\/\*]*$)/g;
     DELIMITER_5 = /([^\/\*]*\*\/)/g;
 
-    // Delimiters used to test for invalid string break
-    // TODO: FIX --> currently counts valid comments as invalid
-    DELIMITER_6 = /("[^"]*$)/g;
-    DELIMITER_7 = /([^"]*")/g;
+    // Delimiter used for splitting string in char array
+    DELIMITER_6 = /([^"])|(\n)/g;
+
+    DELIMITER_7 = /(^[^"]*")("[^"]")+/g;
 
     // Match for anything but whitespace
     if (/\S/.test(sourceCode)) {
@@ -79,63 +80,106 @@ function lex() {
             lineNum++;
             line = lines[i].trim();
 
-            if (i === lines.length - 1) {
+            if (i == lines.length - 1) {
                 lastLine = true;
                 lastLineContent = line;
             }
 
-            if (DELIMITER_4.test(line)) { // test for invalid comment break
+            // Test for valid comments, remove any if found
+            line = line.replace(/\/\*[^\/\*]*\*\//, "");
+
+            if (DELIMITER_4.test(line)) {
+                // Test for invlaid comments
                 document.getElementById("taOutput").value += "LEXER --> | ";
                 document.getElementById("taOutput").value += "Invalid comment break starting on line ";
                 document.getElementById("taOutput").value += lineNum + "\n";
                 errors.push("Invalid comment break starting on line " + lineNum);
                 errorCount++;
-                while (!DELIMITER_5.test(line)) {
-                    if (lastLine) {
-                        break
-                    } else {
-                        lineNum++; i++;
-                        line = lines[i].trim();
-                    }
-                }
-            } else if (DELIMITER_6.test(line)) { // test for invalid string break
-                document.getElementById("taOutput").value += "LEXER --> | ";
-                document.getElementById("taOutput").value += "Invalid string break starting on line ";
-                document.getElementById("taOutput").value += lineNum + "\n";
-                errors.push("Invalid string break starting on line " + lineNum);
-                errorCount++;
-                while (!DELIMITER_7.test(line)) {
-                    if (lastLine) {
-                        break
-                    } else {
-                        lineNum++; i++;
-                        line = lines[i].trim();
-                    }
+
+                // TODO: test for end of comment on next line
+                // otherwise, just continue with the next line
+                if (lastLine) {
+                    break
                 }
             } else {
-                // TODO: definitely come up with a better naming scheme here...
                 // Split the current line according to DELIMITER_1
-                line = line.split(DELIMITER_1);
-                line = line.filter(checkUndefined);
+                d1Line = line.split(DELIMITER_1);
+                d1Line = checkUndefined(d1Line);
 
                 lineSplit = [];
 
-                for (var j = 0; j < line.length; j++) {
-                    // Split the current line according to DELIMITER_2
-                    newLine = line[j].split(DELIMITER_2);
-                    newLine = newLine.filter(checkUndefined);
-
-                    for (var k = 0; k < newLine.length; k++) {
-                        if (!newLine[k].match(/^\s$/) && newLine[k] != "") {
-                            if (!newLine[k].match(DELIMITER_2) && !newLine[k].match(/^(\/\*[^\/\*]*\*\/)$/)) {
-                                // Split the current line according to DELIMITER_3
-                                newerLine = newLine[k].split(DELIMITER_3);
-                                newerLine = newerLine.filter(checkUndefined);
-                                for (var l = 0; l < newerLine.length; l++) {
-                                    lineSplit.push(newerLine[l]);
+                for (var j = 0; j < d1Line.length; j++) {
+                    // special treatment for strings
+                    if (d1Line[j].match(Token.Kind.QUOTE.pattern)) {
+                        breakString = false;
+                        lineSplit.push(d1Line[j]); j++;
+                        while(!d1Line[j].match(Token.Kind.QUOTE.pattern)) {
+                            stringSplit = d1Line[j].split(DELIMITER_6);
+                            stringSplit = checkUndefined(stringSplit);
+                            for (var a = 0; a < stringSplit.length; a++) {
+                                if (stringSplit[a] === "") {
+                                    // Do nothing
+                                } else if (stringSplit[a] == "/" && stringSplit[a+1] == "*") {
+                                    // Handle comments in strings
+                                    a = a + 2;
+                                    while (stringSplit[a] != "\*" && stringSplit[a+1] != "/") {
+                                        a++
+                                    } a = a + 2;
+                                } else if (stringSplit[a] == undefined) {
+                                    // Do nothing
+                                } else {
+                                    lineSplit.push(stringSplit[a]);
                                 }
-                            } else {
-                                lineSplit.push(newLine[k]);
+                            }
+                            j++;
+                            if (d1Line[j] == undefined) {
+                                document.getElementById("taOutput").value += "LEXER --> | ";
+                                document.getElementById("taOutput").value += "Invalid string break starting on line ";
+                                document.getElementById("taOutput").value += lineNum + "\n";
+                                errors.push("Invalid string break starting on line " + lineNum);
+                                errorCount++;
+                                if (lastLine) {
+                                    break
+                                } else {
+                                    nextLineTest = lines[i + 1].trim();
+                                    if (DELIMITER_7.test(nextLineTest)) {
+                                        alert("test");
+                                        breakString = true;
+                                        lineNum++; i++;
+                                        break;
+                                    } else {
+                                        breakString = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (breakString) {
+
+                        } else {
+                            lineSplit.push(d1Line[j]);
+                        }
+                    } else {
+                        // Split the current line according to DELIMITER_2
+                        d2Line = d1Line[j].split(DELIMITER_2);
+                        d2Line = checkUndefined(d2Line);
+
+                        for (var k = 0; k < d2Line.length; k++) {
+                            if (!d2Line[k].match(/^\s$/) && d2Line[k] != "") {
+                                if (!d2Line[k].match(DELIMITER_2) && !d2Line[k].match(/^(\/\*[^\/\*]*\*\/)$/)) {
+                                    // Split the current line according to DELIMITER_3
+                                    d3Line = d2Line[k].split(DELIMITER_3);
+                                    d3Line = checkUndefined(d3Line);
+                                    for (var l = 0; l < d3Line.length; l++) {
+                                        if (d3Line[l] === "int") {
+                                            lineSplit.push(d3Line[l]);
+                                        } else {
+                                            lineSplit.push(d3Line[l]);
+                                        }
+                                    }
+                                } else {
+                                    lineSplit.push(d2Line[k]);
+                                }
                             }
                         }
                     }
@@ -145,7 +189,7 @@ function lex() {
 
                 for (var m = 0; m < line.length; m++) {
                     lexeme = line[m];
-                    document.getElementById("lineOutput").value += lexeme + "\n";
+                    document.getElementById("lineOutput").value += lexeme + " ";
                     if (lexeme === "") {
                         // do nothing, ignore whitespace
                     } else if (lexeme.match(/^(\/\*[^\/\*]*\*\/)$/)) {
@@ -157,7 +201,7 @@ function lex() {
                         if (getKind(lexeme) === Token.Kind.ID) {
                             // split lexeme into char array, create token id for each char
                             lexemeSplit = lexeme.split("");
-                            lexemeSplit = lexemeSplit.filter(checkUndefined);
+                            lexemeSplit = checkUndefined(lexemeSplit);
                             for (var n = 0; n < lexemeSplit.length; n++) {
                                 newId = lexemeSplit[n];
                                 newToken = Token.build(Token.Kind.ID, newId, lineNum);
@@ -187,6 +231,8 @@ function lex() {
                     }
 
                 }
+
+                document.getElementById("lineOutput").value += "\n";
 
             }
 

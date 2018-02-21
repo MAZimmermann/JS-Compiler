@@ -11,8 +11,17 @@
  */
 
 // Used to remove undefined elements from array
-function checkUndefined(element) {
+function checkUndefined(actual) {
+/*
     return element !== undefined;
+*/
+    var newArray = new Array();
+    for (var i = 0; i < actual.length; i++) {
+        if (actual[i]) {
+            newArray.push(actual[i]);
+        }
+    }
+    return newArray;
 }
 
 // Used to iterate over acceptable token kinds
