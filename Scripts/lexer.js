@@ -51,7 +51,7 @@ function lex() {
      */ DELIMITER_1 = /([a-z]+)|(\d)|(")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\S)|(\n)/g;
 
     /* TODO: Explanation
-     */ DELIMITER_2 = /(print)|(while)|(if)|(string)|(boolean)/g;
+     */ DELIMITER_2 = /(print)|(while)|(if)|(string)|(boolean)|(true)|(false)/g;
 
     /* TODO: Explanation
      */ DELIMITER_3 = /(int)/g;
@@ -98,9 +98,10 @@ function lex() {
 
                 // TODO: test for end of comment on next line
                 // otherwise, just continue with the next line
-                if (lastLine) {
+                /*if (lastLine) {
                     break
-                }
+                }*/
+
             } else {
                 // Split the current line according to DELIMITER_1
                 d1Line = line.split(DELIMITER_1);
@@ -109,70 +110,72 @@ function lex() {
                 lineSplit = [];
 
                 for (var j = 0; j < d1Line.length; j++) {
-                    // special treatment for strings
+                    // Special treatment for strings
                     if (d1Line[j].match(Token.Kind.QUOTE.pattern)) {
                         breakString = false;
                         lineSplit.push(d1Line[j]); j++;
-                        while(!d1Line[j].match(Token.Kind.QUOTE.pattern)) {
-                            stringSplit = d1Line[j].split(DELIMITER_6);
-                            stringSplit = checkUndefined(stringSplit);
-                            for (var a = 0; a < stringSplit.length; a++) {
-                                if (stringSplit[a] === "") {
-                                    // Do nothing
-                                } else if (stringSplit[a] == "/" && stringSplit[a+1] == "*") {
-                                    // Handle comments in strings
-                                    a = a + 2;
-                                    while (stringSplit[a] != "\*" && stringSplit[a+1] != "/") {
-                                        a++
-                                    } a = a + 2;
-                                } else if (stringSplit[a] == undefined) {
-                                    // Do nothing
-                                } else {
-                                    lineSplit.push(stringSplit[a]);
-                                }
-                            }
-                            j++;
-                            if (d1Line[j] == undefined) {
-                                document.getElementById("taOutput").value += "LEXER --> | ";
-                                document.getElementById("taOutput").value += "Invalid string break starting on line ";
-                                document.getElementById("taOutput").value += lineNum + "\n";
-                                errors.push("Invalid string break starting on line " + lineNum);
-                                errorCount++;
-                                if (lastLine) {
-                                    break
-                                } else {
-                                    nextLineTest = lines[i + 1].trim();
-                                    if (DELIMITER_7.test(nextLineTest)) {
-                                        alert("test");
-                                        breakString = true;
-                                        lineNum++; i++;
-                                        break;
+                        if (d1Line[j] == undefined) {
+                            alert("test")
+                            document.getElementById("taOutput").value += "LEXER --> | ";
+                            document.getElementById("taOutput").value += "Invalid string break starting on line ";
+                            document.getElementById("taOutput").value += lineNum + "\n";
+                            errors.push("Invalid string break starting on line " + lineNum);
+                            errorCount++;
+                            breakString;
+                            break;
+                        } else {
+                            while(!d1Line[j].match(Token.Kind.QUOTE.pattern)) {
+                                stringSplit = d1Line[j].split(DELIMITER_6);
+                                stringSplit = checkUndefined(stringSplit);
+                                for (var a = 0; a < stringSplit.length; a++) {
+                                    if (stringSplit[a] === "") {
+                                        // Do nothing
+                                    } else if (stringSplit[a] == "/" && stringSplit[a+1] == "*") {
+                                        a = a + 2;
+                                        while (stringSplit[a] != "\*" && stringSplit[a+1] != "/") {
+                                            a++
+                                        } a = a + 2;
+                                    } else if (stringSplit[a] == undefined) {
+                                        // Do nothing
                                     } else {
-                                        breakString = true;
-                                        break;
+                                        lineSplit.push(stringSplit[a]);
                                     }
                                 }
+                                j++;
+                                if (d1Line[j] == undefined) {
+                                    document.getElementById("taOutput").value += "LEXER --> | ";
+                                    document.getElementById("taOutput").value += "Invalid string break starting on line ";
+                                    document.getElementById("taOutput").value += lineNum + "\n";
+                                    errors.push("Invalid string break starting on line " + lineNum);
+                                    errorCount++;
+                                    breakString = true;
+                                    break;
+                                }
                             }
-                        }
-                        if (breakString) {
 
-                        } else {
+                        }
+                        if (!breakString) {
                             lineSplit.push(d1Line[j]);
                         }
                     } else {
                         // Split the current line according to DELIMITER_2
                         d2Line = d1Line[j].split(DELIMITER_2);
                         d2Line = checkUndefined(d2Line);
-
                         for (var k = 0; k < d2Line.length; k++) {
+
                             if (!d2Line[k].match(/^\s$/) && d2Line[k] != "") {
-                                if (!d2Line[k].match(DELIMITER_2) && !d2Line[k].match(/^(\/\*[^\/\*]*\*\/)$/)) {
+                                if (!d2Line[k].match(DELIMITER_2)) {
                                     // Split the current line according to DELIMITER_3
                                     d3Line = d2Line[k].split(DELIMITER_3);
                                     d3Line = checkUndefined(d3Line);
                                     for (var l = 0; l < d3Line.length; l++) {
                                         if (d3Line[l] === "int") {
                                             lineSplit.push(d3Line[l]);
+                                        } else if (d3Line[l].match(/[a-z]+/)) {
+                                            splitString = d3Line[l].split("");
+                                            for (var q = 0; q < splitString.length; q++) {
+                                                lineSplit.push(splitString[q]);
+                                            }
                                         } else {
                                             lineSplit.push(d3Line[l]);
                                         }
@@ -190,27 +193,57 @@ function lex() {
                 for (var m = 0; m < line.length; m++) {
                     lexeme = line[m];
                     document.getElementById("lineOutput").value += lexeme + " ";
-                    if (lexeme === "") {
+                    if (lexeme == "" || lexeme == " ") {
                         // do nothing, ignore whitespace
-                    } else if (lexeme.match(/^(\/\*[^\/\*]*\*\/)$/)) {
-                        // Ignore multi-line comments, increase lineNum for each \n encountered
-                        lineNum = lineNum + lexeme.replace(/[^\n]/g, "").length;
                     }
                     else if (isValid(lexeme)) {
                         // lexemes like abc will be seen as an identifier up until this point
-                        if (getKind(lexeme) === Token.Kind.ID) {
-                            // split lexeme into char array, create token id for each char
-                            lexemeSplit = lexeme.split("");
-                            lexemeSplit = checkUndefined(lexemeSplit);
-                            for (var n = 0; n < lexemeSplit.length; n++) {
-                                newId = lexemeSplit[n];
-                                newToken = Token.build(Token.Kind.ID, newId, lineNum);
+                        if (getKind(lexeme) === Token.Kind.QUOTE) {
+                            breakString = false;
+                            newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
+                            tokens.push(newToken);
+                            /*alert("LEXER: " + newToken.kind.name);*/
+                            document.getElementById("taOutput").value += "LEXER --> | " +
+                                newToken.kind.name + " [ " + newToken.value + " ] " +
+                                " on line " + lineNum + "..." + "\n";
+                            m++;
+                            lexeme = line[m];
+
+                            while (getKind(lexeme) != Token.Kind.QUOTE) {
+                                newToken = Token.build(Token.Kind.CHAR, lexeme, lineNum);
+                                tokens.push(newToken);
+                                /*alert("LEXER: " + newToken.kind.name);*/
+                                document.getElementById("taOutput").value += "LEXER --> | " +
+                                    newToken.kind.name + " [ " + newToken.value + " ] " +
+                                    " on line " + lineNum + "..." + "\n";
+                                m++;
+                                lexeme = line[m];
+                                if (lexeme == undefined) {
+                                    breakString = true;
+                                    break;
+                                }
+                            }
+                            if (!breakString) {
+                                newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
                                 tokens.push(newToken);
                                 /*alert("LEXER: " + newToken.kind.name);*/
                                 document.getElementById("taOutput").value += "LEXER --> | " +
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
                             }
+                        } else if (getKind(lexeme) === Token.Kind.ID) {
+                            // split lexeme into char array, create token id for each char
+                            /*lexemeSplit = lexeme.split("");
+                            lexemeSplit = checkUndefined(lexemeSplit);*/
+/*                            for (var n = 0; n < lexemeSplit.length; n++) {*/
+                                newId = lexeme // lexemeSplit[n];
+                                newToken = Token.build(Token.Kind.ID, lexeme, lineNum);
+                                tokens.push(newToken);
+                                /*alert("LEXER: " + newToken.kind.name);*/
+                                document.getElementById("taOutput").value += "LEXER --> | " +
+                                    newToken.kind.name + " [ " + newToken.value + " ] " +
+                                    " on line " + lineNum + "..." + "\n";
+                            // }
                         } else {
                             newToken = Token.build(getKind(lexeme), lexeme, lineNum)
                             tokens.push(newToken);
