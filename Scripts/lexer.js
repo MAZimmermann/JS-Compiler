@@ -17,11 +17,7 @@
 
 /*
  * TODO:
- *  - Explain Delimiters
- *  - Fix Invalid String Check
- *  - Explain LastLine Check
- *  - Change naming scheme
- *  - Revise error cases
+ *  - Continue revising error checks
  */
 
 /*
@@ -41,44 +37,44 @@ function lex() {
     // Declare/define line number
     var lineNum = 0;
 
-    // array containing list of errors
+    // Array containing list of errors
     var errors = []; var errorCount = 0;
-    // array containing list of warnings
+    // Array containing list of warnings
     var warnings = []; var warningCount = 0;
 
     /* Delimiter patterns pulled from online and previous hall of fame projects
-     * DELIMITER_1: lowercase letters a-z, digits, quote, comments, boolops, anything but whitespace, and new lines
-     */ DELIMITER_1 = /([a-z]+)|(\d)|(")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\S)|(\n)/g;
+     * DELIMITER_1: leftParen, rightParen, leftBracket, rightBracket,
+     * lowercase letters a-z, digits, quote, comments, boolean operators, anything but whitespace, and new lines
+     */ DELIMITER_1 = /(\()|(\))|({)|(})|([a-z]+)|(\d)|(")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\n)/g;
 
-    /* TODO: Explanation
+    /* DELIMITER_2: print, while, if, string, boolean, true, false
      */ DELIMITER_2 = /(print)|(while)|(if)|(string)|(boolean)|(true)|(false)/g;
 
-    /* TODO: Explanation
+    /* Valid lexeme "int" contained in "print"
+     * DELIMITER_3: int
      */ DELIMITER_3 = /(int)/g;
 
     // Delimiters used to test for invalid comment break
     DELIMITER_4 = /(\/\*[^\/\*]*$)/g;
     DELIMITER_5 = /([^\/\*]*\*\/)/g;
 
-    // Delimiter used for splitting string in char array
+    // Delimiter grabbing characters when quote is found
     DELIMITER_6 = /([^"])|(\n)/g;
-
-    DELIMITER_7 = /(^[^"]*")("[^"]")+/g;
 
     // Match for anything but whitespace
     if (/\S/.test(sourceCode)) {
 
         // Split input by line
-        var lines = sourceCode.trim().split("\n");
+        var lines = sourceCode.split("\n");
 
         // TODO: explain this
         lastLine = false;
         lastLineContent = "";
 
-        // analyze each line individually
+        // Analyze each line individually
         for (var i = 0; i < lines.length; i++) {
             lineNum++;
-            line = lines[i].trim();
+            line = lines[i];
 
             if (i == lines.length - 1) {
                 lastLine = true;
@@ -89,18 +85,19 @@ function lex() {
             line = line.replace(/\/\*[^\/\*]*\*\//, "");
 
             if (DELIMITER_4.test(line)) {
-                // Test for invlaid comments
+                // Test for invalid comments
                 document.getElementById("taOutput").value += "LEXER --> | ";
                 document.getElementById("taOutput").value += "Invalid comment break starting on line ";
                 document.getElementById("taOutput").value += lineNum + "\n";
                 errors.push("Invalid comment break starting on line " + lineNum);
                 errorCount++;
-
-                // TODO: test for end of comment on next line
-                // otherwise, just continue with the next line
-                /*if (lastLine) {
-                    break
-                }*/
+                // Test if comment was simply pushed to the next line
+                if (DELIMITER_5.test(lines[i+1].trim())) {
+                    document.getElementById("taOutput").value += "LEXER --> | ";
+                    document.getElementById("taOutput").value += "Comment continues on line  ";
+                    document.getElementById("taOutput").value += (lineNum+1) + "\n";
+                    i++; lineNum++;
+                }
 
             } else {
                 // Split the current line according to DELIMITER_1
@@ -115,33 +112,33 @@ function lex() {
                         breakString = false;
                         lineSplit.push(d1Line[j]); j++;
                         if (d1Line[j] == undefined) {
-                            alert("test")
+                            // Quote is last character on the line
                             document.getElementById("taOutput").value += "LEXER --> | ";
-                            document.getElementById("taOutput").value += "Invalid string break starting on line ";
+                            document.getElementById("taOutput").value += "Invalid string break on line ";
                             document.getElementById("taOutput").value += lineNum + "\n";
-                            errors.push("Invalid string break starting on line " + lineNum);
+                            errors.push("Invalid string break on line " + lineNum);
                             errorCount++;
                             breakString;
                             break;
                         } else {
+                            // Valid characters following quote
                             while(!d1Line[j].match(Token.Kind.QUOTE.pattern)) {
                                 stringSplit = d1Line[j].split(DELIMITER_6);
                                 stringSplit = checkUndefined(stringSplit);
+                                // Handling comments inside of quotes
+                                // TODO: ... is this necessary??
                                 for (var a = 0; a < stringSplit.length; a++) {
                                     if (stringSplit[a] === "") {
                                         // Do nothing
-                                    } else if (stringSplit[a] == "/" && stringSplit[a+1] == "*") {
+                                    }/* else if (stringSplit[a] == "/" && stringSplit[a+1] == "*") {
                                         a = a + 2;
                                         while (stringSplit[a] != "\*" && stringSplit[a+1] != "/") {
                                             a++
                                         } a = a + 2;
-                                    } else if (stringSplit[a] == undefined) {
-                                        // Do nothing
-                                    } else {
+                                    }*/ else {
                                         lineSplit.push(stringSplit[a]);
                                     }
-                                }
-                                j++;
+                                } j++; // Test if next character is undefined (end of line)
                                 if (d1Line[j] == undefined) {
                                     document.getElementById("taOutput").value += "LEXER --> | ";
                                     document.getElementById("taOutput").value += "Invalid string break starting on line ";
@@ -158,14 +155,14 @@ function lex() {
                             lineSplit.push(d1Line[j]);
                         }
                     } else {
-                        // Split the current line according to DELIMITER_2
-                        d2Line = d1Line[j].split(DELIMITER_2);
+                        // Split d1Line[j] according to DELIMITER_2
+                        d2Line = d1Line[j].trim().split(DELIMITER_2);
                         d2Line = checkUndefined(d2Line);
                         for (var k = 0; k < d2Line.length; k++) {
 
                             if (!d2Line[k].match(/^\s$/) && d2Line[k] != "") {
                                 if (!d2Line[k].match(DELIMITER_2)) {
-                                    // Split the current line according to DELIMITER_3
+                                    // Split d2Line[k] according to DELIMITER_3
                                     d3Line = d2Line[k].split(DELIMITER_3);
                                     d3Line = checkUndefined(d3Line);
                                     for (var l = 0; l < d3Line.length; l++) {
@@ -189,6 +186,8 @@ function lex() {
                 }
 
                 line = lineSplit;
+
+                alert(line);
 
                 for (var m = 0; m < line.length; m++) {
                     lexeme = line[m];
@@ -232,18 +231,13 @@ function lex() {
                                     " on line " + lineNum + "..." + "\n";
                             }
                         } else if (getKind(lexeme) === Token.Kind.ID) {
-                            // split lexeme into char array, create token id for each char
-                            /*lexemeSplit = lexeme.split("");
-                            lexemeSplit = checkUndefined(lexemeSplit);*/
-/*                            for (var n = 0; n < lexemeSplit.length; n++) {*/
-                                newId = lexeme // lexemeSplit[n];
+                                newId = lexeme;
                                 newToken = Token.build(Token.Kind.ID, lexeme, lineNum);
                                 tokens.push(newToken);
                                 /*alert("LEXER: " + newToken.kind.name);*/
                                 document.getElementById("taOutput").value += "LEXER --> | " +
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
-                            // }
                         } else {
                             newToken = Token.build(getKind(lexeme), lexeme, lineNum)
                             tokens.push(newToken);
@@ -260,7 +254,8 @@ function lex() {
                     } else {
                         document.getElementById("taOutput").value += "LEXER --> | " +
                             "ERROR: Invalid lexeme found on line " + lineNum + "\n";
-                        // TODO:
+                        errors.push("Invalid lexeme found on line " + lineNum);
+                        errorCount++;
                     }
 
                 }

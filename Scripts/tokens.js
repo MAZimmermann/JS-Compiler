@@ -9,6 +9,7 @@
  */
 
 // Token constructor
+// includes kind, values, and line
 function Token(kind, value, line) {
     this.kind = kind;
     this.value = value;
@@ -26,8 +27,6 @@ Token.build = function(kind, value, line) {
  *
  */
 Token.Kind = {
-
-    //TODO: Think carfeully about the order here...
 
     L_BRACE: {
         name: "L_BRACE",

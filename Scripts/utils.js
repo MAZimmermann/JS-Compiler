@@ -10,11 +10,8 @@
  *
  */
 
-// Used to remove undefined elements from array
+// returns new array after removing undefined elements
 function checkUndefined(actual) {
-/*
-    return element !== undefined;
-*/
     var newArray = new Array();
     for (var i = 0; i < actual.length; i++) {
         if (actual[i]) {
@@ -25,7 +22,7 @@ function checkUndefined(actual) {
 }
 
 // Used to iterate over acceptable token kinds
-// Returns true for valid lexem, false otherwise
+// Returns true for valid lexeme, false otherwise
 function isValid(lexeme) {
     for (var key in Token.Kind) {
         var kind = Token.Kind[key];
