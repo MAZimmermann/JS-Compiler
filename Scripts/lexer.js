@@ -18,10 +18,7 @@
 /*
  * TODO:
  *  - Continue revising error checks
- */
-
-/*
-TODO: FINISH COMMENT/STRING HANDLING
+ *  - Finalize comment/string handling
  */
 
 function lex() {
