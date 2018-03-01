@@ -1,7 +1,7 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2017.9.26)  27 FEB 2018 19:24
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6350 64-bit) (preloaded format=pdflatex 2017.9.26)  28 FEB 2018 19:30
 entering extended mode
-**C:/Users/MAZimmermann/Desktop/JS-Compiler/Labs/Lab3.tex
-(C:/Users/MAZimmermann/Desktop/JS-Compiler/Labs/Lab3.tex
+**./Lab3.tex
+(Lab3.tex
 LaTeX2e <2017-04-15>
 Babel <3.10> and hyphenation patterns for 75 language(s) loaded.
 ("C:\Program Files\MiKTeX 2.9\tex\latex\koma-script\scrartcl.cls"
@@ -600,13 +600,21 @@ File: listings.cfg 2015/06/04 1.6 listings configuration
 ))
 Package: listings 2015/06/04 1.6 (Carsten Heinz)
 
+("C:\Program Files\MiKTeX 2.9\tex\latex\enumitem\enumitem.sty"
+Package: enumitem 2011/09/28 v3.5.2 Customized lists
+\labelindent=\skip87
+\enit@outerparindent=\dimen162
+\enit@toks=\toks27
+\enit@inbox=\box58
+\enitdp@description=\count271
+)
 
 Class scrartcl Warning: Usage of package `parskip' together
 (scrartcl)              with a KOMA-Script class is not recommended.
 (scrartcl)              I'd suggest to use option
 (scrartcl)              `parskip' with one of it's several values.
 (scrartcl)              Nevertheless, using requested
-(scrartcl)              package `parskip' on input line 35.
+(scrartcl)              package `parskip' on input line 38.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\ltxmisc\parskip.sty"
 Package: parskip 2001/04/09 non-zero parskip adjustments
@@ -626,56 +634,56 @@ Class scrartcl Warning: Usage of package `fancyhdr' together
 (scrartcl)              `\addtokomafont' for the page style elements need
 (scrartcl)              explicite user intervention to work.
 (scrartcl)              Nevertheless, using requested
-(scrartcl)              package `fancyhdr' on input line 40.
+(scrartcl)              package `fancyhdr' on input line 43.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\fancyhdr\fancyhdr.sty"
 Package: fancyhdr 2017/06/30 v3.9a Extensive control of page headers and footer
 s
-\f@nch@headwidth=\skip87
-\f@nch@O@elh=\skip88
-\f@nch@O@erh=\skip89
-\f@nch@O@olh=\skip90
-\f@nch@O@orh=\skip91
-\f@nch@O@elf=\skip92
-\f@nch@O@erf=\skip93
-\f@nch@O@olf=\skip94
-\f@nch@O@orf=\skip95
-)
-No file Lab3.aux.
+\f@nch@headwidth=\skip88
+\f@nch@O@elh=\skip89
+\f@nch@O@erh=\skip90
+\f@nch@O@olh=\skip91
+\f@nch@O@orh=\skip92
+\f@nch@O@elf=\skip93
+\f@nch@O@erf=\skip94
+\f@nch@O@olf=\skip95
+\f@nch@O@orf=\skip96
+) (Lab3.aux)
 \openout1 = `Lab3.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 78.
-LaTeX Font Info:    ... okay on input line 78.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 78.
-LaTeX Font Info:    ... okay on input line 78.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 78.
-LaTeX Font Info:    ... okay on input line 78.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 78.
-LaTeX Font Info:    ... okay on input line 78.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 78.
-LaTeX Font Info:    ... okay on input line 78.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 78.
-LaTeX Font Info:    ... okay on input line 78.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 78.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 78.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 87.
+LaTeX Font Info:    ... okay on input line 87.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 87.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 87.
+
 ("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 78.
+LaTeX Font Info:    ... okay on input line 87.
 
 ("C:\Program Files\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count271
-\scratchdimen=\dimen162
-\scratchbox=\box58
-\nofMPsegments=\count272
-\nofMParguments=\count273
-\everyMPshowfont=\toks27
-\MPscratchCnt=\count274
-\MPscratchDim=\dimen163
-\MPnumerator=\count275
-\makeMPintoPDFobject=\count276
-\everyMPtoPDFconversion=\toks28
+\scratchcounter=\count272
+\scratchdimen=\dimen163
+\scratchbox=\box59
+\nofMPsegments=\count273
+\nofMParguments=\count274
+\everyMPshowfont=\toks28
+\MPscratchCnt=\count275
+\MPscratchDim=\dimen164
+\MPnumerator=\count276
+\makeMPintoPDFobject=\count277
+\everyMPtoPDFconversion=\toks29
 ) ("C:\Program Files\MiKTeX 2.9\tex\generic\oberdiek\pdftexcmds.sty"
 Package: pdftexcmds 2017/03/19 v0.25 Utility functions of pdfTeX for LuaTeX (HO
 )
@@ -721,153 +729,126 @@ Package grfext Info: Graphics extension search list:
 G,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 456.
 )
-\c@lstlisting=\count277
+\c@lstlisting=\count278
 Package lastpage Info: Please have a look at the pageslts package at
 (lastpage)             https://www.ctan.org/pkg/pageslts
-(lastpage)             ! on input line 78.
-LaTeX Font Info:    Try loading font information for T1+cmss on input line 80.
+(lastpage)             ! on input line 87.
+LaTeX Font Info:    Try loading font information for T1+cmss on input line 89.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\base\t1cmss.fd"
 File: t1cmss.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    Try loading font information for U+msa on input line 80.
+LaTeX Font Info:    Try loading font information for U+msa on input line 89.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 80.
+LaTeX Font Info:    Try loading font information for U+msb on input line 89.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 
-LaTeX Warning: Reference `operations' on page 1 undefined on input line 87.
+Class scrartcl Warning: incompatible usage of \@ssect detected.
+(scrartcl)              You've used the KOMA-Script implementation of \@ssect
+(scrartcl)              from within a non compatible caller, that does not
+(scrartcl)              \scr@s@ct@@nn@m@ locally.
+(scrartcl)              This could result in several error messages on input li
+ne 93.
 
 
-LaTeX Warning: Reference `figure:array' on page 1 undefined on input line 91.
+Class scrartcl Warning: incompatible usage of \@ssect detected.
+(scrartcl)              You've used the KOMA-Script implementation of \@ssect
+(scrartcl)              from within a non compatible caller, that does not
+(scrartcl)              \scr@s@ct@@nn@m@ locally.
+(scrartcl)              This could result in several error messages on input li
+ne 94.
 
 
-! LaTeX Error: File `array' not found.
+Underfull \hbox (badness 10000) in paragraph at lines 107--109
 
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.97    \includegraphics[width=11cm]{array}
-                                           
-? 
-
-LaTeX Warning: Reference `equation:pass1' on page 1 undefined on input line 103
-.
+ []
 
 
-LaTeX Warning: Reference `equation:pass2' on page 1 undefined on input line 103
-.
+Underfull \hbox (badness 10000) in paragraph at lines 107--109
 
-
-LaTeX Warning: Citation `clrs' on page 1 undefined on input line 105.
-
-
-LaTeX Warning: Reference `LastPage' on page 1 undefined on input line 129.
+ []
 
 [1
 
 
 {C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}]
+Underfull \hbox (badness 10000) in paragraph at lines 126--128
 
-LaTeX Warning: Reference `algorithm:tally' on page 2 undefined on input line 13
-1.
-
-
-LaTeX Warning: Reference `algorithm:predecessorSum' on page 2 undefined on inpu
-t line 168.
+ []
 
 
-LaTeX Warning: Reference `LastPage' on page 2 undefined on input line 200.
+Underfull \hbox (badness 10000) in paragraph at lines 126--128
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 142--144
+
+ []
+
+
+Class scrartcl Warning: incompatible usage of \@ssect detected.
+(scrartcl)              You've used the KOMA-Script implementation of \@ssect
+(scrartcl)              from within a non compatible caller, that does not
+(scrartcl)              \scr@s@ct@@nn@m@ locally.
+(scrartcl)              This could result in several error messages on input li
+ne 146.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 148--149
+
+ []
 
 [2]
 
-LaTeX Warning: Reference `algorithm:member' on page 3 undefined on input line 2
-01.
+Class scrartcl Warning: incompatible usage of \@ssect detected.
+(scrartcl)              You've used the KOMA-Script implementation of \@ssect
+(scrartcl)              from within a non compatible caller, that does not
+(scrartcl)              \scr@s@ct@@nn@m@ locally.
+(scrartcl)              This could result in several error messages on input li
+ne 159.
 
 
-LaTeX Warning: Reference `algorithm:less' on page 3 undefined on input line 223
-.
-
-
-LaTeX Warning: Reference `algorithm:range' on page 3 undefined on input line 24
-5.
-
-
-LaTeX Warning: Reference `LastPage' on page 3 undefined on input line 248.
+Class scrartcl Warning: incompatible usage of \@ssect detected.
+(scrartcl)              You've used the KOMA-Script implementation of \@ssect
+(scrartcl)              from within a non compatible caller, that does not
+(scrartcl)              \scr@s@ct@@nn@m@ locally.
+(scrartcl)              This could result in several error messages on input li
+ne 160.
 
 [3]
-
-LaTeX Warning: Reference `LastPage' on page 4 undefined on input line 254.
-
-[4]
-
-LaTeX Warning: Reference `LastPage' on page 5 undefined on input line 265.
-
-[5]
-
-LaTeX Warning: Reference `LastPage' on page 6 undefined on input line 276.
-
-[6]
 No file Lab3.bbl.
-LaTeX Font Info:    Try loading font information for T1+cmtt on input line 299.
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\t1cmtt.fd"
-File: t1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
-
-Package lastpage Warning: Rerun to get the references right on input line 349.
-
 
 AED: lastpage setting LastPage
-
-LaTeX Warning: Reference `LastPage' on page 7 undefined on input line 349.
-
-[7] (Lab3.aux)
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
- ) 
+(Lab3.aux) ) 
 Here is how much of TeX's memory you used:
- 16540 strings out of 493323
- 307684 string characters out of 3139045
- 480340 words of memory out of 3000000
- 19893 multiletter control sequences out of 15000+200000
- 553479 words of font info for 71 fonts, out of 3000000 for 9000
+ 16746 strings out of 493323
+ 311181 string characters out of 3139045
+ 469516 words of memory out of 3000000
+ 20124 multiletter control sequences out of 15000+200000
+ 545445 words of font info for 52 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 49i,20n,51p,10460b,940s stack positions out of 5000i,500n,10000p,200000b,50000s
- <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\
-dpi600\ectt0800.pk> <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts\pk\lj
-four\jknappen\ec\dpi600\ecrm0500.pk> <C:\Users\MAZimmermann\AppData\Local\MiKTe
-X\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\ecti1000.pk> <C:\Users\MAZimmermann\Ap
-pData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\ecbx0700.pk> <C:\User
-s\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\ecbx
-0800.pk> <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknapp
-en\ec\dpi600\ecrm0800.pk> <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts
-\pk\ljfour\jknappen\ec\dpi600\ecrm0600.pk> <C:\Users\MAZimmermann\AppData\Local
-\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm0700.pk> <C:\Users\MAZimmerm
-ann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\ecbx1000.pk> <C
-:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi60
-0\eccc1200.pk> <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\
-jknappen\ec\dpi600\eccc1440.pk> <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9
-\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm1000.pk> <C:\Users\MAZimmermann\AppData
-\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm1440.pk> <C:\Users\MAZ
-immermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm2074.
-pk> <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec
-\dpi600\eccc1000.pk><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm
-/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.p
-fb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on Lab3.pdf (7 pages, 150123 bytes).
+ 49i,10n,51p,10415b,980s stack positions out of 5000i,500n,10000p,200000b,50000s
+ <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jk
+nappen\ec\dpi600\ecbx1000.pk> <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\f
+onts\pk\ljfour\jknappen\ec\dpi600\ecti1000.pk> <C:\Users\MAZimmermann\AppData\L
+ocal\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\eccc1200.pk> <C:\Users\MAZim
+mermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\eccc1440.pk
+> <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\d
+pi600\ecrm1000.pk> <C:\Users\MAZimmermann\AppData\Local\MiKTeX\2.9\fonts\pk\ljf
+our\jknappen\ec\dpi600\ecrm1440.pk> <C:\Users\MAZimmermann\AppData\Local\MiKTeX
+\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm2074.pk> <C:\Users\MAZimmermann\App
+Data\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\eccc1000.pk><C:/Progra
+m Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+Output written on Lab3.pdf (3 pages, 65198 bytes).
 PDF statistics:
- 403 PDF objects out of 1000 (max. 8388607)
+ 197 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
