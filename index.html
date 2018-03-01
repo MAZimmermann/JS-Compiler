@@ -54,10 +54,6 @@ main page for interacting with compiler
     <script type="text/javascript" src="Scripts/parser.js"></script>
     <script type="text/javascript" src="Scripts/cst.js"></script>
     <script type="text/javascript">
-        // Declare and define global variables
-        var tokens = [];
-        var errors = [];
-        var warnings = [];
 
         // Initialization function triggered onload
         function init() {
@@ -65,54 +61,10 @@ main page for interacting with compiler
             document.getElementById("taInput").placeholder = "Enter Source Code...";
             document.getElementById("lexOutput").value = "";
             document.getElementById("parseOutput").value = "";
-            // Set initial values for global variables
-            // var tokens = "";
-            // ...
         }
-
         function compile() {
             init();
-            // Get tokens from the lexer
-            /*var lexReturns = */lex();
-            /*if (lexReturns.errorCount == 0) {
-                // No errors in lex, continue to parse
-                warnings = lexReturns.warningArray;
-                var warningCount = lexReturns.warningCount;
-                document.getElementById("lexOutput").value += "\n";
-                document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
-                for (var i = 0; i < warningCount; i++) {
-                    document.getElementById("lexOutput").value += warnings[i] + "\n";
-                }
-
-                document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n";
-
-                tokens = lexReturns.tokenArray;
-                programCount = lexReturns.numPrograms;
-                var parseReturns = parse(tokens, 0, programCount);
-                for (var i = 0; i < programCount; i++) {
-                    var cst = parseReturns.cstArray[i];
-                    var tree = cst.toString();
-                    document.getElementById("parseOutput").value += tree;
-                    document.getElementById("parseOutput").value += "\n";
-                }
-            } else {
-                // Errors in lex, halt compiler
-                warnings = lexReturns.warningArray;
-                var warningCount = lexReturns.warningCount;
-                document.getElementById("lexOutput").value += "\n";
-                document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
-                for (var i = 0; i < warningCount; i++) {
-                    document.getElementById("lexOutput").value += warnings[i] + "\n";
-                }
-
-                errors = lexReturns.errorArray;
-                var errorCount = lexReturns.errorCount;
-                document.getElementById("lexOutput").value += "\n";
-                document.getElementById("lexOutput").value += "Found " + errorCount + " error(s)" + "\n";
-                for (var i = 0; i < errorCount; i++) {
-                    document.getElementById("lexOutput").value += errors[i] + "\n";
-                }
-            }*/
+            lex();
         }
 
     </script>

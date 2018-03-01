@@ -9,9 +9,7 @@
  * TODO:
  **********/
 
-var concreteArray = [];
-
-function parse(tokensFromLex, startPosition) {
+function parse(tokensFromLex) {
 
     // Define/declare array of tokens to be assessed
     var tokens = tokensFromLex;
@@ -21,7 +19,7 @@ function parse(tokensFromLex, startPosition) {
     // Array containing list of warnings
     var warnings = []; var warningCount = 0;
 
-    if (tokens[startPosition].kind == Token.Kind.L_BRACE) {
+    if (tokens[0].kind == Token.Kind.L_BRACE) {
 
         // Create new instance of tree
         var cst = new Tree();
@@ -36,20 +34,11 @@ function parse(tokensFromLex, startPosition) {
         parseBlock();
         cst.addNode("EOP", "branch")
 
-        arrItem = cst.toString();
-        concreteArray.push(arrItem);
-
     } else {
         // TODO: error for invalid start of program
     }
 
-    // TODO: Give own Description
-    // Return format inspired by previous hall of fame projects
-    var parseReturns = {
-        cstArray: concreteArray
-    }
-
-    return parseReturns;
+    return cst;
 
 }
 
