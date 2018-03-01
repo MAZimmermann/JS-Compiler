@@ -1,11 +1,18 @@
 <!DOCTYPE HTML>
 <html>
+
+<!--
+index.html
+main page for interacting with compiler
+-->
+
 <head>
     <title>MAZ Compiler</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <link rel="stylesheet" href="Skeleton/css/skeleton.css" />
     <link rel="stylesheet" href="Skeleton/css/normalize.css" />
 </head>
+
 <body onload="init();">
 
     <div class="container">
@@ -42,6 +49,7 @@
     <script type="text/javascript" src="Scripts/utils.js"></script>
     <script type="text/javascript" src="Scripts/lexer.js"></script>
     <script type="text/javascript" src="Scripts/parser.js"></script>
+    <script type="text/javascript" src="Scripts/cst.js"></script>
     <script type="text/javascript">
         // Declare and define global variables
         var tokens = [];
@@ -64,6 +72,7 @@
             // Get tokens from the lexer
             var lexReturns = lex();
             if (lexReturns.errorCount == 0) {
+                // No errors in lex, continue to parse
                 warnings = lexReturns.warningArray;
                 var warningCount = lexReturns.warningCount;
                 document.getElementById("lineOutput").value += "\n";
@@ -75,10 +84,13 @@
                 document.getElementById("lineOutput").value += "Found 0 error(s)" + "\n";
 
                 tokens = lexReturns.tokenArray;
-                result = parse(tokens);
-                //alert(result);
+                var cst = new Tree();
+                cst = parse(tokens, 0);
+                var tree = cst.toString();
+                document.getElementById("lineOutput").value += tree;
 
             } else {
+                // Errors in lex, halt compiler
                 warnings = lexReturns.warningArray;
                 var warningCount = lexReturns.warningCount;
                 document.getElementById("lineOutput").value += "\n";

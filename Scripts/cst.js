@@ -37,7 +37,7 @@ function Tree() {
             // We are the children.
             // Make our parent the CURrent node...
             node.parent = this.cur;
-            // ... and add ourselves (via the unfrotunately-named
+            // ... and add ourselves (via the unfortunately-named
             // "push" function) to the children array of the current node.
             this.cur.children.push(node);
         }

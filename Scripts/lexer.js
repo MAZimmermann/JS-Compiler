@@ -1,4 +1,4 @@
-/*
+/**********
  * lexer.js
  *
  * - Grabs source code from taInput
@@ -13,13 +13,14 @@
  *    and produces new token for token array
  *    if the lexeme is a valid token
  *
- */
+ **********/
 
-/*
+/**********
  * TODO:
  *  - Continue revising error checks
  *  - Finalize comment/string handling
- */
+ *  - Revise naming scheme and terms used in comments
+ **********/
 
 function lex() {
 

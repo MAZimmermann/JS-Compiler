@@ -1,4 +1,4 @@
-/*
+/**********
  * util.js
  *
  * Utility functions
@@ -8,7 +8,11 @@
  *  isValid
  *  getKind
  *
- */
+ **********/
+
+/**********
+ * TODO:
+ **********/
 
 // returns new array after removing undefined elements
 function checkUndefined(actual) {
