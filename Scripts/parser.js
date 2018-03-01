@@ -9,10 +9,13 @@
  * TODO:
  **********/
 
+var concreteArray = [];
+
 function parse(tokensFromLex, startPosition) {
 
     // Define/declare array of tokens to be assessed
     var tokens = tokensFromLex;
+    alert(tokens.length);
 
     // Array containing list of errors
     var errors = []; var errorCount = 0;
@@ -20,7 +23,7 @@ function parse(tokensFromLex, startPosition) {
     var warnings = []; var warningCount = 0;
 
     count = startPosition;
-    if (tokens[0].kind == Token.Kind.L_BRACE) {
+    if (tokens[startPosition].kind == Token.Kind.L_BRACE) {
 
         // Create new instance of tree
         var cst = new Tree();
@@ -37,14 +40,22 @@ function parse(tokensFromLex, startPosition) {
 
     } else {
         // TODO: error for invalid start of program
+        alert("test");
     }
 
     // This is no bueno at the moment
-    if (count /*< tokens.length*/ == 1000000) {
+    if (count < /*tokens.length*/ -1) {
+        concreteArray.push(cst);
         parse(tokensFromLex, count);
     } else {
-        // return CST
-        return cst;
+        // TODO: Give own Description
+        // Return format inspired by previous hall of fame projects
+        var parseReturns = {
+            cstArray: concreteArray
+        }
+
+        return parseReturns;
+
     }
 
 }
@@ -53,7 +64,7 @@ function parse(tokensFromLex, startPosition) {
 * Parse procedure needed for every nonterminal
 **********/
 function parseBlock() {
-
+    alert("meme");
 }
 function parseStatementList() {
 

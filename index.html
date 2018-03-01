@@ -87,8 +87,8 @@ main page for interacting with compiler
                 document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n";
 
                 tokens = lexReturns.tokenArray;
-                var cst = new Tree();
-                cst = parse(tokens, 0);
+                var parseReturns = parse(tokens, 0);
+                var cst = parseReturns.cstArray[0];
                 var tree = cst.toString();
                 document.getElementById("parseOutput").value += tree;
 
