@@ -87,11 +87,14 @@ main page for interacting with compiler
                 document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n";
 
                 tokens = lexReturns.tokenArray;
-                var parseReturns = parse(tokens, 0);
-                var cst = parseReturns.cstArray[0];
-                var tree = cst.toString();
-                document.getElementById("parseOutput").value += tree;
-
+                programCount = lexReturns.numPrograms;
+                var parseReturns = parse(tokens, 0, programCount);
+                for (var i = 0; i < programCount; i++) {
+                    var cst = parseReturns.cstArray[i];
+                    var tree = cst.toString();
+                    document.getElementById("parseOutput").value += tree;
+                    document.getElementById("parseOutput").value += "\n";
+                }
             } else {
                 // Errors in lex, halt compiler
                 warnings = lexReturns.warningArray;

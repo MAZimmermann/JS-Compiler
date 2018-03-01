@@ -24,6 +24,8 @@
 
 function lex() {
 
+    programCount = 0;
+
     document.getElementById("lexOutput").value += "Begin Lexical Analysis... \n";
 
     // Grab source code from taInput
@@ -242,6 +244,7 @@ function lex() {
                                 " on line " + lineNum + "..." + "\n";
 
                             if (getKind(lexeme) === Token.Kind.END_OF_FILE) {
+                                programCount++;
                                 document.getElementById("lexOutput").value += "\n";
                             }
 
@@ -263,6 +266,7 @@ function lex() {
 
         // Check for $[EOP] marker, add $[EOP] marker if not it is not found
         if (tokens[finLength - 1].kind != Token.Kind.END_OF_FILE) {
+            programCount++;
             warnings.push("Missing $[EOP] marker on last line. $[EOP] marker added to last line.");
             warningCount++;
             newToken = Token.build(Token.Kind.END_OF_FILE, "$", (tokens.length - 1))
@@ -281,7 +285,8 @@ function lex() {
             errorArray: errors,
             errorCount: errorCount,
             warningArray: warnings,
-            warningCount: warningCount
+            warningCount: warningCount,
+            numPrograms: programCount
         }
 
         return lexReturns;
@@ -296,7 +301,8 @@ function lex() {
             errorArray: errors,
             errorCount: errorCount,
             warningArray: warnings,
-            warningCount: warningCount
+            warningCount: warningCount,
+            numPrograms: programCount
         }
 
         // No input provided

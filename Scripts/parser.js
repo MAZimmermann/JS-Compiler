@@ -11,52 +11,49 @@
 
 var concreteArray = [];
 
-function parse(tokensFromLex, startPosition) {
+function parse(tokensFromLex, startPosition, programCount) {
 
     // Define/declare array of tokens to be assessed
     var tokens = tokensFromLex;
-    alert(tokens.length);
 
     // Array containing list of errors
     var errors = []; var errorCount = 0;
     // Array containing list of warnings
     var warnings = []; var warningCount = 0;
 
-    count = startPosition;
-    if (tokens[startPosition].kind == Token.Kind.L_BRACE) {
+    while (programCount != 0) {
+        alert(programCount);
+        if (tokens[startPosition].kind == Token.Kind.L_BRACE) {
 
-        // Create new instance of tree
-        var cst = new Tree();
-        // Initialize tree with root node
-        cst.addNode("Root", "branch")
+            // Create new instance of tree
+            var cst = new Tree();
+            // Initialize tree with root node
+            cst.addNode("Root", "branch")
 
-        // The first children should the goal symbol
-        // TODO: Proper terminology?
-        cst.addNode("Program", "branch")
+            // The first children should the goal symbol
+            // TODO: Proper terminology?
+            cst.addNode("Program", "branch")
 
-        cst.addNode("Block", "branch")
-        parseBlock();
-        cst.addNode("EOP", "branch")
+            cst.addNode("Block", "branch")
+            parseBlock();
+            cst.addNode("EOP", "branch")
 
-    } else {
-        // TODO: error for invalid start of program
-        alert("test");
-    }
+            arrItem = cst.toString();
+            concreteArray.push(arrItem);
 
-    // This is no bueno at the moment
-    if (count < /*tokens.length*/ -1) {
-        concreteArray.push(cst);
-        parse(tokensFromLex, count);
-    } else {
-        // TODO: Give own Description
-        // Return format inspired by previous hall of fame projects
-        var parseReturns = {
-            cstArray: concreteArray
+        } else {
+            // TODO: error for invalid start of program
         }
-
-        return parseReturns;
-
+        programCount--;
     }
+
+    // TODO: Give own Description
+    // Return format inspired by previous hall of fame projects
+    var parseReturns = {
+        cstArray: concreteArray
+    }
+
+    return parseReturns;
 
 }
 
@@ -64,7 +61,7 @@ function parse(tokensFromLex, startPosition) {
 * Parse procedure needed for every nonterminal
 **********/
 function parseBlock() {
-    alert("meme");
+    alert("parse block...");
 }
 function parseStatementList() {
 
