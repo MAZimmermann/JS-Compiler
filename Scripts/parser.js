@@ -11,7 +11,7 @@
 
 var concreteArray = [];
 
-function parse(tokensFromLex, startPosition, programCount) {
+function parse(tokensFromLex, startPosition) {
 
     // Define/declare array of tokens to be assessed
     var tokens = tokensFromLex;
@@ -21,30 +21,26 @@ function parse(tokensFromLex, startPosition, programCount) {
     // Array containing list of warnings
     var warnings = []; var warningCount = 0;
 
-    while (programCount != 0) {
-        alert(programCount);
-        if (tokens[startPosition].kind == Token.Kind.L_BRACE) {
+    if (tokens[startPosition].kind == Token.Kind.L_BRACE) {
 
-            // Create new instance of tree
-            var cst = new Tree();
-            // Initialize tree with root node
-            cst.addNode("Root", "branch")
+        // Create new instance of tree
+        var cst = new Tree();
+        // Initialize tree with root node
+        cst.addNode("Root", "branch")
 
-            // The first children should the goal symbol
-            // TODO: Proper terminology?
-            cst.addNode("Program", "branch")
+        // The first children should the goal symbol
+        // TODO: Proper terminology?
+        cst.addNode("Program", "branch")
 
-            cst.addNode("Block", "branch")
-            parseBlock();
-            cst.addNode("EOP", "branch")
+        cst.addNode("Block", "branch")
+        parseBlock();
+        cst.addNode("EOP", "branch")
 
-            arrItem = cst.toString();
-            concreteArray.push(arrItem);
+        arrItem = cst.toString();
+        concreteArray.push(arrItem);
 
-        } else {
-            // TODO: error for invalid start of program
-        }
-        programCount--;
+    } else {
+        // TODO: error for invalid start of program
     }
 
     // TODO: Give own Description

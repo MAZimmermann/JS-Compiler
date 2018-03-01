@@ -24,7 +24,7 @@
 
 function lex() {
 
-    programCount = 0;
+/*    programCount = 0;*/
 
     document.getElementById("lexOutput").value += "Begin Lexical Analysis... \n";
 
@@ -187,7 +187,10 @@ function lex() {
 
                 line = lineSplit;
 
+                alert(line);
+
                 for (var m = 0; m < line.length; m++) {
+                    alert(m);
                     lexeme = line[m];
                     if (lexeme == "" || lexeme == " ") {
                         // do nothing, ignore whitespace
@@ -198,7 +201,6 @@ function lex() {
                             breakString = false;
                             newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
                             tokens.push(newToken);
-                            /*alert("LEXER: " + newToken.kind.name);*/
                             document.getElementById("lexOutput").value += "LEXER --> | " +
                                 newToken.kind.name + " [ " + newToken.value + " ] " +
                                 " on line " + lineNum + "..." + "\n";
@@ -208,7 +210,6 @@ function lex() {
                             while (getKind(lexeme) != Token.Kind.QUOTE) {
                                 newToken = Token.build(Token.Kind.CHAR, lexeme, lineNum);
                                 tokens.push(newToken);
-                                /*alert("LEXER: " + newToken.kind.name);*/
                                 document.getElementById("lexOutput").value += "LEXER --> | " +
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
@@ -222,7 +223,6 @@ function lex() {
                             if (!breakString) {
                                 newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
                                 tokens.push(newToken);
-                                /*alert("LEXER: " + newToken.kind.name);*/
                                 document.getElementById("lexOutput").value += "LEXER --> | " +
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
@@ -231,21 +231,81 @@ function lex() {
                                 newId = lexeme;
                                 newToken = Token.build(Token.Kind.ID, lexeme, lineNum);
                                 tokens.push(newToken);
-                                /*alert("LEXER: " + newToken.kind.name);*/
                                 document.getElementById("lexOutput").value += "LEXER --> | " +
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
                         } else {
                             newToken = Token.build(getKind(lexeme), lexeme, lineNum)
                             tokens.push(newToken);
-                            /*alert("LEXER: " + newToken.kind.name);*/
                             document.getElementById("lexOutput").value += "LEXER --> | " +
                                 newToken.kind.name + " [ " + newToken.value + " ] " +
                                 " on line " + lineNum + "..." + "\n";
 
                             if (getKind(lexeme) === Token.Kind.END_OF_FILE) {
+
+                                /*
                                 programCount++;
+*/
                                 document.getElementById("lexOutput").value += "\n";
+
+/*                                /!*TODO: Check error count and send first program to parse?*!/
+                                // TODO: Give own Description
+                                // Return format inspired by previous hall of fame projects
+                                var lexReturns = {
+                                    tokenArray: tokens,
+                                    errorArray: errors,
+                                    errorCount: errorCount,
+                                    warningArray: warnings,
+                                    warningCount: warningCount,
+                                    numPrograms: programCount
+                                }*/
+
+                                if (errorCount == 0) {
+
+                                    document.getElementById("lexOutput").value += "\n";
+                                    document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
+                                    for (var d = 0; d < warningCount; d++) {
+                                        document.getElementById("lexOutput").value += warnings[d] + "\n";
+                                    }
+
+                                    document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n";
+
+/*                                    var parseReturns = parse(tokens, 0);
+                                    var cst = parseReturns.cstArray[i];
+                                    var tree = cst.toString();
+                                    document.getElementById("parseOutput").value += tree;
+                                    document.getElementById("parseOutput").value += "\n";*/
+
+                                    tokens = [];
+                                    errors = [];
+                                    errorCount = 0;
+                                    warnings = [];
+                                    warningCount = 0;
+
+                                } else {
+                                    // Lex errors detected, move to next program
+                                    document.getElementById("lexOutput").value += "\n";
+                                    document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
+                                    for (var i = 0; i < warningCount; i++) {
+                                        document.getElementById("lexOutput").value += warnings[i] + "\n";
+                                    }
+
+                                    document.getElementById("lexOutput").value += "\n";
+                                    document.getElementById("lexOutput").value += "Found " + errorCount + " error(s)" + "\n";
+                                    for (var i = 0; i < errorCount; i++) {
+                                        document.getElementById("lexOutput").value += errors[i] + "\n";
+                                    }
+
+                                    tokens = [];
+                                    errors = [];
+                                    errorCount = 0;
+                                    warnings = [];
+                                    warningCount = 0;
+
+                                }
+
+
+
                             }
 
                         }
@@ -259,14 +319,15 @@ function lex() {
                 }
 
             }
-
         }
 
-        finLength = tokens.length;
+/*        finLength = tokens.length;*/
 
-        // Check for $[EOP] marker, add $[EOP] marker if not it is not found
+/*        // Check for $[EOP] marker, add $[EOP] marker if not it is not found
         if (tokens[finLength - 1].kind != Token.Kind.END_OF_FILE) {
+/!*
             programCount++;
+*!/
             warnings.push("Missing $[EOP] marker on last line. $[EOP] marker added to last line.");
             warningCount++;
             newToken = Token.build(Token.Kind.END_OF_FILE, "$", (tokens.length - 1))
@@ -276,20 +337,20 @@ function lex() {
             document.getElementById("lexOutput").value += "LEXER --> | " +
                 "$[EOP] marker added to last line\n";
             document.getElementById("taInput").value += "$\n";
-        }
+        }*/
 
-        // TODO: Give own Description
+/*        // TODO: Give own Description
         // Return format inspired by previous hall of fame projects
         var lexReturns = {
             tokenArray: tokens,
             errorArray: errors,
             errorCount: errorCount,
             warningArray: warnings,
-            warningCount: warningCount,
-            numPrograms: programCount
+            warningCount: warningCount/!*,
+            numPrograms: programCount*!/
         }
 
-        return lexReturns;
+        return lexReturns;*/
 
     } else {
 
@@ -301,8 +362,8 @@ function lex() {
             errorArray: errors,
             errorCount: errorCount,
             warningArray: warnings,
-            warningCount: warningCount,
-            numPrograms: programCount
+            warningCount: warningCount/*,
+            numPrograms: programCount*/
         }
 
         // No input provided

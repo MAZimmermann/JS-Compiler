@@ -73,8 +73,8 @@ main page for interacting with compiler
         function compile() {
             init();
             // Get tokens from the lexer
-            var lexReturns = lex();
-            if (lexReturns.errorCount == 0) {
+            /*var lexReturns = */lex();
+            /*if (lexReturns.errorCount == 0) {
                 // No errors in lex, continue to parse
                 warnings = lexReturns.warningArray;
                 var warningCount = lexReturns.warningCount;
@@ -112,7 +112,7 @@ main page for interacting with compiler
                 for (var i = 0; i < errorCount; i++) {
                     document.getElementById("lexOutput").value += errors[i] + "\n";
                 }
-            }
+            }*/
         }
 
     </script>
