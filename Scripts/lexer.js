@@ -24,7 +24,7 @@
 
 function lex() {
 
-    document.getElementById("taOutput").value += "Begin Lexical Analysis... \n";
+    document.getElementById("lexOutput").value += "Begin Lexical Analysis... \n";
 
     // Grab source code from taInput
     var sourceCode = document.getElementById("taInput").value;
@@ -84,16 +84,16 @@ function lex() {
 
             if (DELIMITER_4.test(line)) {
                 // Test for invalid comments
-                document.getElementById("taOutput").value += "LEXER --> | ";
-                document.getElementById("taOutput").value += "Invalid comment break starting on line ";
-                document.getElementById("taOutput").value += lineNum + "\n";
+                document.getElementById("lexOutput").value += "LEXER --> | ";
+                document.getElementById("lexOutput").value += "Invalid comment break starting on line ";
+                document.getElementById("lexOutput").value += lineNum + "\n";
                 errors.push("Invalid comment break starting on line " + lineNum);
                 errorCount++;
                 // Test if comment was simply pushed to the next line
                 if (DELIMITER_5.test(lines[i+1].trim())) {
-                    document.getElementById("taOutput").value += "LEXER --> | ";
-                    document.getElementById("taOutput").value += "Comment continues on line  ";
-                    document.getElementById("taOutput").value += (lineNum+1) + "\n";
+                    document.getElementById("lexOutput").value += "LEXER --> | ";
+                    document.getElementById("lexOutput").value += "Comment continues on line  ";
+                    document.getElementById("lexOutput").value += (lineNum+1) + "\n";
                     i++; lineNum++;
                 }
 
@@ -111,9 +111,9 @@ function lex() {
                         lineSplit.push(d1Line[j]); j++;
                         if (d1Line[j] == undefined) {
                             // Quote is last character on the line
-                            document.getElementById("taOutput").value += "LEXER --> | ";
-                            document.getElementById("taOutput").value += "Invalid string break on line ";
-                            document.getElementById("taOutput").value += lineNum + "\n";
+                            document.getElementById("lexOutput").value += "LEXER --> | ";
+                            document.getElementById("lexOutput").value += "Invalid string break on line ";
+                            document.getElementById("lexOutput").value += lineNum + "\n";
                             errors.push("Invalid string break on line " + lineNum);
                             errorCount++;
                             breakString;
@@ -138,9 +138,9 @@ function lex() {
                                     }
                                 } j++; // Test if next character is undefined (end of line)
                                 if (d1Line[j] == undefined) {
-                                    document.getElementById("taOutput").value += "LEXER --> | ";
-                                    document.getElementById("taOutput").value += "Invalid string break starting on line ";
-                                    document.getElementById("taOutput").value += lineNum + "\n";
+                                    document.getElementById("lexOutput").value += "LEXER --> | ";
+                                    document.getElementById("lexOutput").value += "Invalid string break starting on line ";
+                                    document.getElementById("lexOutput").value += lineNum + "\n";
                                     errors.push("Invalid string break starting on line " + lineNum);
                                     errorCount++;
                                     breakString = true;
@@ -187,7 +187,6 @@ function lex() {
 
                 for (var m = 0; m < line.length; m++) {
                     lexeme = line[m];
-                    document.getElementById("lineOutput").value += lexeme + " ";
                     if (lexeme == "" || lexeme == " ") {
                         // do nothing, ignore whitespace
                     }
@@ -198,7 +197,7 @@ function lex() {
                             newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
                             tokens.push(newToken);
                             /*alert("LEXER: " + newToken.kind.name);*/
-                            document.getElementById("taOutput").value += "LEXER --> | " +
+                            document.getElementById("lexOutput").value += "LEXER --> | " +
                                 newToken.kind.name + " [ " + newToken.value + " ] " +
                                 " on line " + lineNum + "..." + "\n";
                             m++;
@@ -208,10 +207,7 @@ function lex() {
                                 newToken = Token.build(Token.Kind.CHAR, lexeme, lineNum);
                                 tokens.push(newToken);
                                 /*alert("LEXER: " + newToken.kind.name);*/
-
-                                document.getElementById("lineOutput").value += lexeme + " ";
-
-                                document.getElementById("taOutput").value += "LEXER --> | " +
+                                document.getElementById("lexOutput").value += "LEXER --> | " +
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
                                 m++;
@@ -222,13 +218,10 @@ function lex() {
                                 }
                             }
                             if (!breakString) {
-
-                                document.getElementById("lineOutput").value += lexeme + " ";
-
                                 newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
                                 tokens.push(newToken);
                                 /*alert("LEXER: " + newToken.kind.name);*/
-                                document.getElementById("taOutput").value += "LEXER --> | " +
+                                document.getElementById("lexOutput").value += "LEXER --> | " +
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
                             }
@@ -237,24 +230,24 @@ function lex() {
                                 newToken = Token.build(Token.Kind.ID, lexeme, lineNum);
                                 tokens.push(newToken);
                                 /*alert("LEXER: " + newToken.kind.name);*/
-                                document.getElementById("taOutput").value += "LEXER --> | " +
+                                document.getElementById("lexOutput").value += "LEXER --> | " +
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
                         } else {
                             newToken = Token.build(getKind(lexeme), lexeme, lineNum)
                             tokens.push(newToken);
                             /*alert("LEXER: " + newToken.kind.name);*/
-                            document.getElementById("taOutput").value += "LEXER --> | " +
+                            document.getElementById("lexOutput").value += "LEXER --> | " +
                                 newToken.kind.name + " [ " + newToken.value + " ] " +
                                 " on line " + lineNum + "..." + "\n";
 
                             if (getKind(lexeme) === Token.Kind.END_OF_FILE) {
-                                document.getElementById("taOutput").value += "\n";
+                                document.getElementById("lexOutput").value += "\n";
                             }
 
                         }
                     } else {
-                        document.getElementById("taOutput").value += "LEXER --> | " +
+                        document.getElementById("lexOutput").value += "LEXER --> | " +
                             "ERROR: Invalid lexeme found on line " + lineNum + "\n";
                         errors.push("Invalid lexeme found on line " + lineNum);
                         errorCount++;
@@ -262,21 +255,21 @@ function lex() {
 
                 }
 
-                document.getElementById("lineOutput").value += "\n";
-
             }
 
         }
 
+        finLength = tokens.length;
+
         // Check for $[EOP] marker, add $[EOP] marker if not it is not found
-        if (!lastLineContent.slice(-1).trim().match(/\$/)) {
+        if (tokens[finLength - 1].kind != Token.Kind.END_OF_FILE) {
             warnings.push("Missing $[EOP] marker on last line. $[EOP] marker added to last line.");
             warningCount++;
             newToken = Token.build(Token.Kind.END_OF_FILE, "$", (tokens.length - 1))
             tokens.push(newToken);
-            document.getElementById("taOutput").value += "LEXER --> | " +
+            document.getElementById("lexOutput").value += "LEXER --> | " +
                 "ERROR: Missing $[EOP] marker on last line\n";
-            document.getElementById("taOutput").value += "LEXER --> | " +
+            document.getElementById("lexOutput").value += "LEXER --> | " +
                 "$[EOP] marker added to last line\n";
             document.getElementById("taInput").value += "$\n";
         }

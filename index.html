@@ -26,11 +26,13 @@ main page for interacting with compiler
 
         <div class="row">
             <div class="six columns" height="250px">
+                <label for="taInput">Source Program</label>
                 <textarea id="taInput" class="u-full-width" placeholder="Enter Source Code..."></textarea>
             </div>
 
             <div class="six columns" height="250px">
-                <textarea id="taOutput" class="u-full-width" placeholder=""></textarea>
+                <label for="parseOutput">Parser Output</label>
+                <textarea id="parseOutput" class="u-full-width" placeholder=""></textarea>
             </div>
         </div>
 
@@ -39,7 +41,8 @@ main page for interacting with compiler
         <!-- text area for viewing the contents of each line assessed by the lexer -->
         <div class="row">
             <div class="twelve columns" height="250px">
-                <textarea id="lineOutput" class="u-full-width" placeholder=""></textarea>
+                <label for="lexOutput">Lexer Output</label>
+                <textarea id="lexOutput" class="u-full-width" placeholder=""></textarea>
             </div>
         </div>
 
@@ -58,10 +61,10 @@ main page for interacting with compiler
 
         // Initialization function triggered onload
         function init() {
-            // Start with blank taOutput
+            // Start with blank lexOutput
             document.getElementById("taInput").placeholder = "Enter Source Code...";
-            document.getElementById("taOutput").value = "";
-            document.getElementById("lineOutput").value = "";
+            document.getElementById("lexOutput").value = "";
+            document.getElementById("parseOutput").value = "";
             // Set initial values for global variables
             // var tokens = "";
             // ...
@@ -75,36 +78,36 @@ main page for interacting with compiler
                 // No errors in lex, continue to parse
                 warnings = lexReturns.warningArray;
                 var warningCount = lexReturns.warningCount;
-                document.getElementById("lineOutput").value += "\n";
-                document.getElementById("lineOutput").value += "Found " + warningCount + " warning(s)" + "\n";
+                document.getElementById("lexOutput").value += "\n";
+                document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
                 for (var i = 0; i < warningCount; i++) {
-                    document.getElementById("lineOutput").value += warnings[i] + "\n";
+                    document.getElementById("lexOutput").value += warnings[i] + "\n";
                 }
 
-                document.getElementById("lineOutput").value += "Found 0 error(s)" + "\n";
+                document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n";
 
                 tokens = lexReturns.tokenArray;
                 var cst = new Tree();
                 cst = parse(tokens, 0);
                 var tree = cst.toString();
-                document.getElementById("lineOutput").value += tree;
+                document.getElementById("parseOutput").value += tree;
 
             } else {
                 // Errors in lex, halt compiler
                 warnings = lexReturns.warningArray;
                 var warningCount = lexReturns.warningCount;
-                document.getElementById("lineOutput").value += "\n";
-                document.getElementById("lineOutput").value += "Found " + warningCount + " warning(s)" + "\n";
+                document.getElementById("lexOutput").value += "\n";
+                document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
                 for (var i = 0; i < warningCount; i++) {
-                    document.getElementById("lineOutput").value += warnings[i] + "\n";
+                    document.getElementById("lexOutput").value += warnings[i] + "\n";
                 }
 
                 errors = lexReturns.errorArray;
                 var errorCount = lexReturns.errorCount;
-                document.getElementById("lineOutput").value += "\n";
-                document.getElementById("lineOutput").value += "Found " + errorCount + " error(s)" + "\n";
+                document.getElementById("lexOutput").value += "\n";
+                document.getElementById("lexOutput").value += "Found " + errorCount + " error(s)" + "\n";
                 for (var i = 0; i < errorCount; i++) {
-                    document.getElementById("lineOutput").value += errors[i] + "\n";
+                    document.getElementById("lexOutput").value += errors[i] + "\n";
                 }
             }
         }
