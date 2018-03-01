@@ -184,8 +184,6 @@ function lex() {
 
                 line = lineSplit;
 
-                alert(line);
-
                 for (var m = 0; m < line.length; m++) {
                     lexeme = line[m];
                     document.getElementById("lineOutput").value += lexeme + " ";
@@ -209,6 +207,9 @@ function lex() {
                                 newToken = Token.build(Token.Kind.CHAR, lexeme, lineNum);
                                 tokens.push(newToken);
                                 /*alert("LEXER: " + newToken.kind.name);*/
+
+                                document.getElementById("lineOutput").value += lexeme + " ";
+
                                 document.getElementById("taOutput").value += "LEXER --> | " +
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
@@ -220,6 +221,9 @@ function lex() {
                                 }
                             }
                             if (!breakString) {
+
+                                document.getElementById("lineOutput").value += lexeme + " ";
+
                                 newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
                                 tokens.push(newToken);
                                 /*alert("LEXER: " + newToken.kind.name);*/

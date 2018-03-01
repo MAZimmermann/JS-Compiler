@@ -41,6 +41,7 @@
     <script type="text/javascript" src="Scripts/tokens.js"></script>
     <script type="text/javascript" src="Scripts/utils.js"></script>
     <script type="text/javascript" src="Scripts/lexer.js"></script>
+    <script type="text/javascript" src="Scripts/parser.js"></script>
     <script type="text/javascript">
         // Declare and define global variables
         var tokens = [];
@@ -73,9 +74,10 @@
 
                 document.getElementById("lineOutput").value += "Found 0 error(s)" + "\n";
 
-                tokens = lexReturns.tokens;
-                // Parser to be built in project 2
-                // parse();
+                tokens = lexReturns.tokenArray;
+                result = parse(tokens);
+                //alert(result);
+
             } else {
                 warnings = lexReturns.warningArray;
                 var warningCount = lexReturns.warningCount;
