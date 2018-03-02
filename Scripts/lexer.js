@@ -136,7 +136,7 @@ function lex() {
                                 // Handling comments inside of quotes
                                 // TODO: ... is this necessary??
                                 for (var a = 0; a < stringSplit.length; a++) {
-                                    if (stringSplit[a] === "") {
+                                    if (stringSplit[a] == "") {
                                         // Do nothing
                                     } else {
                                         lineSplit.push(stringSplit[a]);
@@ -169,7 +169,7 @@ function lex() {
                                     d3Line = d2Line[k].split(DELIMITER_3);
                                     d3Line = checkUndefined(d3Line);
                                     for (var l = 0; l < d3Line.length; l++) {
-                                        if (d3Line[l] === "int") {
+                                        if (d3Line[l] == "int") {
                                             lineSplit.push(d3Line[l]);
                                         } else if (d3Line[l].match(/[a-z]+/)) {
                                             splitString = d3Line[l].split("");
@@ -197,7 +197,7 @@ function lex() {
                     }
                     else if (isValid(lexeme)) {
                         // lexemes like abc will be seen as an identifier up until this point
-                        if (getKind(lexeme) === Token.Kind.QUOTE) {
+                        if (getKind(lexeme) == Token.Kind.QUOTE) {
                             breakString = false;
                             newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
                             tokens.push(newToken);
@@ -226,7 +226,7 @@ function lex() {
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
                             }
-                        } else if (getKind(lexeme) === Token.Kind.ID) {
+                        } else if (getKind(lexeme) == Token.Kind.ID) {
                                 newId = lexeme;
                                 newToken = Token.build(Token.Kind.ID, lexeme, lineNum);
                                 tokens.push(newToken);
@@ -240,7 +240,7 @@ function lex() {
                                 newToken.kind.name + " [ " + newToken.value + " ] " +
                                 " on line " + lineNum + "..." + "\n";
 
-                            if (getKind(lexeme) === Token.Kind.END_OF_FILE) {
+                            if (getKind(lexeme) == Token.Kind.END_OF_FILE) {
                                 document.getElementById("lexOutput").value += "\n";
                                 if (errorCount == 0) {
                                     document.getElementById("lexOutput").value += "\n";

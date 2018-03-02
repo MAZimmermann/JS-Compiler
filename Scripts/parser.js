@@ -15,99 +15,137 @@ function parse(tokensFromLex) {
     var tokens = tokensFromLex;
 
     // Array containing list of errors
-    var errors = []; var errorCount = 0;
+    var errors = [];
+    var errorCount = 0;
     // Array containing list of warnings
-    var warnings = []; var warningCount = 0;
+    var warnings = [];
+    var warningCount = 0;
 
-    if (tokens[0].kind == Token.Kind.L_BRACE) {
+    // Keeps track of our position in the token array
+    var iter = 0;
 
-        // Create new instance of tree
-        var cst = new Tree();
-        // Initialize tree with root node
-        cst.addNode("Root", "branch")
+    // Create new instance of tree
+    var cst = new Tree();
 
-        // The first children should the goal symbol
-        // TODO: Proper terminology?
-        cst.addNode("Program", "branch")
+    // Initialize tree with root node
+    cst.addNode("Root", "branch")
 
-        cst.addNode("Block", "branch")
-        parseBlock();
-        cst.addNode("EOP", "branch")
+    // The first children should the goal symbol
+    // TODO: Proper terminology?
+    cst.addNode("Program", "branch")
 
-    } else {
-        // TODO: error for invalid start of program
-    }
+    cst.addNode("Block", "branch")
+    parseBlock();
+    cst.addNode("EOP", "leaf")
 
     return cst;
 
+    function match(currentToken, expectedToken) {
+        if (currentToken.value == expectedToken.value) {
+            return true;
+        } else {
+            false
+        }
+    }
+
+    /**********
+     * Parse procedure needed for every nonterminal
+     **********/
+    function parseBlock() {
+        if (match(tokens[iter], Token.Kind.R_BRACE)) {
+            iter++;
+            cst.addNode("{", "branch");
+            while (tokens[iter].kind != Token.Kind.R_BRACE) {
+                iter++;
+            }
+            cst.addNode("}", "branch");
+        } else {
+            alert("You fool. . .");
+        }
+    }
+
+    function parseStatementList() {
+
+    }
+
+    function parseStatement() {
+
+    }
+
+    function parsePrintStatement() {
+
+    }
+
+    function parseAssignmentStatement() {
+
+    }
+
+    function parseVariableDeclaration() {
+
+    }
+
+    function parseWhileStatement() {
+
+    }
+
+    function parseIfStatement() {
+
+    }
+
+    function parseExpression() {
+
+    }
+
+    function parseIntExpression() {
+
+    }
+
+    function parseStringExpression() {
+
+    }
+
+    function parseBooleanExpression() {
+
+    }
+
+    function parseId() {
+
+    }
+
+    function parseCharList() {
+
+    }
+
+    function parseType() {
+
+    }
+
+    function parseChar() {
+
+    }
+
+    function parseSpace() {
+
+    }
+
+    function parseDigit() {
+
+    }
+
+    function parseBoolop() {
+
+    }
+
+    function parseBoolval() {
+
+    }
+
+    function parseIntop() {
+
+    }
+
 }
 
-/**********
-* Parse procedure needed for every nonterminal
-**********/
-function parseBlock() {
-    alert("parse block...");
-}
-function parseStatementList() {
-
-}
-function parseStatement() {
-
-}
-function parsePrintStatement() {
-
-}
-function parseAssignmentStatement() {
-
-}
-function parseVariableDeclaration() {
-
-}
-function parseWhileStatement() {
-
-}
-function parseIfStatement() {
-
-}
-function parseExpression () {
-
-}
-function parseIntExpression () {
-
-}
-function parseStringExpression () {
-
-}
-function parseBooleanExpression () {
-
-}
-function parseId () {
-
-}
-function parseCharList () {
-
-}
-function parseType () {
-
-}
-function parseChar () {
-
-}
-function parseSpace () {
-
-}
-function parseDigit () {
-
-}
-function parseBoolop () {
-
-}
-function parseBoolval () {
-
-}
-function parseIntop () {
-
-}
 /*
  * Project Grammar Reference
  *
