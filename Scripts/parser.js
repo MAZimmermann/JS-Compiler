@@ -8,12 +8,9 @@
 **********/
 
 /**********
-* TODO:
- * Do we need an array of errors?
- *  Don't we just quit parsing if an error is found?
- *  Pass alerts to parseError()
- *
- * Finalize nonterminal procedures
+ * TODO:
+ * - Pass alerts to parseError()
+ * - Finalize nonterminal procedures
 **********/
 
 function parse(tokensFromLex) {
@@ -22,13 +19,6 @@ function parse(tokensFromLex) {
     * Grab token array from lex output
     ***********/
     var tokens = tokensFromLex;
-
-    // Array containing list of errors
-    var errors = [];
-    var errorCount = 0;
-    // Array containing list of warnings
-    var warnings = [];
-    var warningCount = 0;
 
     // Keeps track of our position in the token array
     var iter = 0;
@@ -140,31 +130,31 @@ function parse(tokensFromLex) {
     * parseStatement
     ***********/
     function parseStatement() {
-        if (match(tokens[iter], Token.Kind.PRINT_STATEMENT)) {
+        if (match(tokens[iter], Token.Kind.PRINT)) {
             // Print Statement
             cst.addNode("PrintStatement", "branch");
             parsePrintStatement();
             cst.endChildren();
 
-        } else if (match(tokens[iter], Token.Kind.ID)) {
+        } else if (match(tokens[iter], Token.Kind.CHAR)) {
             // Assignment Statement
             cst.addNode("Assignment", "branch");
             parseAssignmentStatement();
             cst.endChildren();
 
-        } else if (match(tokens[iter], Token.Kind.VARIABLE_TYPE)) {
+        } else if (match(tokens[iter], Token.Kind.TYPE)) {
             // Variable Declaration
             cst.addNode("VariableDeclaration", "branch");
             parseVariableDeclaration();
             cst.endChildren();
 
-        } else if (match(tokens[iter], Token.Kind.WHILE_STATEMENT)) {
+        } else if (match(tokens[iter], Token.Kind.WHILE)) {
             // While Statement
             cst.addNode("WhileStatement", "branch");
             parseWhileStatement();
             cst.endChildren();
 
-        } else if (match(tokens[iter], Token.Kind.IF_STATEMENT)) {
+        } else if (match(tokens[iter], Token.Kind.IF)) {
             // If Statement
             cst.addNode("IfStatement", "branch");
             parseIfStatement();
@@ -233,7 +223,7 @@ function parse(tokensFromLex) {
     ***********/
     function parseVariableDeclaration() {
         cst.addNode(tokens[iter].value, "leaf"); iter++;
-        if (match(tokens[iter], Token.Kind.ID)) {
+        if (match(tokens[iter], Token.Kind.CHAR)) {
             cst.addNode("Id", "branch");
             parseId();
             cst.endChildren();
@@ -299,7 +289,7 @@ function parse(tokensFromLex) {
             parseBooleanExpression();
             cst.endChildren();
 
-        } else if (match(tokens[iter], Token.Kind.ID)) {
+        } else if (match(tokens[iter], Token.Kind.CHAR)) {
             // Id
             cst.addNode("Id", "branch");
             parseId();
@@ -319,7 +309,7 @@ function parse(tokensFromLex) {
         // redundant incase called again
         if (match(tokens[iter], Token.Kind.DIGIT)) {
             cst.addNode(tokens[iter].value, "leaf"); iter++;
-            if (match(tokens[iter], Token.Kind.ADDITION_OPERATOR)) {
+            if (match(tokens[iter], Token.Kind.INTOP)) {
                 cst.addNode(tokens[iter].value, "leaf"); iter++;
                 cst.addNode("Expression", "branch");
                 parseExpression();
@@ -372,7 +362,7 @@ function parse(tokensFromLex) {
             cst.addNode("Expression", "branch");
             parseExpression();
             cst.endChildren();
-            if (match(tokens[iter], Token.Kind.EQUALITY_OPERATOR) || match(tokens[iter], Token.Kind.INEQUALITY_OPERATOR)) {
+            if (match(tokens[iter], Token.Kind.BOOLOP)) {
                 cst.addNode(tokens[iter].value, "leaf"); iter++;
                 cst.addNode("Expression", "branch");
                 parseExpression();
@@ -409,9 +399,9 @@ function parse(tokensFromLex) {
     ***********/
     function parseCharList() {
         while (!match(tokens[iter], Token.Kind.QUOTE)) {
-            if ((match(tokens[iter], Token.Kind.CHAR) || match(tokens[iter], Token.Kind.WHITESPACE)) && !match(tokens[iter], Token.Kind.QUOTE)) {
+            if ((match(tokens[iter], Token.Kind.CHAR) || match(tokens[iter], Token.Kind.SPACE)) && !match(tokens[iter], Token.Kind.QUOTE)) {
                 cst.addNode(tokens[iter].value, "leaf"); iter++;
-                if ((match(tokens[iter], Token.Kind.CHAR) || match(tokens[iter], Token.Kind.WHITESPACE)) && !match(tokens[iter], Token.Kind.QUOTE)) {
+                if ((match(tokens[iter], Token.Kind.CHAR) || match(tokens[iter], Token.Kind.SPACE)) && !match(tokens[iter], Token.Kind.QUOTE)) {
                     cst.addNode("CharList", "branch");
                     parseCharList();
                     cst.endChildren();

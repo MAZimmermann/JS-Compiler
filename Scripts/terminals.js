@@ -38,33 +38,21 @@ Terminal.Kind = {
         name: "R_PAREN",
         pattern: /^\)$/
     },
-    PRINT_STATEMENT: {
-        name: "PRINT_STATEMENT",
+    PRINT: {
+        name: "PRINT",
         pattern: /^print$/
     },
-    WHILE_STATEMENT: {
-        name: "WHILE_STATEMENT",
+    WHILE: {
+        name: "WHILE",
         pattern: /^while$/
     },
-    IF_STATEMENT: {
-        name: "IF_STATEMENT",
+    IF: {
+        name: "IF",
         pattern: /^if$/
     },
-    VARIABLE_TYPE: {
-        name: "VARIABLE_TYPE",
+    TYPE: {
+        name: "TYPE",
         pattern: /^(int|string|boolean)$/,
-    },
-    STRING: {
-        name: "STRING",
-        pattern: /^"[a-z\s]*"$/
-    },
-    BOOLEAN: {
-        name: "BOOLEAN",
-        pattern: /^(true|false)$/
-    },
-    ID: {
-        name: "ID",
-        pattern: /^[a-z]$/,
     },
     QUOTE: {
         name: "QUOTE",
@@ -74,7 +62,7 @@ Terminal.Kind = {
         name: "CHAR",
         pattern: /^[a-z]$/
     },
-    WHITESPACE: {
+    SPACE: {
         name: "WHITESPACE",
         pattern: /^\s$/
     },
@@ -82,16 +70,16 @@ Terminal.Kind = {
         name: "DIGIT",
         pattern: /^\d$/
     },
-    EQUALITY_OPERATOR: {
-        name: "EQUALITY_OPERATOR",
-        pattern: /^==$/
+    BOOLOP: {
+        name: "BOOLOP",
+        pattern: /^(==|!=)$/
     },
-    INEQUALITY_OPERATOR: {
-        name: "INEQUALITY_OPERATOR",
-        pattern: /^!=$/
+    BOOLVAL: {
+        name: "BOOLVAL",
+        pattern: /^(true|false)$/
     },
-    ADDITION_OPERATOR: {
-        name: "ADDITION_OPERATOR",
+    INTOP: {
+        name: "INTOP",
         pattern: /^\+$/
     },
     ASSIGNMENT_OPERATOR: {

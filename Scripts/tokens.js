@@ -48,6 +48,75 @@ Token.Kind = {
         name: "R_PAREN",
         pattern: /^\)$/
     },
+    PRINT: {
+        name: "PRINT",
+        pattern: /^print$/
+    },
+    WHILE: {
+        name: "WHILE",
+        pattern: /^while$/
+    },
+    IF: {
+        name: "IF",
+        pattern: /^if$/
+    },
+    TYPE: {
+        name: "TYPE",
+        pattern: /^(int|string|boolean)$/,
+    },
+    QUOTE: {
+        name: "QUOTE",
+        pattern: /^"$/
+    },
+    CHAR: {
+        name: "CHAR",
+        pattern: /^[a-z]$/
+    },
+    SPACE: {
+        name: "WHITESPACE",
+        pattern: /^\s$/
+    },
+    DIGIT: {
+        name: "DIGIT",
+        pattern: /^\d$/
+    },
+    BOOLOP: {
+        name: "BOOLOP",
+        pattern: /^(==|!=)$/
+    },
+    BOOLVAL: {
+        name: "BOOLVAL",
+        pattern: /^(true|false)$/
+    },
+    INTOP: {
+        name: "INTOP",
+        pattern: /^\+$/
+    },
+    ASSIGNMENT_OPERATOR: {
+        name: "ASSIGNMENT_OPERATOR",
+        pattern: /^=$/
+    },
+    END_OF_FILE: {
+        name: "END_OF_FILE",
+        pattern: /^\$$/
+    }
+
+    /*L_BRACE: {
+        name: "L_BRACE",
+        pattern: /^{$/
+    },
+    R_BRACE: {
+        name: "R_BRACE",
+        pattern: /^}$/
+    },
+    L_PAREN: {
+        name: "L_PAREN",
+        pattern: /^\($/
+    },
+    R_PAREN: {
+        name: "R_PAREN",
+        pattern: /^\)$/
+    },
     PRINT_STATEMENT: {
         name: "PRINT_STATEMENT",
         pattern: /^print$/
@@ -111,5 +180,5 @@ Token.Kind = {
     END_OF_FILE: {
         name: "END_OF_FILE",
         pattern: /^\$$/
-    }
+    }*/
 }
