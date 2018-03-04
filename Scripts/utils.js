@@ -1,20 +1,18 @@
 /**********
- * util.js
- *
- * Utility functions
- *
- * Includes:
- *  checkUndefined
- *  isValid
- *  getKind
- *
- **********/
+* util.js
+*
+* Utility functions
+*
+* Includes:
+*  checkUndefined
+*  isValid
+*  getKind
+*
+**********/
 
 /**********
- * TODO:
- **********/
-
-// returns new array after removing undefined elements
+* Returns new array after removing undefined elements
+**********/
 function checkUndefined(actual) {
     var newArray = new Array();
     for (var i = 0; i < actual.length; i++) {
@@ -25,8 +23,10 @@ function checkUndefined(actual) {
     return newArray;
 }
 
-// Used to iterate over acceptable token kinds
-// Returns true for valid lexeme, false otherwise
+/**********
+* Used to iterate over acceptable token kinds
+* Returns true for valid lexeme, false otherwise
+**********/
 function isValid(lexeme) {
     for (var key in Token.Kind) {
         var kind = Token.Kind[key];
@@ -37,8 +37,10 @@ function isValid(lexeme) {
     return false;
 }
 
-// Used to iterate over acceptable token kinds
-// Returns lexeme kind
+/**********
+* Used to iterate over acceptable token kinds
+* Returns lexeme kind
+**********/
 function getKind(lexeme) {
     for (var key in Token.Kind) {
         var kind = Token.Kind[key];

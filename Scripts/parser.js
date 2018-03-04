@@ -2,15 +2,16 @@
 * parser.js
 *
 * Includes
-*  Procedure for each nonterminal
-*  Match proce
+*  Function for handling each nonterminal
+*  Match function to assess current and expected tokens
+*  Error function for when parse is broken
 *
 **********/
 
 /**********
- * TODO:
- * - Pass alerts to parseError()
- * - Finalize nonterminal procedures
+* TODO:
+* - Pass alerts to parseError()
+* - Finalize nonterminal procedures
 **********/
 
 function parse(tokensFromLex) {
@@ -70,7 +71,7 @@ function parse(tokensFromLex) {
         cst.addNode("Block", "branch");
         parseBlock();
         cst.endChildren();
-        if (match(tokens[iter], Token.Kind.END_OF_FILE)) {
+        if (match(tokens[iter], Token.Kind.EOP)) {
             cst.addNode(tokens[iter].value, "leaf");
             iter++;
         } else {
@@ -206,7 +207,7 @@ function parse(tokensFromLex) {
         cst.addNode("Id", "branch");
         parseId();
         cst.endChildren();
-        if (match(tokens[iter], Token.Kind.ASSIGNMENT_OPERATOR)) {
+        if (match(tokens[iter], Token.Kind.ASSIGNOP)) {
             cst.addNode(tokens[iter].value, "leaf"); iter++;
             cst.addNode("Expression", "branch")
             parseExpression();

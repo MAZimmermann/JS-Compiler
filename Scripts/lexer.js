@@ -1,30 +1,22 @@
 /**********
- * lexer.js
- *
- * - Grabs source code from taInput
- *
- * - Checks for anything but whitespace, returns error if no input
- *
- * - Splits input by line, \n
- *
- * - Splits line by DELIMITER_PATTERN(s), see below
- *
- * - Assesses each lexeme, line[_],
- *    and produces new token for token array
- *    if the lexeme is a valid token
- *
- **********/
+* lexer.js
+*
+* Includes...
+*
+**********/
 
 /**********
- * TODO:
- *  - Continue revising error checks
- *  - Finalize comment/string handling
- *  - Revise naming scheme and terms used in comments
- *
- *  - Revise comments and formatting now that the structure has changed
- *  -  Mention placement of parse call
- *
- **********/
+* TODO:
+*  - Continue revising error checks
+*  - Finalize comment/string handling
+*  - Revise naming scheme and terms used in comments
+*
+*  - Revise comments and formatting now that the structure has changed
+*  - Mention placement of parse call
+*
+*  - Finish writing "Includes..." section
+*
+**********/
 
 function lex() {
 
@@ -50,23 +42,21 @@ function lex() {
     // Array containing list of warnings
     var warnings = []; var warningCount = 0;
 
-    /* Delimiter patterns pulled from online and previous hall of fame projects
-     * DELIMITER_1: leftParen, rightParen, leftBracket, rightBracket,
-     * lowercase letters a-z, digits, quote, comments, boolean operators, anything but whitespace, and new lines
-     */ DELIMITER_1 = /(\()|(\))|({)|(})|([a-z]+)|(\d)|(")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\n)/g;
+    // DELIMITER_1: leftParen, rightParen, leftBracket, rightBracket,
+    // lowercase letters a-z, digits, quote, comments, boolean operators, anything but whitespace, and new lines
+    DELIMITER_1 = /(\()|(\))|({)|(})|([a-z]+)|(\d)|(")|(\/\*[^\/\*]*\*\/)|(==)|(!=)|(\n)/g;
 
-    /* DELIMITER_2: print, while, if, string, boolean, true, false
-     */ DELIMITER_2 = /(print)|(while)|(if)|(string)|(boolean)|(true)|(false)/g;
+    // DELIMITER_2: print, while, if, string, boolean, true, false
+    DELIMITER_2 = /(print)|(while)|(if)|(string)|(boolean)|(true)|(false)/g;
 
-    /* Valid lexeme "int" contained in "print"
-     * DELIMITER_3: int
-     */ DELIMITER_3 = /(int)/g;
+    // DELIMITER_3: int
+     DELIMITER_3 = /(int)/g;
 
-    // Delimiters used to test for invalid comment break
+    // DELIMITER_4 and DELIMITER_5, used to test for invalid comment break
     DELIMITER_4 = /(\/\*[^\/\*]*$)/g;
     DELIMITER_5 = /(^[\/\*]*\*\/)/g;
 
-    // Delimiter grabbing characters when quote is found
+    // DELIMITER_6, used for grabbing characters when quote is found
     DELIMITER_6 = /([^"])|(\n)/g;
 
     // Match for anything but whitespace
@@ -75,7 +65,7 @@ function lex() {
         // Split input by line
         var lines = sourceCode.split("\n");
 
-        // TODO: explain this
+        // Assess whether we are on the last line of the source program
         lastLine = false;
         lastLineContent = "";
 
@@ -92,8 +82,8 @@ function lex() {
             // Test for valid comments, remove any if found
             line = line.replace(/\/\*[^\/\*]*\*\//, "");
 
+            // Test for invalid comments
             if (DELIMITER_4.test(line)) {
-                // Test for invalid comments
                 document.getElementById("lexOutput").value += "LEXER --> | ";
                 document.getElementById("lexOutput").value += "Invalid comment break starting on line ";
                 document.getElementById("lexOutput").value += lineNum + "\n";
@@ -162,7 +152,6 @@ function lex() {
                         d2Line = d1Line[j].trim().split(DELIMITER_2);
                         d2Line = checkUndefined(d2Line);
                         for (var k = 0; k < d2Line.length; k++) {
-
                             if (!d2Line[k].match(/^\s$/) && d2Line[k] != "") {
                                 if (!d2Line[k].match(DELIMITER_2)) {
                                     // Split d2Line[k] according to DELIMITER_3
@@ -188,14 +177,12 @@ function lex() {
                     }
                 }
 
+                // Reassign line to properly-split, lexeme array
                 line = lineSplit;
 
                 for (var m = 0; m < line.length; m++) {
                     lexeme = line[m];
-                    if (lexeme == "" || lexeme == " ") {
-                        // do nothing, ignore whitespace
-                    }
-                    else if (isValid(lexeme)) {
+                    if (isValid(lexeme)) {
                         // lexemes like abc will be seen as an identifier up until this point
                         if (getKind(lexeme) == Token.Kind.QUOTE) {
                             breakString = false;
@@ -207,11 +194,19 @@ function lex() {
                             m++;
                             lexeme = line[m];
                             while (getKind(lexeme) != Token.Kind.QUOTE) {
-                                newToken = Token.build(Token.Kind.CHAR, lexeme, lineNum);
-                                tokens.push(newToken);
-                                document.getElementById("lexOutput").value += "LEXER --> | " +
-                                    newToken.kind.name + " [ " + newToken.value + " ] " +
-                                    " on line " + lineNum + "..." + "\n";
+                                if (getKind(lexeme) == Token.Kind.SPACE) {
+                                    newToken = Token.build(Token.Kind.SPACE, lexeme, lineNum);
+                                    tokens.push(newToken);
+                                    document.getElementById("lexOutput").value += "LEXER --> | " +
+                                        newToken.kind.name + " [ " + newToken.value + " ] " +
+                                        " on line " + lineNum + "..." + "\n";
+                                } else {
+                                    newToken = Token.build(Token.Kind.CHAR, lexeme, lineNum);
+                                    tokens.push(newToken);
+                                    document.getElementById("lexOutput").value += "LEXER --> | " +
+                                        newToken.kind.name + " [ " + newToken.value + " ] " +
+                                        " on line " + lineNum + "..." + "\n";
+                                }
                                 m++;
                                 lexeme = line[m];
                                 if (lexeme == undefined) {
@@ -239,8 +234,7 @@ function lex() {
                             document.getElementById("lexOutput").value += "LEXER --> | " +
                                 newToken.kind.name + " [ " + newToken.value + " ] " +
                                 " on line " + lineNum + "..." + "\n";
-
-                            if (getKind(lexeme) == Token.Kind.END_OF_FILE) {
+                            if (getKind(lexeme) == Token.Kind.EOP) {
                                 document.getElementById("lexOutput").value += "\n";
                                 if (errorCount == 0) {
                                     document.getElementById("lexOutput").value += "\n";
@@ -248,48 +242,40 @@ function lex() {
                                     for (var d = 0; d < warningCount; d++) {
                                         document.getElementById("lexOutput").value += warnings[d] + "\n";
                                     }
-
                                     document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n" + "\n";
-
                                     // TODO: assess parse return
                                     var cst = parse(tokens);
                                     var tree = cst.toString();
                                     document.getElementById("parseOutput").value += "Program " + programCount + "\n";
                                     document.getElementById("parseOutput").value += tree;
                                     document.getElementById("parseOutput").value += "\n";
-
                                     tokens = [];
                                     errors = [];
                                     errorCount = 0;
                                     warnings = [];
                                     warningCount = 0;
                                     lineNum = 0;
-
                                     if (!lastLine) {
                                         programCount++;
                                         document.getElementById("lexOutput").value += "Program " + programCount + "\n";
                                     }
-
                                 } else {
                                     // Lex errors detected, move to next program
                                     document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
                                     for (var i = 0; i < warningCount; i++) {
                                         document.getElementById("lexOutput").value += warnings[i] + "\n";
                                     }
-
                                     document.getElementById("lexOutput").value += "\n";
                                     document.getElementById("lexOutput").value += "Found " + errorCount + " error(s)" + "\n";
                                     for (var i = 0; i < errorCount; i++) {
                                         document.getElementById("lexOutput").value += errors[i] + "\n" + "\n";
                                     }
-
                                     tokens = [];
                                     errors = [];
                                     errorCount = 0;
                                     warnings = [];
                                     warningCount = 0;
                                     lineNum = 0;
-
                                 }
                             }
                         }
@@ -307,10 +293,10 @@ function lex() {
         if (tokens.length != 0) {
             len = tokens.length;
             // Add EOP marker on last line and attempt parse
-            if (tokens[len - 1].kind != Token.Kind.END_OF_FILE) {
+            if (tokens[len - 1].kind != Token.Kind.EOP) {
                 warnings.push("Missing $[EOP] marker on last line. $[EOP] marker added to last line.");
                 warningCount++;
-                newToken = Token.build(Token.Kind.END_OF_FILE, "$", (tokens.length - 1))
+                newToken = Token.build(Token.Kind.EOP, "$", (tokens.length - 1))
                 tokens.push(newToken);
                 document.getElementById("lexOutput").value += "LEXER --> | " +
                     "WARNING: Missing $[EOP] marker on last line\n";

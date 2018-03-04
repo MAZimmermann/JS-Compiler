@@ -3,7 +3,7 @@
 
 <!--
 index.html
-main page for interacting with compiler
+main page for interacting with MAZ compiler
 -->
 
 <head>
@@ -26,22 +26,21 @@ main page for interacting with compiler
 
         <div class="row">
             <div class="six columns" height="250px">
-                <label for="taInput">Source Program</label>
+                <label for="taInput">Source Program</label><!-- Source Program Text Area -->
                 <textarea id="taInput" class="u-full-width" placeholder="Enter Source Code..."></textarea>
             </div>
 
             <div class="six columns" height="250px">
-                <label for="parseOutput">Parser Output</label>
+                <label for="parseOutput">Parser Output</label> <!-- Parse Output Text Area -->
                 <textarea id="parseOutput" class="u-full-width" placeholder=""></textarea>
             </div>
         </div>
 
         <br>
 
-        <!-- text area for viewing the contents of each line assessed by the lexer -->
         <div class="row">
             <div class="twelve columns" height="250px">
-                <label for="lexOutput">Lexer Output</label>
+                <label for="lexOutput">Lexer Output</label> <!-- Lex Output Text Area -->
                 <textarea id="lexOutput" class="u-full-width" placeholder=""></textarea>
             </div>
         </div>
@@ -54,7 +53,6 @@ main page for interacting with compiler
     <script type="text/javascript" src="Scripts/parser.js"></script>
     <script type="text/javascript" src="Scripts/cst.js"></script>
     <script type="text/javascript">
-
         // Initialization function triggered onload
         function init() {
             // Start with blank lexOutput
