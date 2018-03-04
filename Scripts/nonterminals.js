@@ -16,11 +16,12 @@ function Nonterminal() {
 }
 
 /*
- * Enumeration of nonterminals
+ * Enumeration of Nonterminals
  * Inspired by the "Svegliator"
  *
  */
 Nonterminal.Kind = {
+
     PROGRAM: {
         Value: ""
     },

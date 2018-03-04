@@ -252,7 +252,6 @@ function lex() {
                                     document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n" + "\n";
 
                                     // TODO: assess parse return
-
                                     var cst = parse(tokens);
                                     var tree = cst.toString();
                                     document.getElementById("parseOutput").value += "Program " + programCount + "\n";
@@ -290,6 +289,7 @@ function lex() {
                                     warnings = [];
                                     warningCount = 0;
                                     lineNum = 0;
+
                                 }
                             }
                         }
@@ -324,7 +324,10 @@ function lex() {
                 for (var d = 0; d < warningCount; d++) {
                     document.getElementById("lexOutput").value += warnings[d] + "\n";
                 }
+
                 document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n" + "\n";
+
+                // TODO: assess parse return
                 var cst = parse(tokens);
                 var tree = cst.toString();
                 document.getElementById("parseOutput").value += "Program " + programCount + "\n";

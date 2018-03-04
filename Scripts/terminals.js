@@ -8,7 +8,7 @@
  **********/
 
 /**********
- * TODO: Give nonterminals value
+ * TODO: Give terminals value
  **********/
 
 function Terminal() {
