@@ -81,7 +81,7 @@ function parse(tokensFromLex) {
         parseBlock();
         cst.endChildren();
         if (match(tokens[iter], Token.Kind.END_OF_FILE)) {
-            cst.addNode("EOP", "leaf");
+            cst.addNode(tokens[iter].value, "leaf");
             iter++;
         } else {
             // TODO: Error and such
@@ -95,14 +95,12 @@ function parse(tokensFromLex) {
     ***********/
     function parseBlock() {
         if (match(tokens[iter], Token.Kind.L_BRACE)) {
-            cst.addNode("{", "leaf");
-            iter++;
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
             cst.addNode("StatementList", "branch");
             parseStatementList();
             cst.endChildren();
             if (match(tokens[iter], Token.Kind.R_BRACE)) {
-                cst.addNode("}", "leaf");
-                iter++;
+                cst.addNode(tokens[iter].value, "leaf"); iter++;
             } else {
                 // TODO: Error and such
                 alert("PARSER: ERROR: Expected [}] got [" + tokens[iter].value + "] on line " + tokens[iter].line)
@@ -162,21 +160,21 @@ function parse(tokensFromLex) {
 
         } else if (match(tokens[iter], Token.Kind.WHILE_STATEMENT)) {
             // While Statement
-            parseWhileStatement();
             cst.addNode("WhileStatement", "branch");
             parseWhileStatement();
             cst.endChildren();
 
         } else if (match(tokens[iter], Token.Kind.IF_STATEMENT)) {
             // If Statement
-            parseIfStatement();
             cst.addNode("IfStatement", "branch");
             parseIfStatement();
             cst.endChildren();
 
         } else if (match(tokens[iter], Token.Kind.L_BRACE)) {
             // Block
+            cst.addNode("Block", "branch");
             parseBlock();
+            cst.endChildren();
 
         } else {
             // TODO: Error and such
@@ -190,16 +188,17 @@ function parse(tokensFromLex) {
     * parsePrintStatement
     ***********/
     function parsePrintStatement() {
-        cst.addNode("print", "leaf"); iter++;
+        cst.addNode(tokens[iter].value, "leaf"); iter++;
         if (match(tokens[iter], Token.Kind.L_PAREN)) {
-            cst.addNode("(", "leaf"); iter++;
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
             cst.addNode("Expression", "branch")
             parseExpression();
             cst.endChildren();
             if (match(tokens[iter], Token.Kind.R_PAREN)) {
-                cst.addNode(")", "leaf"); iter++;
+                cst.addNode(tokens[iter].value, "leaf"); iter++;
             } else {
                 // TODO: Error and such
+                alert("Expected [)] test");
                 alert("PARSER: ERROR: Expected [)] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
                 parseError();
             }
@@ -214,14 +213,35 @@ function parse(tokensFromLex) {
     * parseAssignmentStatement
     ***********/
     function parseAssignmentStatement() {
-
+        cst.addNode("Id", "branch");
+        parseId();
+        cst.endChildren();
+        if (match(tokens[iter], Token.Kind.ASSIGNMENT_OPERATOR)) {
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+            cst.addNode("Expression", "branch")
+            parseExpression();
+            cst.endChildren();
+        } else {
+            // TODO: Error and such
+            alert("PARSER: ERROR: Expected [=] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+            parseError();
+        }
     }
 
     /**********
     * parseVariableDeclaration
     ***********/
     function parseVariableDeclaration() {
-
+        cst.addNode(tokens[iter].value, "leaf"); iter++;
+        if (match(tokens[iter], Token.Kind.ID)) {
+            cst.addNode("Id", "branch");
+            parseId();
+            cst.endChildren();
+        } else {
+            // TODO: Error and such
+            alert("PARSER: ERROR: Expected Id got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+            parseError();
+        }
     }
 
     /**********
@@ -229,13 +249,32 @@ function parse(tokensFromLex) {
     ***********/
     function parseWhileStatement() {
 
+        /*TODO: REVISE PLACEMENT OF TERMINAL INSERTION WHEN BRANCH MUST BE INSERTED*/
+
+        cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+        cst.addNode("BooleanExpr", "branch")
+        parseBooleanExpression();
+        cst.endChildren();
+
+        cst.addNode("Block", "branch");
+        parseBlock();
+        cst.endChildren();
     }
 
     /**********
     * parseIfStatement
     ***********/
     function parseIfStatement() {
+        cst.addNode(tokens[iter].value, "leaf"); iter++;
 
+        cst.addNode("BooleanExpr", "branch")
+        parseBooleanExpression();
+        cst.endChildren();
+
+        cst.addNode("Block", "branch");
+        parseBlock();
+        cst.endChildren();
     }
 
     /**********
@@ -265,7 +304,6 @@ function parse(tokensFromLex) {
             cst.addNode("Id", "branch");
             parseId();
             cst.endChildren();
-
         }
         else {
             // TODO: Error and such
@@ -282,7 +320,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.DIGIT)) {
             cst.addNode(tokens[iter].value, "leaf"); iter++;
             if (match(tokens[iter], Token.Kind.ADDITION_OPERATOR)) {
-                cst.addNode("Intop", "leaf"); iter++;
+                cst.addNode(tokens[iter].value, "leaf"); iter++;
                 cst.addNode("Expression", "branch");
                 parseExpression();
                 cst.endChildren();
@@ -329,14 +367,41 @@ function parse(tokensFromLex) {
     * parseBooleanExpression
     ***********/
     function parseBooleanExpression() {
-
+        if (match(tokens[iter], Token.Kind.L_PAREN)) {
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+            cst.addNode("Expression", "branch");
+            parseExpression();
+            cst.endChildren();
+            if (match(tokens[iter], Token.Kind.EQUALITY_OPERATOR) || match(tokens[iter], Token.Kind.INEQUALITY_OPERATOR)) {
+                cst.addNode(tokens[iter].value, "leaf"); iter++;
+                cst.addNode("Expression", "branch");
+                parseExpression();
+                cst.endChildren();
+            } else {
+                alert("test");
+                // error
+            }
+            if (match(tokens[iter], Token.Kind.R_PAREN)) {
+                cst.addNode(tokens[iter].value, "leaf"); iter++;
+            } else {
+                // error
+            }
+        } else {
+            // error
+        }
     }
 
     /**********
     * parseId
     ***********/
     function parseId() {
-
+        if (match(tokens[iter], Token.Kind.CHAR)) {
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+        } else {
+            // TODO: Error and such
+            alert("PARSER: ERROR: Expected char got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+            parseError();
+        }
     }
 
     /**********
@@ -344,9 +409,9 @@ function parse(tokensFromLex) {
     ***********/
     function parseCharList() {
         while (!match(tokens[iter], Token.Kind.QUOTE)) {
-            if (match(tokens[iter], Token.Kind.CHAR) && !match(tokens[iter], Token.Kind.QUOTE)) {
+            if ((match(tokens[iter], Token.Kind.CHAR) || match(tokens[iter], Token.Kind.WHITESPACE)) && !match(tokens[iter], Token.Kind.QUOTE)) {
                 cst.addNode(tokens[iter].value, "leaf"); iter++;
-                if (match(tokens[iter], Token.Kind.CHAR) && !match(tokens[iter], Token.Kind.QUOTE)) {
+                if ((match(tokens[iter], Token.Kind.CHAR) || match(tokens[iter], Token.Kind.WHITESPACE)) && !match(tokens[iter], Token.Kind.QUOTE)) {
                     cst.addNode("CharList", "branch");
                     parseCharList();
                     cst.endChildren();
