@@ -64,7 +64,7 @@ function lex() {
 
     // Delimiters used to test for invalid comment break
     DELIMITER_4 = /(\/\*[^\/\*]*$)/g;
-    DELIMITER_5 = /([^\/\*]*\*\/)/g;
+    DELIMITER_5 = /(^[\/\*]*\*\/)/g;
 
     // Delimiter grabbing characters when quote is found
     DELIMITER_6 = /([^"])|(\n)/g;
@@ -251,6 +251,8 @@ function lex() {
 
                                     document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n" + "\n";
 
+                                    // TODO: assess parse return
+
                                     var cst = parse(tokens);
                                     var tree = cst.toString();
                                     document.getElementById("parseOutput").value += "Program " + programCount + "\n";
@@ -262,6 +264,7 @@ function lex() {
                                     errorCount = 0;
                                     warnings = [];
                                     warningCount = 0;
+                                    lineNum = 0;
 
                                     if (!lastLine) {
                                         programCount++;
@@ -286,6 +289,7 @@ function lex() {
                                     errorCount = 0;
                                     warnings = [];
                                     warningCount = 0;
+                                    lineNum = 0;
                                 }
                             }
                         }

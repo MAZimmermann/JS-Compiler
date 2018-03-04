@@ -1,13 +1,13 @@
 /**********
- * parser.js
- *
- * Contains procedure for each nonterminal
- *
- **********/
+* parser.js
+*
+* Contains procedure for each nonterminal
+*
+**********/
 
 /**********
- * TODO:
- **********/
+* TODO:
+**********/
 
 function parse(tokensFromLex) {
 
@@ -29,117 +29,316 @@ function parse(tokensFromLex) {
 
     // Initialize tree with root node
     cst.addNode("Root", "branch")
-
-    // The first children should the goal symbol
-    // TODO: Proper terminology?
-    cst.addNode("Program", "branch")
-
-    cst.addNode("Block", "branch")
-    parseBlock();
-    cst.addNode("EOP", "leaf")
+    cst.cur = cst.root;
+    parseProgram();
+    cst.endChildren();
 
     return cst;
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function match(currentToken, expectedToken) {
-        if (currentToken.value == expectedToken.value) {
+        if (currentToken.value.match(expectedToken.pattern)) {
             return true;
         } else {
-            false
+            false;
         }
     }
 
     /**********
-     * Parse procedure needed for every nonterminal
-     **********/
-    function parseBlock() {
-        if (match(tokens[iter], Token.Kind.R_BRACE)) {
+    * If ^match^ fails
+    ***********/
+    function parseError() {
+        throw new Error("Parse Error Detected");
+    }
+
+    /**********
+    * Parse procedure needed for every nonterminal
+    **********/
+    function parseProgram() {
+        cst.addNode("Block", "branch");
+        parseBlock();
+        cst.endChildren();
+        if (match(tokens[iter], Token.Kind.END_OF_FILE)) {
+            cst.addNode("EOP", "leaf");
             iter++;
-            cst.addNode("{", "branch");
-            while (tokens[iter].kind != Token.Kind.R_BRACE) {
-                iter++;
-            }
-            cst.addNode("}", "branch");
         } else {
-            alert("You fool. . .");
+            // TODO: Error and such
+            alert("PARSER: ERROR: Expected [$] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+            parseError();
         }
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
+    function parseBlock() {
+        if (match(tokens[iter], Token.Kind.L_BRACE)) {
+            cst.addNode("{", "leaf");
+            iter++;
+            cst.addNode("StatementList", "branch");
+            parseStatementList();
+            cst.endChildren();
+            if (match(tokens[iter], Token.Kind.R_BRACE)) {
+                cst.addNode("}", "leaf");
+                iter++;
+            } else {
+                // TODO: Error and such
+                alert("PARSER: ERROR: Expected [}] got [" + tokens[iter].value + "] on line " + tokens[iter].line)
+                parseError();
+            }
+        } else {
+            // TODO: Error and such
+            alert("PARSER: ERROR: Expected [{] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+            parseError();
+        }
+    }
+
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseStatementList() {
 
+        /* Attempt productions in the order they are listed
+        * However...
+        *
+        * TODO: Move this comment up
+        *
+        * */
+
+        statementError = false;
+
+        while (!match(tokens[iter], Token.Kind.R_BRACE)) {
+            cst.addNode("Statement", "branch");
+            parseStatement();
+            cst.endChildren();
+
+            if (statementError == true) {
+                // TODO: Error and such
+                alert("PARSER: ERROR: Expected [}] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+                parseError();
+            }
+        }
+
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseStatement() {
+        if (match(tokens[iter], Token.Kind.PRINT_STATEMENT)) {
+            // Print Statement
+            cst.addNode("PrintStatement", "branch");
+            parsePrintStatement();
+            cst.endChildren();
 
+        } else if (match(tokens[iter], Token.Kind.ID)) {
+            // Assignment Statement
+            cst.addNode("Assignment", "branch");
+            parseAssignmentStatement();
+            cst.endChildren();
+
+        } else if (match(tokens[iter], Token.Kind.VARIABLE_TYPE)) {
+            // Variable Declaration
+            cst.addNode("VariableDeclaration", "branch");
+            parseVariableDeclaration();
+            cst.endChildren();
+
+        } else if (match(tokens[iter], Token.Kind.WHILE_STATEMENT)) {
+            // While Statement
+            parseWhileStatement();
+            cst.addNode("WhileStatement", "branch");
+            parseWhileStatement();
+            cst.endChildren();
+
+        } else if (match(tokens[iter], Token.Kind.IF_STATEMENT)) {
+            // If Statement
+            parseIfStatement();
+            cst.addNode("IfStatement", "branch");
+            parseIfStatement();
+            cst.endChildren();
+
+        } else if (match(tokens[iter], Token.Kind.L_BRACE)) {
+            // Block
+            parseBlock();
+
+        } else {
+            // TODO: Error and such
+            alert("PARSER: ERROR: Expected valid start to statement got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+            parseError();
+        }
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parsePrintStatement() {
-
+        cst.addNode("print", "leaf");
+        iter++;
+        if (match(tokens[iter], Token.Kind.L_PAREN)) {
+            cst.addNode("(", "leaf");
+            iter++;
+            cst.addNode("Expression", "branch")
+            parseExpression();
+            cst.endChildren();
+            if (match(tokens[iter], Token.Kind.R_PAREN)) {
+                cst.addNode(")", "leaf");
+                iter++;
+            } else {
+                // TODO: Error and such
+                alert("PARSER: ERROR: Expected [)] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+                parseError();
+            }
+        } else {
+            // TODO: Error and such
+            alert("PARSER: ERROR: Expected [(] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+            parseError();
+        }
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseAssignmentStatement() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseVariableDeclaration() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseWhileStatement() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseIfStatement() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseExpression() {
+        // IntExpression
+        if (match(tokens[iter], Token.Kind.DIGIT)) {
+            parseIntExpression();
 
+        } else if (match(tokens[iter], Token.Kind.QUOTE)) {
+            // String expression
+            parseStringExpression();
+
+        } else if (match(tokens[iter], Token.Kind.L_PAREN)) {
+            // Boolean expression
+
+        } else if (match(tokens[iter], Token.Kind.ID)) {
+            // Id
+
+        }
+        else {
+            // TODO: Error and such
+            alert("PARSER: ERROR: Expected valid start to expression got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+            parseError();
+        }
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseIntExpression() {
-
+        if (match(tokens[iter], Token.Kind.DIGIT.pattern)) {
+            cst.addNode("IntExpression", "branch");
+            iter++;
+            cst.endChildren();
+        } else {
+            // TODO: Error and such
+            alert("PARSER: ERROR: Expected digit got [" + tokens[iter].value + "] on line " + tokens[iter].line);
+            parseError();
+        }
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseStringExpression() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseBooleanExpression() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseId() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseCharList() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseType() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseChar() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseSpace() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseDigit() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseBoolop() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseBoolval() {
 
     }
 
+    /**********
+    * If ^match^ fails
+    ***********/
     function parseIntop() {
 
     }
