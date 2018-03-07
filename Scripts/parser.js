@@ -1,24 +1,18 @@
-/**********
+/********** ********** ********** ********** **********
 * parser.js
 *
 * Includes
-*  Function for handling each nonterminal
+*  Nonterminal Function for handling each nonterminal
 *  Match function to assess current and expected tokens
 *  Error function for when parse is broken
 *
 **********/
 
-/**********
-* TODO:
-* - Pass alerts to parseError()
-* - Finalize nonterminal procedures
-**********/
-
 function parse(tokensFromLex) {
 
-    /**********
-    * Grab token array from lex output
-    ***********/
+    document.getElementById("parseOutput").value += "Program " + programCount + "\n";
+
+    //Grab token array from lex output
     var tokens = tokensFromLex;
 
     // Keeps track of our position in the token array
@@ -40,484 +34,758 @@ function parse(tokensFromLex) {
 
     return cst;
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * Match function used to assess current and expected tokens
     ***********/
     function match(currentToken, expectedToken) {
         if (currentToken.value.match(expectedToken.pattern)) {
+
             return true;
+
         } else {
+
             false;
+
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * If ^match^ fails, throw parse error
     ***********/
-    function parseError() {
-        throw new Error("Parse Error Detected");
+    function parseError(errorMsg) {
+
+        alert(errorMsg);
+
+        throw new Error(errorMsg);
+
     }
 
 
-    /**********
+    /********** ********** ********** ********** **********
     * Parse procedure needed for EVERY nonterminal
     **********/
 
 
-    /**********
+    /********** ********** ********** ********** **********
     * parseProgram
     ***********/
     function parseProgram() {
+
+        // call parseBlock
         cst.addNode("Block", "branch");
         parseBlock();
         cst.endChildren();
+
         if (match(tokens[iter], Token.Kind.EOP)) {
-            cst.addNode(tokens[iter].value, "leaf");
-            iter++;
+
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+
         } else {
-            // TODO: Error and such
-            alert("PARSER: ERROR: Expected [$] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-            parseError();
+
+            /**********
+             * ERROR Expected EOP
+             ***********/
+            parseProgramError = "PARSER: ERROR: Expected EOP, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseProgramError;
+            parseError(parseProgramError);
+
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseBlock
     ***********/
     function parseBlock() {
         if (match(tokens[iter], Token.Kind.L_BRACE)) {
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+            // call parseStatementList
             cst.addNode("StatementList", "branch");
             parseStatementList();
             cst.endChildren();
+
             if (match(tokens[iter], Token.Kind.R_BRACE)) {
+
                 cst.addNode(tokens[iter].value, "leaf"); iter++;
+
             } else {
-                // TODO: Error and such
-                alert("PARSER: ERROR: Expected [}] got [" + tokens[iter].value + "] on line " + tokens[iter].line)
-                parseError();
+
+                /**********
+                 * ERROR Expected R_BRACE... ParseStatement should catch this, here for consistency
+                 ***********/
+                parseBlockError = "PARSER: ERROR: Expected R_BRACE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                document.getElementById("parseOutput").value += parseBlockError;
+                parseError(parseBlockError);
+
             }
+
         } else {
-            // TODO: Error and such
-            alert("PARSER: ERROR: Expected [{] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-            parseError();
+
+            /**********
+             * ERROR Expected L_BRACE
+             ***********/
+            parseBlockError = "PARSER: ERROR: Expected L_BRACE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseBlockError;
+            parseError(parseBlockError);
+
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseStatementList
     ***********/
     function parseStatementList() {
-
-        // Do I need this?
-        statementError = false;
-
         while (!match(tokens[iter], Token.Kind.R_BRACE)) {
+
+            // call parseStatement
             cst.addNode("Statement", "branch");
             parseStatement();
             cst.endChildren();
 
-            // Revise this...
-            if (statementError == true) {
-                // TODO: Error and such
-                alert("PARSER: ERROR: Expected [}] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-                parseError();
-            }
         }
-
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseStatement
     ***********/
     function parseStatement() {
         if (match(tokens[iter], Token.Kind.PRINT)) {
-            // Print Statement
+
+            // call parsePrintStatement
             cst.addNode("PrintStatement", "branch");
             parsePrintStatement();
             cst.endChildren();
 
         } else if (match(tokens[iter], Token.Kind.CHAR)) {
-            // Assignment Statement
-            cst.addNode("Assignment", "branch");
+
+            // call parseAssignmentStatement
+            cst.addNode("AssignmentStatement", "branch");
             parseAssignmentStatement();
             cst.endChildren();
 
         } else if (match(tokens[iter], Token.Kind.TYPE)) {
-            // Variable Declaration
-            cst.addNode("VariableDeclaration", "branch");
-            parseVariableDeclaration();
+
+            // call parseVarDecl
+            cst.addNode("VarDecl", "branch");
+            parseVarDecl();
             cst.endChildren();
 
         } else if (match(tokens[iter], Token.Kind.WHILE)) {
-            // While Statement
+
+            // call parseWhileStatement
             cst.addNode("WhileStatement", "branch");
             parseWhileStatement();
             cst.endChildren();
 
         } else if (match(tokens[iter], Token.Kind.IF)) {
-            // If Statement
+
+            // call parseIfStatement
             cst.addNode("IfStatement", "branch");
             parseIfStatement();
             cst.endChildren();
 
         } else if (match(tokens[iter], Token.Kind.L_BRACE)) {
-            // Block
+
+            // call parseBlock
             cst.addNode("Block", "branch");
             parseBlock();
             cst.endChildren();
 
+        }  else if (match(tokens[iter], Token.Kind.R_BRACE)) {
+
+            // StatementList closed, do nothing
+
         } else {
-            // TODO: Error and such
-            alert("PARSER: ERROR: Expected valid start to statement got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-            parseError();
+
+            /**********
+             * ERROR Expected Statement or R_BRACE
+             ***********/
+            parseStatementError = "PARSER: ERROR: Expected Statement or R_BRACE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseStatementError;
+            parseError(parseStatementError);
 
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parsePrintStatement
     ***********/
     function parsePrintStatement() {
+
+        // PRINT already matched
         cst.addNode(tokens[iter].value, "leaf"); iter++;
+
         if (match(tokens[iter], Token.Kind.L_PAREN)) {
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+            // call parseExpression
             cst.addNode("Expression", "branch")
             parseExpression();
             cst.endChildren();
+
             if (match(tokens[iter], Token.Kind.R_PAREN)) {
+
                 cst.addNode(tokens[iter].value, "leaf"); iter++;
+
             } else {
-                // TODO: Error and such
-                alert("Expected [)] test");
-                alert("PARSER: ERROR: Expected [)] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-                parseError();
+
+                /**********
+                 * ERROR Expected R_PAREN
+                 ***********/
+                parsePrintStatementError = "PARSER: ERROR: Expected R_PAREN, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                document.getElementById("parseOutput").value += parsePrintStatementError;
+                parseError(parsePrintStatementError);
+
             }
+
         } else {
-            // TODO: Error and such
-            alert("PARSER: ERROR: Expected [(] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-            parseError();
+
+            /**********
+             * ERROR Expected L_PAREN
+             ***********/
+            parsePrintStatementError = "PARSER: ERROR: Expected L_PAREN, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parsePrintStatementError;
+            parseError(parsePrintStatementError);
+
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseAssignmentStatement
     ***********/
     function parseAssignmentStatement() {
+
+        // call parseId
         cst.addNode("Id", "branch");
         parseId();
         cst.endChildren();
+
         if (match(tokens[iter], Token.Kind.ASSIGNOP)) {
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+            // call parseExpression
             cst.addNode("Expression", "branch")
             parseExpression();
             cst.endChildren();
+
         } else {
-            // TODO: Error and such
-            alert("PARSER: ERROR: Expected [=] got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-            parseError();
+
+            /**********
+             * ERROR Expected ASSIGNOP
+             ***********/
+            parseAssignmentStatementError = "PARSER: ERROR: Expected ASSIGNOP, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseAssignmentStatementError;
+            parseError(parseAssignmentStatementError);
+
         }
     }
 
-    /**********
-    * parseVariableDeclaration
+
+    /********** ********** ********** ********** **********
+    * parseVarDecl
     ***********/
-    function parseVariableDeclaration() {
-        cst.addNode(tokens[iter].value, "leaf"); iter++;
-        if (match(tokens[iter], Token.Kind.CHAR)) {
-            cst.addNode("Id", "branch");
-            parseId();
-            cst.endChildren();
-        } else {
-            // TODO: Error and such
-            alert("PARSER: ERROR: Expected Id got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-            parseError();
-        }
+    function parseVarDecl() {
+
+        // call parseType
+        cst.addNode("Type","branch");
+        parseType();
+        cst.endChildren();
+
+        // call parseId
+        cst.addNode("Id", "branch");
+        parseId();
+        cst.endChildren();
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseWhileStatement
     ***********/
     function parseWhileStatement() {
 
-        /*TODO: REVISE PLACEMENT OF TERMINAL INSERTION WHEN BRANCH MUST BE INSERTED*/
-
+        // WHILE already matched
         cst.addNode(tokens[iter].value, "leaf"); iter++;
 
-        cst.addNode("BooleanExpr", "branch")
+        // call parseBooleanExpression
+        cst.addNode("BooleanExpression", "branch")
         parseBooleanExpression();
         cst.endChildren();
 
+        // call parseBlock
         cst.addNode("Block", "branch");
         parseBlock();
         cst.endChildren();
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseIfStatement
     ***********/
     function parseIfStatement() {
+
+        // IF already matched
         cst.addNode(tokens[iter].value, "leaf"); iter++;
 
-        cst.addNode("BooleanExpr", "branch")
+        // call parseBooleanExpression
+        cst.addNode("BooleanExpression", "branch")
         parseBooleanExpression();
         cst.endChildren();
 
+        // call parseBlock
         cst.addNode("Block", "branch");
         parseBlock();
         cst.endChildren();
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseExpression
     ***********/
     function parseExpression() {
-        // IntExpression
         if (match(tokens[iter], Token.Kind.DIGIT)) {
+
+            // call parseIntExpression
             cst.addNode("IntExpression", "branch");
             parseIntExpression();
             cst.endChildren();
 
         } else if (match(tokens[iter], Token.Kind.QUOTE)) {
-            // String expression
+
+            // call parseStringExpression
             cst.addNode("StringExpression", "branch");
             parseStringExpression();
             cst.endChildren();
 
         } else if (match(tokens[iter], Token.Kind.L_PAREN)) {
-            // Boolean expression
+
+            // call parseBooleanExpression
             cst.addNode("BooleanExpression", "branch");
             parseBooleanExpression();
             cst.endChildren();
 
         } else if (match(tokens[iter], Token.Kind.CHAR)) {
-            // Id
+
+            // call parseId
             cst.addNode("Id", "branch");
             parseId();
             cst.endChildren();
-        }
-        else {
-            // TODO: Error and such
-            alert("PARSER: ERROR: Expected valid start to expression got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-            parseError();
+
+        } else {
+
+            /**********
+             * ERROR Expected Expression
+             ***********/
+            parseExpressiontError = "PARSER: ERROR: Expected Expression, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseExpressiontError;
+            parseError(parseExpressiontError);
+
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseIntExpression
     ***********/
     function parseIntExpression() {
-        // redundant incase called again
-        if (match(tokens[iter], Token.Kind.DIGIT)) {
-            cst.addNode(tokens[iter].value, "leaf"); iter++;
-            if (match(tokens[iter], Token.Kind.INTOP)) {
-                cst.addNode(tokens[iter].value, "leaf"); iter++;
-                cst.addNode("Expression", "branch");
-                parseExpression();
-                cst.endChildren();
-            } else {
-                // IntExpression consists of only digit
-            }
+
+        // call parseDigit
+        cst.addNode("Digit", "branch");
+        parseDigit();
+        cst.endChildren();
+
+        if (match(tokens[iter], Token.Kind.INTOP)) {
+
+            // call parseIntop
+            cst.addNode("Intop", "branch");
+            parseIntop();
+            cst.endChildren();
+
+            // call parseExpression
+            cst.addNode("Expression", "branch");
+            parseExpression();
+            cst.endChildren();
+
         } else {
-            // TODO: Error and such
-            alert("PARSER: ERROR: Expected digit got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-            parseError();
+
+            // IntExpression consists of only digit
+
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseStringExpression
     ***********/
     function parseStringExpression() {
         if (match(tokens[iter], Token.Kind.QUOTE)) {
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
-            if (match(tokens[iter], Token.Kind.CHAR)) {
+
+            if (match(tokens[iter], Token.Kind.CHAR) || match(tokens[iter], Token.Kind.SPACE)) {
+
+                // call parseCharList
                 cst.addNode("CharList", "branch");
                 parseCharList();
                 cst.endChildren();
-            } else if (match(tokens[iter], Token.Kind.QUOTE)) {
-                cst.addNode("CharList", "branch");
-                cst.endChildren();
-                cst.addNode(tokens[iter].value, "leaf"); iter++;
+
             }
+
             if (match(tokens[iter], Token.Kind.QUOTE)) {
+
                 cst.addNode(tokens[iter].value, "leaf"); iter++;
+
             } else {
-                // TODO: Error and such
-                alert("PARSER: ERROR: Expected closing quote got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-                parseError();
+
+                /**********
+                 * ERROR Expected closing QUOTE
+                 ***********/
+                parseStringExpressionError = "PARSER: ERROR: Expected closing QUOTE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                document.getElementById("parseOutput").value += parseStringExpressionError;
+                parseError(parseStringExpressionError);
+
             }
+
         } else {
-            // TODO: Error and such
-            alert("PARSER: ERROR: Expected opening quote got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-            parseError();
+
+            /**********
+             * ERROR Expected opening QUOTE
+             ***********/
+            parseStringExpressionError = "PARSER: ERROR: Expected opening QUOTE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseStringExpressionError;
+            parseError(parseStringExpressionError);
+
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseBooleanExpression
     ***********/
     function parseBooleanExpression() {
         if (match(tokens[iter], Token.Kind.L_PAREN)) {
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+            // cale parseExpression
             cst.addNode("Expression", "branch");
             parseExpression();
             cst.endChildren();
-            if (match(tokens[iter], Token.Kind.BOOLOP)) {
-                cst.addNode(tokens[iter].value, "leaf"); iter++;
-                cst.addNode("Expression", "branch");
-                parseExpression();
-                cst.endChildren();
-            } else {
-                alert("test");
-                // error
-            }
+
+            // call parseBoolop
+            cst.addNode("Boolop", "branch");
+            parseBoolop();
+            cst.endChildren();
+
+            // call parseExpression
+            cst.addNode("Expression", "branch");
+            parseExpression();
+            cst.endChildren();
+
             if (match(tokens[iter], Token.Kind.R_PAREN)) {
+
                 cst.addNode(tokens[iter].value, "leaf"); iter++;
+
             } else {
-                // error
+
+                /**********
+                 * ERROR Expected R_PAREN
+                 ***********/
+                parseBooleanExpressionError = "PARSER: ERROR: Expected R_PAREN, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                document.getElementById("parseOutput").value += parseBooleanExpressionError;
+                parseError(parseBooleanExpressionError);
+
             }
+
         } else {
-            // error
+
+            /**********
+             * ERROR Expected L_PAREN
+             ***********/
+            parseBooleanExpressionError = "PARSER: ERROR: Expected L_PAREN, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseBooleanExpressionError;
+            parseError(parseBooleanExpressionError);
+
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseId
     ***********/
     function parseId() {
         if (match(tokens[iter], Token.Kind.CHAR)) {
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
+
         } else {
-            // TODO: Error and such
-            alert("PARSER: ERROR: Expected char got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-            parseError();
+
+            /**********
+             * ERROR Expected CHAR (ID)
+             ***********/
+            parseIdError = "PARSER: ERROR: Expected CHAR (ID), found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseIdError;
+            parseError(parseIdError);
+
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseCharList
     ***********/
     function parseCharList() {
         while (!match(tokens[iter], Token.Kind.QUOTE)) {
-            if ((match(tokens[iter], Token.Kind.CHAR) || match(tokens[iter], Token.Kind.SPACE)) && !match(tokens[iter], Token.Kind.QUOTE)) {
-                cst.addNode(tokens[iter].value, "leaf"); iter++;
-                if ((match(tokens[iter], Token.Kind.CHAR) || match(tokens[iter], Token.Kind.SPACE)) && !match(tokens[iter], Token.Kind.QUOTE)) {
+            if (match(tokens[iter], Token.Kind.CHAR)) {
+
+                // call parseChar
+                cst.addNode("Char", "branch");
+                parseChar();
+                cst.endChildren();
+
+                if (match(tokens[iter], Token.Kind.CHAR) && !match(tokens[iter], Token.Kind.QUOTE)) {
+
+                    // call parseCharList
                     cst.addNode("CharList", "branch");
                     parseCharList();
                     cst.endChildren();
+
+                } else if (match(tokens[iter], Token.Kind.SPACE) && !match(tokens[iter], Token.Kind.QUOTE)) {
+
+                    // call parseCharList
+                    cst.addNode("CharList", "branch");
+                    parseCharList();
+                    cst.endChildren();
+
                 } else {
                     if (match(tokens[iter], Token.Kind.QUOTE)) {
-                        // Do nothing
+
+                        // String closed, do nothing
+
                     } else {
-                        // TODO: Error and such
-                        alert("PARSER: ERROR: Expected char got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-                        parseError();
+
+                        /**********
+                         * ERROR Expected CHAR, SPACE, or closing QUOTE
+                         ***********/
+                        parseCharListError = "PARSER: ERROR: Expected CHAR, SPACE, or closing QUOTE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                        document.getElementById("parseOutput").value += parseCharListError;
+                        parseError(parseCharListError);
+
                     }
                 }
+
+            } else if (match(tokens[iter], Token.Kind.SPACE)) {
+
+                // call parseSpace
+                cst.addNode("Space", "branch");
+                parseSpace();
+                cst.endChildren();
+
+                if (match(tokens[iter], Token.Kind.CHAR) && !match(tokens[iter], Token.Kind.QUOTE)) {
+
+                    // call parseCharList
+                    cst.addNode("CharList", "branch");
+                    parseCharList();
+                    cst.endChildren();
+
+                } else if (match(tokens[iter], Token.Kind.SPACE) && !match(tokens[iter], Token.Kind.QUOTE)) {
+
+                    // call parseCharList
+                    cst.addNode("CharList", "branch");
+                    parseCharList();
+                    cst.endChildren();
+
+                } else {
+
+                    if (match(tokens[iter], Token.Kind.QUOTE)) {
+
+                        // String closed, do nothing
+
+                    } else {
+
+                        /**********
+                         * ERROR Expected CHAR, SPACE, or closing QUOTE
+                         ***********/
+                        parseCharListError = "PARSER: ERROR: Expected CHAR, SPACE, or closing QUOTE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                        document.getElementById("parseOutput").value += parseCharListError;
+                        parseError(parseCharListError);
+
+                    }
+                }
+
             } else {
                 if (match(tokens[iter], Token.Kind.QUOTE)) {
-                    // Do nothing
+
+                    // String closed, do nothing
+
                 } else {
-                    // TODO: Error and such
-                    alert("PARSER: ERROR: Expected char got [" + tokens[iter].value + "] on line " + tokens[iter].line);
-                    parseError();
+
+                    /**********
+                     * ERROR Expected CHAR, SPACE, or closing QUOTE
+                     ***********/
+                    parseCharListError = "PARSER: ERROR: Expected CHAR, SPACE, or closing QUOTE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                    document.getElementById("parseOutput").value += parseCharListError;
+                    parseError(parseCharListError);
+
                 }
             }
         }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseType
     ***********/
     function parseType() {
+        if (match(tokens[iter], Token.Kind.TYPE)) {
 
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+        } else {
+
+            /**********
+             * ERROR Expected TYPE
+             ***********/
+            parseTypeError = "PARSER: ERROR: Expected TYPE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseTypeError;
+            parseError(parseTypeError);
+
+        }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseChar
     ***********/
     function parseChar() {
+        if (match(tokens[iter], Token.Kind.CHAR)) {
 
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+        } else {
+
+            /**********
+             * ERROR Expected CHAR
+             ***********/
+            parseCharError = "PARSER: ERROR: Expected CHAR, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseCharError;
+            parseError(parseCharError);
+
+        }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseSpace
     ***********/
     function parseSpace() {
+        if (match(tokens[iter], Token.Kind.SPACE)) {
 
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+        } else {
+
+            /**********
+             * ERROR Expected SPACE
+             ***********/
+            parseSpaceError = "PARSER: ERROR: Expected SPACE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseSpaceError;
+            parseError(parseSpaceError);
+
+        }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseDigit
     ***********/
     function parseDigit() {
+        if (match(tokens[iter], Token.Kind.DIGIT)) {
 
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+        } else {
+
+            /**********
+             * ERROR Expected DIGIT
+             ***********/
+            parseDigitError = "PARSER: ERROR: Expected DIGIT, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseDigitError;
+            parseError(parseDigitError);
+
+        }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseBoolop
     ***********/
     function parseBoolop() {
+        if (match(tokens[iter], Token.Kind.BOOLOP)) {
 
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+        } else {
+
+            /**********
+             * ERROR Expected BOOLOP
+             ***********/
+            parseBoolopError = "PARSER: ERROR: Expected BOOLOP, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseBoolopError;
+            parseError(parseBoolopError);
+
+        }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseBoolval
     ***********/
     function parseBoolval() {
+        if (match(tokens[iter], Token.Kind.BOOLVAL)) {
 
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+        } else {
+
+            /**********
+             * ERROR Expected BOOLVAL
+             ***********/
+            parseBoolvalError = "PARSER: ERROR: Expected BOOLVAL, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseBoolvalError;
+            parseError(parseBoolvalError);
+
+        }
     }
 
-    /**********
+
+    /********** ********** ********** ********** **********
     * parseIntop
     ***********/
     function parseIntop() {
+        if (match(tokens[iter], Token.Kind.INTOP)) {
 
+            cst.addNode(tokens[iter].value, "leaf"); iter++;
+
+        } else {
+
+            /**********
+             * ERROR Expected INTOP
+             ***********/
+            parseIntopError = "PARSER: ERROR: Expected INTOP, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            document.getElementById("parseOutput").value += parseIntopError;
+            parseError(parseIntopError);
+
+        }
     }
 
 }
-
-/*
- * Project Grammar Reference
- *
- * Program       ::== Block $
- * Block         ::== { StatementList }
- * StatementList ::== Statement StatementList
- * Statement     ::== PrintStatement
- *               ::== AssignmentStatement
- *               ::== VarDecl
- *               ::== WhileStatement
- *               ::== IfStatement
- *               ::== Block
- *
- * PrintStatement      ::== print( Expr )
- * AssignmentStatement ::== Id = Expr
- * VarDecl             ::== type Id
- * WhileStatement      ::== while BooleanExpr Block
- * IfStatement         ::== if BooleanExpr Block
- *
- * Expr        ::== IntExpr
- *             ::== StringExpr
- *             ::== BooleanExpr
- *             ::== Id
- * IntExp      ::== digit intop Expr
- *             ::== digit
- * StringExpr  ::== " CharList "
- * BooleanExpr ::== ( Expr boolop Expr)
- *             ::== boolval
- *             ::== char
- * Id          ::== char
- * CharList    ::== char CharList
- *             ::== space CharList
- *             ::== e
- *
- * type    ::== int | string | boolean
- * char    ::== a | b | c | ... | z
- * space   ::==  the space character
- * digit   ::==  0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
- * boolop  ::==  == | !=
- * boolval ::== false | true
- * intop   ::== +
- *
- */

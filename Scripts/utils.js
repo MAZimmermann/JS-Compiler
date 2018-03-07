@@ -1,4 +1,4 @@
-/**********
+/********** ********** ********** ********** **********
 * util.js
 *
 * Utility functions
@@ -10,7 +10,7 @@
 *
 **********/
 
-/**********
+/********** ********** ********** ********** **********
 * Returns new array after removing undefined elements
 **********/
 function checkUndefined(actual) {
@@ -23,7 +23,7 @@ function checkUndefined(actual) {
     return newArray;
 }
 
-/**********
+/********** ********** ********** ********** **********
 * Used to iterate over acceptable token kinds
 * Returns true for valid lexeme, false otherwise
 **********/
@@ -37,7 +37,7 @@ function isValid(lexeme) {
     return false;
 }
 
-/**********
+/********** ********** ********** ********** **********
 * Used to iterate over acceptable token kinds
 * Returns lexeme kind
 **********/
