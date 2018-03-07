@@ -162,7 +162,7 @@ function parse(tokensFromLex) {
             parsePrintStatement();
             cst.endChildren();
 
-        } else if (match(tokens[iter], Token.Kind.CHAR)) {
+        } else if (match(tokens[iter], Token.Kind.ID)) {
 
             // call parseAssignmentStatement
             cst.addNode("AssignmentStatement", "branch");
@@ -204,9 +204,9 @@ function parse(tokensFromLex) {
         } else {
 
             /**********
-             * ERROR Expected Statement or R_BRACE
+             * ERROR Expected Valid Start to Statement or R_BRACE
              ***********/
-            parseStatementError = "PARSER: ERROR: Expected Statement or R_BRACE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseStatementError = "PARSER: ERROR: Expected Valid Start to Statement or R_BRACE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
             document.getElementById("parseOutput").value += parseStatementError;
             parseError(parseStatementError);
 

@@ -65,17 +65,17 @@ Token.Kind = {
         name: "QUOTE",
         pattern: /^"$/
     },
-    ID: {
-        name: "ID",
-        pattern: /^[a-z]$/
-    },
     CHAR: {
         name: "CHAR",
-        pattern: /^[a-z]$/
+        pattern: /[a-z]/
     },
     SPACE: {
         name: "SPACE",
-        pattern: /^\s$/
+        pattern: /^[\s]+$/
+    },
+    ID: {
+        name: "ID",
+        pattern: /^[a-z]$/
     },
     DIGIT: {
         name: "DIGIT",
