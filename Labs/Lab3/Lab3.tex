@@ -63,7 +63,8 @@
 \lstset { % MAZ Styling for writing out grammar
   basicstyle = \itshape,
   xleftmargin = 3em,
-  literate = {->}{$\rightarrow$}{2} {-->}{$\Rightarrow$}{2}
+  literate = {->}{$\rightarrow$}{2} {-->}{$\Rightarrow$}{2},
+  escapeinside={(*@}{@*)},
 }
 
 %----------------------------------------------------------------------------------------
@@ -144,8 +145,120 @@ This grammar ensures that "times" has a higher precedence than "plus." Different
 \end{enumerate}
 
 \subsection*{Exercise 5.2}
-\begin{enumerate}[label=\Alph*]
-\item ... \\
+\begin{enumerate}[label=\textbf{\Alph*}]
+Grammar suitable for LL(1) parsing:
+\begin{lstlisting}[]
+Start  -> Value $
+Value  -> num
+        | lparen Expr rparen
+Expr   -> plus Value Value
+        | prod Values
+Values -> Value Values
+        | (*@ $\lambda$ @*)
+\end{lstlisting}
+
+\item[\textbf C] Construct a recursive-descent parser based on the grammar (pseudo code) \\
+
+\textbf{Match} \\
+\begin{algorithm}[H]
+	\SetAlgoLined   
+	match(currentToken, expectedToken) \{ \\
+		\Indp
+		if (currentToken == expectedToken) \{ \\
+			\Indp
+			consume currentToken; \\
+			\Indm		
+		\} else \{ \\
+			\Indp
+			//error \\
+			\Indm
+		\} \\
+		\Indm
+	\} \\
+\end{algorithm}
+
+\textbf{Parse Start} \\
+\begin{algorithm}[H]
+	\SetAlgoLined   
+	parseStart() \{ \\
+		\Indp
+		parseValue(); \\
+		match(currentToken, \{EOP\}); \\
+		\Indm
+	\} \\
+\end{algorithm}
+
+\pagebreak
+
+\textbf{Parse Value} \\
+\begin{algorithm}[H]
+	\SetAlgoLined   
+	parseValue() \{ \\
+		\Indp
+		if (currentToken == num) \{ \\
+			\Indp
+			match(currentToken, \{num\}); \\
+			\Indm		
+		\} else if (currentToken == lparen) \{ \\
+			\Indp
+			match(currentToken, \{lparen\}); \\
+			parseExpr(); \\
+			match(currentToken, \{rparen\}); \\
+			\Indm
+		\} else \{ \\
+			\Indp
+			// error \\
+			\Indm
+		\} \\
+		\Indm
+	\} \\
+\end{algorithm}
+
+\textbf{Parse Expression} \\
+\begin{algorithm}[H]
+	\SetAlgoLined   
+	parseExpr() \{ \\
+		\Indp
+		if (currentToken == plusop) \{ \\
+			\Indp
+			match(currentToken, \{plusop\}); \\
+			parseValue(); \\
+			parseValue(); \\
+			\Indm		
+		\} else if (currentToken == prodop) \{ \\
+			\Indp
+			match(currentToken, \{prodop\}); \\
+			parseValues(); \\
+			\Indm
+		\} else \{ \\
+			\Indp
+			// error \\
+			\Indm
+		\} \\
+		\Indm
+	\} \\
+\end{algorithm}
+
+\textbf{Parse Values} \\
+\begin{algorithm}[H]
+	\SetAlgoLined   
+	parseValues() \{ \\
+		\Indp
+		if (currentToken == num || currentToken == lparen) \{ \\
+			\Indp
+			parseValue(); \\
+			parseValues(); \\
+			\Indm		
+		\} else \{ \\
+			\Indp
+			// no error \\
+			// lambda \\
+			\Indm
+		\} \\
+		\Indm
+	\} \\
+\end{algorithm}
+
 \end{enumerate}
 
 %----------------------------------------------------------------------------------------
@@ -169,8 +282,8 @@ This grammar ensures that "times" has a higher precedence than "plus." Different
 %----------------------------------------------------------------------------------------
 % The following two commands are all you need in the initial runs of your .tex file to
 % produce the bibliography for the citations in your paper.
-\bibliographystyle{abbrv}
-\bibliography{lab} 
+%\bibliographystyle{abbrv}
+%\bibliography{lab} 
 % You must have a proper ".bib" file and remember to run:
 % latex bibtex latex latex
 % to resolve all references.
