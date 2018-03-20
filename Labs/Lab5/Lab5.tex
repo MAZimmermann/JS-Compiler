@@ -95,7 +95,32 @@ Hash tables are the most common way to manage a symbol table. If implemented pro
 \pagebreak
 
 \subsection*{Exercise 8.3}
-Describe two alternative approaches to handling multiple scopes in a symbol table, and list the actions required to open and close a scope for each alternative. Trace the sequence of actions that would be performed for each alternative during compilation of the program in Figure 8.1.
+Describe two alternative approaches to handling multiple scopes in a symbol table, and list the actions required to open and close a scope for each alternative. Trace the sequence of actions that would be performed for each alternative during compilation of the program in Figure 8.1. \\
+
+There are two common approaches to block-structured symbol tables. A symbol table can be created for each new scope, or a single, global table can be used to keep track of all symbols. \\
+
+If a symbol table is created for each new scope, a stack can be used to keep track of the current and open scopes. If a scope is opened, push it onto the stack, and if a scope is closed, pop it off the stack. We can perform search and retrieval operations by simple traversing the stack (currently open, nested scopes). \\
+
+If a single, global table is used, then a specially formatted symbol table entry and two index structures are required. A hash table allows for efficient insertion and retrieval of names, and a scope display keeps track of symbols declared at the same level. When a symbol is entered into the table, a level field links it with symbols of the same scope, and a var field maintains a stack of active scope declarations for the symbol and its associated variables. Lastly, a depth field records the nesting depth of a symbol.
+
+\textbf{8.1 Program} \\
+\begin{algorithm}[H]
+	\SetAlgoLined
+	import f(float, float, float) \\
+	import g(int) \\
+	\{ \\
+		\Indp
+		int w,x \\
+		\{ \\
+			\Indp
+			float x,z \\
+			f(x,w,z) \\
+			\Indm
+		\} \\
+		g(x) \\
+		\Indm
+	\} \\
+\end{algorithm}
 
 %----------------------------------------------------------------------------------------
 %   end CRAFTING A COMPILER EXERCISES
