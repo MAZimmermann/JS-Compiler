@@ -86,17 +86,16 @@
 %----------------------------------------------------------------------------------------
 \section*{Crafting a Compiler}
 \subsection*{Exercise 8.1}
-The two data structures most commonly used to implement symbol tables in production compilers are binary search trees and hash tables. What are the advantages of using each of these data structures for symbol tables?
+The two data structures most commonly used to implement symbol tables in production compilers are binary search trees and hash tables. What are the advantages and disadvantages of using each of these data structures for symbol tables? \\
+
+Binary search trees are advantageous for their combination of insertion and retrieval efficiency. We can expect both of these operations to complete in O(\textit{log n}) time. Binary search trees are also a highly documented and commonplace data structure, making their implementation as a symbol table relatively easy compared to some alternatives. The only notable disadvantage is that average-case performance does not necessarily hold for symbol tables. Since programmers do not usually choose identifier names at random, lookup could take O(\textit{n}) time. However, worst-case scenarios can be avoided if the tree is maintained balanced form.\\
+
+Hash tables are the most common way to manage a symbol table. If implemented properly, insertion and retrieval operations can be performed in constant time, making it a highly efficient alternative to binary search trees. However, this data structure tend to consume much more memory for sufficiently large tables, and potential for collisions must be accounted for.
+
+\pagebreak
 
 \subsection*{Exercise 8.3}
-Consider a programming language in which the variable is declared as a method's parameter and as one of the method's local variables. A programming language includes parameter hiding if the local variable's declaration can mask the parameter's declaration. Otherwise, the situation described in this exercise results in a multiply defined symbol. With regard to the symbol table interface presented in section 8.1.2, explain the implicit scope-changing actions that must be taken if the language calls for...
-
-\begin{enumerate}[label=\textbf{\Alph*}]
-\item Parameter Hiding \\
-
-\item No Parameter Hiding \\
-
-\end{enumerate}
+Describe two alternative approaches to handling multiple scopes in a symbol table, and list the actions required to open and close a scope for each alternative. Trace the sequence of actions that would be performed for each alternative during compilation of the program in Figure 8.1.
 
 %----------------------------------------------------------------------------------------
 %   end CRAFTING A COMPILER EXERCISES
