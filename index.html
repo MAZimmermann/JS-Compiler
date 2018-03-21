@@ -37,9 +37,13 @@ main page for interacting with MAZ compiler
         <br>
 
         <div class="row linedwrap">
-            <div class="twelve columns linedtextarea" height="250px">
+            <div class="six columns linedtextarea" height="250px">
                 <label for="taInput">Source Program</label> <!-- Source Program Textarea -->
                 <textarea id="taInput" class="lined u-full-width" placeholder="Enter source program..."></textarea>
+            </div>
+            <div class="six columns" height="250px">
+                <label for="compStatus">Compilation Status</label> <!-- Compilation Status Textarea -->
+                <textarea id="compStatus" class="u-full-width" readonly></textarea>
             </div>
         </div>
 
@@ -48,12 +52,12 @@ main page for interacting with MAZ compiler
         <div class="row">
             <div class="six columns" height="250px">
                 <label for="lexOutput">Lexer Output</label> <!-- Lex Output Textarea -->
-                <textarea id="lexOutput" class="u-full-width" placeholder=""></textarea>
+                <textarea id="lexOutput" class="u-full-width" placeholder="" readonly></textarea>
             </div>
 
             <div class="six columns" height="250px">
                 <label for="parseOutput">Parser Output</label> <!-- Parse Output Textarea -->
-                <textarea id="parseOutput" class="u-full-width" placeholder=""></textarea>
+                <textarea id="parseOutput" class="u-full-width" placeholder="" readonly></textarea>
             </div>
         </div>
 
@@ -70,10 +74,11 @@ main page for interacting with MAZ compiler
 
         // Initialization function triggered onload
         function init() {
-            // Start with blank lexOutput
+            // Start with blank textareas
             document.getElementById("taInput").placeholder = "Enter Source Code...";
             document.getElementById("lexOutput").value = "";
             document.getElementById("parseOutput").value = "";
+            document.getElementById("compStatus").value = "";
         }
 
         function compile() {

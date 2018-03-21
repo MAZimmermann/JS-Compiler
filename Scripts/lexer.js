@@ -1,5 +1,12 @@
 /********** ********** ********** ********** **********
 * lexer.js
+ *
+ * TODO summary for this file
+ *
+ * TODO reformat this file, too messy atm
+ *
+ * TODO revisit multiple program processing errors
+ *
 **********/
 
 function lex() {
@@ -7,9 +14,11 @@ function lex() {
     programCount = 1;
 
     // Begin lexical analysis
-    document.getElementById("lexOutput").value += "Begin Lexical Analysis... \n" + "\n";
+    document.getElementById("compStatus").value += "Begin Lexical Analysis... \n \n" ;
 
     // Label program 1
+    document.getElementById("compStatus").value += "Program " + programCount + "\n";
+    document.getElementById("compStatus").value += "LEX \n";
     document.getElementById("lexOutput").value += "Program " + programCount + "\n";
 
 
@@ -230,14 +239,17 @@ function lex() {
                          * Special treatment for strings
                          ***********/
                         if (getKind(lexeme) == Token.Kind.QUOTE) {
+
                             breakString = false;
+
                             newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
                             tokens.push(newToken);
                             document.getElementById("lexOutput").value += "LEXER --> | " +
                                 newToken.kind.name + " [ " + newToken.value + " ] " +
                                 " on line " + lineNum + "..." + "\n";
-                            m++;
-                            lexeme = line[m];
+
+                            m++; lexeme = line[m];
+
                             while (getKind(lexeme) != Token.Kind.QUOTE) {
                                 if (getKind(lexeme) == Token.Kind.SPACE) {
                                     newToken = Token.build(Token.Kind.SPACE, lexeme, lineNum);
@@ -245,20 +257,24 @@ function lex() {
                                     document.getElementById("lexOutput").value += "LEXER --> | " +
                                         newToken.kind.name + " [ " + newToken.value + " ] " +
                                         " on line " + lineNum + "..." + "\n";
+
                                 } else if (getKind(lexeme) == Token.Kind.CHAR) {
                                     newToken = Token.build(Token.Kind.CHAR, lexeme, lineNum);
                                     tokens.push(newToken);
                                     document.getElementById("lexOutput").value += "LEXER --> | " +
                                         newToken.kind.name + " [ " + newToken.value + " ] " +
                                         " on line " + lineNum + "..." + "\n";
+
                                 } else {
                                     document.getElementById("lexOutput").value += "LEXER --> | " +
                                         "ERROR: Invalid lexeme [" + lexeme + "] found on line " + lineNum + "\n";
                                     errors.push("Invalid lexeme [" + lexeme + "] found on line " + lineNum);
                                     errorCount++;
+
                                 }
-                                m++;
-                                lexeme = line[m];
+
+                                m++; lexeme = line[m];
+
                                 if (lexeme == undefined) {
                                     breakString = true;
                                     break;
@@ -270,30 +286,37 @@ function lex() {
                                 document.getElementById("lexOutput").value += "LEXER --> | " +
                                     newToken.kind.name + " [ " + newToken.value + " ] " +
                                     " on line " + lineNum + "..." + "\n";
+
                             }
 
                         } else if (getKind(lexeme) == Token.Kind.CHAR) {
-                            newId = lexeme; // In this case, we know Char is meant to be an ID
+
+                            // In this case, we know Char is meant to be an ID
+
+                            newId = lexeme;
                             newToken = Token.build(Token.Kind.ID, lexeme, lineNum);
                             tokens.push(newToken);
                             document.getElementById("lexOutput").value += "LEXER --> | " +
                                 newToken.kind.name + " [ " + newToken.value + " ] " +
                                 " on line " + lineNum + "..." + "\n";
+
                         } else {
+
                             newToken = Token.build(getKind(lexeme), lexeme, lineNum)
                             tokens.push(newToken);
                             document.getElementById("lexOutput").value += "LEXER --> | " +
                                 newToken.kind.name + " [ " + newToken.value + " ] " +
                                 " on line " + lineNum + "..." + "\n";
+
                             if (getKind(lexeme) == Token.Kind.EOP) {
                                 document.getElementById("lexOutput").value += "\n";
                                 if (errorCount == 0) {
-                                    document.getElementById("lexOutput").value += "\n";
-                                    document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
+                                    document.getElementById("compStatus").value += "\n";
+                                    document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
                                     for (var d = 0; d < warningCount; d++) {
-                                        document.getElementById("lexOutput").value += warnings[d] + "\n";
+                                        document.getElementById("compStatus").value += warnings[d] + "\n";
                                     }
-                                    document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n" + "\n";
+                                    document.getElementById("compStatus").value += "Found 0 error(s)" + "\n" + "\n";
                                     var cst = parse(tokens, programCount);
                                     var tree = cst.toString();
                                     document.getElementById("parseOutput").value += tree;
@@ -301,28 +324,31 @@ function lex() {
                                     tokens = []; errors = []; errorCount = 0; warnings = []; warningCount = 0; lineNum = 0;
                                     if (!lastLine) {
                                         programCount++;
+                                        document.getElementById("compStatus").value += "Program " + programCount + "\n";
                                         document.getElementById("lexOutput").value += "Program " + programCount + "\n";
                                     }
                                 } else {
                                     // Lex errors detected, move to next program
-                                    document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
+                                    document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
                                     for (var i = 0; i < warningCount; i++) {
-                                        document.getElementById("lexOutput").value += warnings[i] + "\n";
+                                        document.getElementById("compStatus").value += warnings[i] + "\n";
                                     }
-                                    document.getElementById("lexOutput").value += "\n";
-                                    document.getElementById("lexOutput").value += "Found " + errorCount + " error(s)" + "\n";
+                                    document.getElementById("compStatus").value += "\n";
+                                    document.getElementById("compStatus").value += "Found " + errorCount + " error(s)" + "\n";
                                     for (var i = 0; i < errorCount; i++) {
-                                        document.getElementById("lexOutput").value += errors[i] + "\n" + "\n";
+                                        document.getElementById("compStatus").value += errors[i] + "\n" + "\n";
                                     }
                                     tokens = []; errors = []; errorCount = 0; warnings = []; warningCount = 0; lineNum = 0;
                                 }
                             }
                         }
                     } else {
-                        document.getElementById("lexOutput").value += "LEXER --> | " +
+
+                        document.getElementById("compStatus").value += "LEXER --> | " +
                             "ERROR: Invalid lexeme [" + lexeme + "] found on line " + lineNum + "\n";
                         errors.push("Invalid lexeme [" + lexeme + "] found on line " + lineNum);
                         errorCount++;
+
                     }
                 }
             }
@@ -342,20 +368,20 @@ function lex() {
                 warningCount++;
                 newToken = Token.build(Token.Kind.EOP, "$", (tokens.length - 1))
                 tokens.push(newToken);
-                document.getElementById("lexOutput").value += "LEXER --> | " +
+                document.getElementById("compStatus").value += "LEXER --> | " +
                     "WARNING: Missing $[EOP] marker on last line\n";
-                document.getElementById("lexOutput").value += "LEXER --> | " +
+                document.getElementById("compStatus").value += "LEXER --> | " +
                     "$[EOP] marker added to last line\n";
                 document.getElementById("taInput").value += "$\n";
             }
             if (errorCount == 0) {
-                document.getElementById("lexOutput").value += "\n";
-                document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
+                document.getElementById("compStatus").value += "\n";
+                document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
                 for (var d = 0; d < warningCount; d++) {
-                    document.getElementById("lexOutput").value += warnings[d] + "\n";
+                    document.getElementById("compStatus").value += warnings[d] + "\n";
                 }
 
-                document.getElementById("lexOutput").value += "Found 0 error(s)" + "\n" + "\n";
+                document.getElementById("compStatus").value += "Found 0 error(s)" + "\n" + "\n";
 
                 var cst = parse(tokens, programCount);
                 var tree = cst.toString();
@@ -363,20 +389,20 @@ function lex() {
                 document.getElementById("parseOutput").value += "\n";
             } else {
                 // Lex errors detected, move to next program
-                document.getElementById("lexOutput").value += "\n";
-                document.getElementById("lexOutput").value += "Found " + warningCount + " warning(s)" + "\n";
+                document.getElementById("compStatus").value += "\n";
+                document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
                 for (var i = 0; i < warningCount; i++) {
-                    document.getElementById("lexOutput").value += warnings[i] + "\n";
+                    document.getElementById("compStatus").value += warnings[i] + "\n";
                 }
-                document.getElementById("lexOutput").value += "\n";
-                document.getElementById("lexOutput").value += "Found " + errorCount + " error(s)" + "\n";
+                document.getElementById("compStatus").value += "\n";
+                document.getElementById("compStatus").value += "Found " + errorCount + " error(s)" + "\n";
                 for (var i = 0; i < errorCount; i++) {
-                    document.getElementById("lexOutput").value += errors[i] + "\n";
+                    document.getElementById("compStatus").value += errors[i] + "\n";
                 }
             }
         }
     } else {
-        document.getElementById("lexOutput").value += "Found " + 1 + " error(s)" + "\n";
-        document.getElementById("lexOutput").value += "No source code provided.";
+        document.getElementById("compStatus").value += "Found " + 1 + " error(s)" + "\n";
+        document.getElementById("compStatus").value += "No source code provided.";
     }
 }
