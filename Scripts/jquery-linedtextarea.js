@@ -27,6 +27,17 @@
  *   - 2010.01.06: Initial Release
  *
  */
+
+
+
+/********** ********** ********** ********** **********
+ * Removed/edited some styling
+ *  because it conflicted with
+ *  the skeleton framework
+ **********/
+
+
+
 (function($) {
 
 	$.fn.linedtextarea = function(options) {
@@ -65,8 +76,8 @@
 			var originalTextAreaWidth	= textarea.outerWidth();
 
 			/* Wrap the text area in the elements we need */
-			textarea.wrap("<div class='linedtextarea'></div>");
-			var linedTextAreaDiv	= textarea.parent().wrap("<div class='linedwrap' style='width:" + originalTextAreaWidth + "px'></div>");
+			textarea.wrap("<div class='linedtextarea'></div>"); /* MAZ EDIT ON NEXT LINE (keep width at 100%) */
+			var linedTextAreaDiv	= textarea.parent().wrap("<div class='linedwrap' style='width: 100%'></div>");
 			var linedWrapDiv 			= linedTextAreaDiv.parent();
 			
 			linedWrapDiv.prepend("<div class='lines' style='width:50px'></div>");
@@ -89,13 +100,13 @@
 
 			
 			/* Set the width */
-			var sidebarWidth					= linesDiv.outerWidth();
+/*			var sidebarWidth					= linesDiv.outerWidth();
 			var paddingHorizontal 		= parseInt( linedWrapDiv.css("border-left-width") ) + parseInt( linedWrapDiv.css("border-right-width") ) + parseInt( linedWrapDiv.css("padding-left") ) + parseInt( linedWrapDiv.css("padding-right") );
 			var linedWrapDivNewWidth 	= originalTextAreaWidth - paddingHorizontal;
 			var textareaNewWidth			= originalTextAreaWidth - sidebarWidth - paddingHorizontal - 20;
 
 			textarea.width( textareaNewWidth );
-			linedWrapDiv.width( linedWrapDivNewWidth );
+			linedWrapDiv.width( linedWrapDivNewWidth );*/
 			
 
 			

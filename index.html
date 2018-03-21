@@ -16,7 +16,11 @@ main page for interacting with MAZ compiler
     <link rel="stylesheet" href="Skeleton/css/skeleton.css" />
     <link rel="stylesheet" href="Skeleton/css/normalize.css" />
 
-    <!-- Stylesheet for line numbers in text area -->
+    <!-- jquery/js for lined textarea -->
+    <script type="text/javascript" src="Scripts/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="Scripts/jquery-linedtextarea.js"></script>
+
+    <!-- Stylesheet for lined text area -->
     <link rel="stylesheet" href="Styling/jquery-linedtextarea.css" />
 
 </head>
@@ -33,46 +37,29 @@ main page for interacting with MAZ compiler
         <br>
 
         <div class="row linedwrap">
-
-            <div class="twelve columns lines" style="height: 100%;">
-                <div class="codelines">
-                    <div class="lineno lineselect">1</div>
-                </div>
+            <div class="twelve columns linedtextarea" height="250px">
+                <label for="taInput">Source Program</label> <!-- Source Program Textarea -->
+                <textarea id="taInput" class="lined u-full-width" placeholder="Enter source program..."></textarea>
             </div>
-
-            <div class="ten columns linedtextarea">
-                <textarea id="taInput" class="u-full-width" wrap="off" style="resize: none" placeholder="Enter Source Code..."></textarea>
-            </div>
-
-<!--            <div class="2 columns linedtextarea" height="250px"></div>
-            <div class="10 columns linedtextarea" height="250px">
-            <label for="taInput">Source Program</label> Source Program Text Area
-                <textarea class="lined" rows="10" cols="60" wrap="off" style="resize: none; width: 382px;"></textarea>
-                <textarea id="taInput" class="lined u-full-width lined" placeholder="Enter Source Code..."></textarea>
-            </div>-->
-
         </div>
 
         <br>
 
         <div class="row">
             <div class="six columns" height="250px">
-                <label for="lexOutput">Lexer Output</label> <!-- Lex Output Text Area -->
+                <label for="lexOutput">Lexer Output</label> <!-- Lex Output Textarea -->
                 <textarea id="lexOutput" class="u-full-width" placeholder=""></textarea>
             </div>
 
             <div class="six columns" height="250px">
-                <label for="parseOutput">Parser Output</label> <!-- Parse Output Text Area -->
+                <label for="parseOutput">Parser Output</label> <!-- Parse Output Textarea -->
                 <textarea id="parseOutput" class="u-full-width" placeholder=""></textarea>
             </div>
         </div>
 
     </div>
 
-    <!-- Load/point to JS files -->
-    <script type="text/javascript" src="Scripts/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" src="Scripts/jquery-linedtextarea.js"></script>
-
+    <!-- Load/point to compiler JS files -->
     <script type="text/javascript" src="Scripts/tokens.js"></script>
     <script type="text/javascript" src="Scripts/utils.js"></script>
     <script type="text/javascript" src="Scripts/lexer.js"></script>
@@ -80,6 +67,7 @@ main page for interacting with MAZ compiler
     <script type="text/javascript" src="Scripts/cst.js"></script>
 
     <script type="text/javascript">
+
         // Initialization function triggered onload
         function init() {
             // Start with blank lexOutput
@@ -93,7 +81,7 @@ main page for interacting with MAZ compiler
             lex();
         }
 
-        $(function() {
+        $(function() { // Add lines to source program textarea
             $(".lined").linedtextarea(
                 {selectedLine: 1}
             );
