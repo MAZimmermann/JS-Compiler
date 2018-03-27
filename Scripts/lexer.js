@@ -11,15 +11,17 @@
 
 function lex() {
 
+    /********** ********** ********** ********** **********
+     * Assume we're starting with program 1
+     * Increment every time we hit a EOP marker
+     ***********/
     programCount = 1;
 
-    // Begin lexical analysis
-    document.getElementById("compStatus").value += "Begin Lexical Analysis... \n \n" ;
-
-    // Label program 1
-    document.getElementById("compStatus").value += "Program " + programCount + "\n";
-    document.getElementById("compStatus").value += "LEX \n";
-    document.getElementById("lexOutput").value += "Program " + programCount + "\n";
+    /********** ********** ********** ********** **********
+     * Begin lexical analysis
+     ***********/
+    document.getElementById("compStatus").value += "Begin Lexical Analysis... \n" ;
+    document.getElementById("compStatus").value += "********** ********** **********\n" ;
 
 
 
@@ -89,20 +91,36 @@ function lex() {
              * Test for invalid comments
              ***********/
             if (DELIMITER_4.test(line)) {
+
                 document.getElementById("lexOutput").value += "LEXER --> | ";
                 document.getElementById("lexOutput").value += "Invalid comment break starting on line ";
                 document.getElementById("lexOutput").value += lineNum + "\n";
                 line = line.replace(/\/\*[^\*\/]*$/, "");
 
-                // Test if comment was simply pushed to the next line
                 if (DELIMITER_5.test(lines[i+1])) {
+
+                    /********** ********** ********** ********** **********
+                     * Test if comment was simply pushed to the next line
+                     ***********/
+
                     document.getElementById("lexOutput").value += "LEXER --> | ";
                     document.getElementById("lexOutput").value += "Comment continues on line  ";
                     document.getElementById("lexOutput").value += (lineNum+1) + "\n";
                     lines[i + 1] = lines[i + 1].replace(/([^\/\*]*\*\/)/, "");
+
+
+                    warnings.push("Invalid comment break starting on line " + lineNum + ", ends on line " + (lineNum + 1));
+                    warningCount++;
+
                 } else {
+
+                    /********** ********** ********** ********** **********
+                     * It wasn't...
+                     ***********/
+
                     errors.push("Invalid comment break starting on line " + lineNum);
                     errorCount++;
+
                 }
             }
 
@@ -127,16 +145,19 @@ function lex() {
                     lineSplit.push(d1Line[j]); j++;
 
                     if (d1Line[j] == undefined) {
-                        // Quote is last character on the line
+
+                        /********** ********** ********** ********** **********
+                         * Quote is last character on the line
+                         ***********/
                         document.getElementById("lexOutput").value += "LEXER --> | ";
                         document.getElementById("lexOutput").value += "Invalid string break on line ";
                         document.getElementById("lexOutput").value += lineNum + "\n";
-                        errors.push("Invalid string break on line " + lineNum);
-                        errorCount++;
-                        breakString;
-                        break;
+
+                        errors.push("Invalid string break on line " + lineNum); errorCount++;
+                        breakString; break;
 
                     } else {
+
                         /********** ********** ********** ********** **********
                          * Valid characters following quote (numbers and other invalids caught later)
                          ***********/
@@ -242,6 +263,9 @@ function lex() {
 
                             breakString = false;
 
+                            /********** ********** ********** ********** **********
+                             * First lexeme found is quote
+                             ***********/
                             newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
                             tokens.push(newToken);
                             document.getElementById("lexOutput").value += "LEXER --> | " +
@@ -251,6 +275,10 @@ function lex() {
                             m++; lexeme = line[m];
 
                             while (getKind(lexeme) != Token.Kind.QUOTE) {
+
+                                /********** ********** ********** ********** **********
+                                 * Check if the following lexemes are SPACE, CHAR, or neither
+                                 ***********/
                                 if (getKind(lexeme) == Token.Kind.SPACE) {
                                     newToken = Token.build(Token.Kind.SPACE, lexeme, lineNum);
                                     tokens.push(newToken);
@@ -275,11 +303,20 @@ function lex() {
 
                                 m++; lexeme = line[m];
 
+                                /********** ********** ********** ********** **********
+                                 * We hit a new line marker, not a QUOTE
+                                 ***********/
                                 if (lexeme == undefined) {
                                     breakString = true;
                                     break;
                                 }
+
                             }
+
+                            /********** ********** ********** ********** **********
+                             * While loop ended without break string being triggered
+                             * We've hit a closing quote
+                             ***********/
                             if (!breakString) {
                                 newToken = Token.build(Token.Kind.QUOTE, lexeme, lineNum);
                                 tokens.push(newToken);
@@ -291,7 +328,9 @@ function lex() {
 
                         } else if (getKind(lexeme) == Token.Kind.CHAR) {
 
-                            // In this case, we know Char is meant to be an ID
+                            /********** ********** ********** ********** **********
+                             * In this case, we know Char is meant to be an ID
+                             ***********/
 
                             newId = lexeme;
                             newToken = Token.build(Token.Kind.ID, lexeme, lineNum);
@@ -302,6 +341,10 @@ function lex() {
 
                         } else {
 
+                            /********** ********** ********** ********** **********
+                             * We've hit some other valid lexeme
+                             ***********/
+
                             newToken = Token.build(getKind(lexeme), lexeme, lineNum)
                             tokens.push(newToken);
                             document.getElementById("lexOutput").value += "LEXER --> | " +
@@ -309,40 +352,71 @@ function lex() {
                                 " on line " + lineNum + "..." + "\n";
 
                             if (getKind(lexeme) == Token.Kind.EOP) {
+
+                                /********** ********** ********** ********** **********
+                                 * We've hit an EOP marker
+                                 ***********/
+
                                 document.getElementById("lexOutput").value += "\n";
+
                                 if (errorCount == 0) {
+
+                                    /********** ********** ********** ********** **********
+                                     * No errors, report any warnings and move onto parse
+                                     ***********/
+
+                                    document.getElementById("compStatus").value += "Program " + programCount + "\n";
+                                    document.getElementById("lexOutput").value += "Program " + programCount + "\n";
+
                                     document.getElementById("compStatus").value += "\n";
                                     document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
                                     for (var d = 0; d < warningCount; d++) {
                                         document.getElementById("compStatus").value += warnings[d] + "\n";
                                     }
+
                                     document.getElementById("compStatus").value += "Found 0 error(s)" + "\n" + "\n";
                                     var cst = parse(tokens, programCount);
                                     var tree = cst.toString();
                                     document.getElementById("parseOutput").value += tree;
                                     document.getElementById("parseOutput").value += "\n";
                                     tokens = []; errors = []; errorCount = 0; warnings = []; warningCount = 0; lineNum = 0;
+
                                     if (!lastLine) {
                                         programCount++;
-                                        document.getElementById("compStatus").value += "Program " + programCount + "\n";
-                                        document.getElementById("lexOutput").value += "Program " + programCount + "\n";
+/*                                        document.getElementById("compStatus").value += "Program " + programCount + "\n";
+                                        document.getElementById("lexOutput").value += "Program " + programCount + "\n";*/
                                     }
+
                                 } else {
-                                    // Lex errors detected, move to next program
+
+                                    /********** ********** ********** ********** **********
+                                     * Lex errors detected, move to next program
+                                     ***********/
+
                                     document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
                                     for (var i = 0; i < warningCount; i++) {
                                         document.getElementById("compStatus").value += warnings[i] + "\n";
                                     }
+
                                     document.getElementById("compStatus").value += "\n";
                                     document.getElementById("compStatus").value += "Found " + errorCount + " error(s)" + "\n";
                                     for (var i = 0; i < errorCount; i++) {
                                         document.getElementById("compStatus").value += errors[i] + "\n" + "\n";
                                     }
+
+                                    /********** ********** ********** ********** **********
+                                     * Reset all arrays / counts for lexing the next program
+                                     ***********/
                                     tokens = []; errors = []; errorCount = 0; warnings = []; warningCount = 0; lineNum = 0;
+
                                 }
                             }
                         }
                     } else {
+
+                        /********** ********** ********** ********** **********
+                         * Invalid lexeme found
+                         ***********/
 
                         document.getElementById("compStatus").value += "LEXER --> | " +
                             "ERROR: Invalid lexeme [" + lexeme + "] found on line " + lineNum + "\n";
