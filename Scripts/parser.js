@@ -10,7 +10,11 @@
 
 function parse(tokensFromLex) {
 
+    document.getElementById("compStatus").value += "\n";
+    document.getElementById("compStatus").value += "PARSE \n";
+
     document.getElementById("parseOutput").value += "Program " + programCount + "\n";
+    document.getElementById("parseOutput").value += "********** ********** **********\n";
 
     //Grab token array from lex output
     var tokens = tokensFromLex;
@@ -27,10 +31,15 @@ function parse(tokensFromLex) {
     // Set the current node to the root
     cst.cur = cst.root;
 
+    var running = true;
+
     // Begin parseProgram
     parseProgram();
 
     cst.endChildren();
+
+    document.getElementById("compStatus").value += "Found 0 warning(s)" + "\n";
+    document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
 
     return cst;
 
@@ -56,7 +65,10 @@ function parse(tokensFromLex) {
     ***********/
     function parseError(errorMsg) {
 
-        alert(errorMsg);
+        document.getElementById("compStatus").value += "Found error \n";
+        document.getElementById("compStatus").value += errorMsg + "\n";
+
+        running = false;
 
         throw new Error(errorMsg);
 
@@ -72,6 +84,10 @@ function parse(tokensFromLex) {
     * parseProgram
     ***********/
     function parseProgram() {
+
+        if (!running) {
+            return;
+        }
 
         // call parseBlock
         cst.addNode("Block", "branch");
@@ -99,6 +115,11 @@ function parse(tokensFromLex) {
     * parseBlock
     ***********/
     function parseBlock() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.L_BRACE)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -140,6 +161,11 @@ function parse(tokensFromLex) {
     * parseStatementList
     ***********/
     function parseStatementList() {
+
+        if (!running) {
+            return;
+        }
+
         while (!match(tokens[iter], Token.Kind.R_BRACE)) {
 
             // call parseStatement
@@ -155,6 +181,11 @@ function parse(tokensFromLex) {
     * parseStatement
     ***********/
     function parseStatement() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.PRINT)) {
 
             // call parsePrintStatement
@@ -219,6 +250,10 @@ function parse(tokensFromLex) {
     ***********/
     function parsePrintStatement() {
 
+        if (!running) {
+            return;
+        }
+
         // PRINT already matched
         cst.addNode(tokens[iter].value, "leaf"); iter++;
 
@@ -264,6 +299,10 @@ function parse(tokensFromLex) {
     ***********/
     function parseAssignmentStatement() {
 
+        if (!running) {
+            return;
+        }
+
         // call parseId
         cst.addNode("Id", "branch");
         parseId();
@@ -296,6 +335,10 @@ function parse(tokensFromLex) {
     ***********/
     function parseVarDecl() {
 
+        if (!running) {
+            return;
+        }
+
         // call parseType
         cst.addNode("Type","branch");
         parseType();
@@ -312,6 +355,10 @@ function parse(tokensFromLex) {
     * parseWhileStatement
     ***********/
     function parseWhileStatement() {
+
+        if (!running) {
+            return;
+        }
 
         // WHILE already matched
         cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -333,6 +380,10 @@ function parse(tokensFromLex) {
     ***********/
     function parseIfStatement() {
 
+        if (!running) {
+            return;
+        }
+
         // IF already matched
         cst.addNode(tokens[iter].value, "leaf"); iter++;
 
@@ -352,6 +403,11 @@ function parse(tokensFromLex) {
     * parseExpression
     ***********/
     function parseExpression() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.DIGIT)) {
 
             // call parseIntExpression
@@ -398,6 +454,10 @@ function parse(tokensFromLex) {
     ***********/
     function parseIntExpression() {
 
+        if (!running) {
+            return;
+        }
+
         // call parseDigit
         cst.addNode("Digit", "branch");
         parseDigit();
@@ -427,6 +487,11 @@ function parse(tokensFromLex) {
     * parseStringExpression
     ***********/
     function parseStringExpression() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.QUOTE)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -472,6 +537,11 @@ function parse(tokensFromLex) {
     * parseBooleanExpression
     ***********/
     function parseBooleanExpression() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.L_PAREN)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -523,6 +593,11 @@ function parse(tokensFromLex) {
     * parseId
     ***********/
     function parseId() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.CHAR)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -544,6 +619,11 @@ function parse(tokensFromLex) {
     * parseCharList
     ***********/
     function parseCharList() {
+
+        if (!running) {
+            return;
+        }
+
         while (!match(tokens[iter], Token.Kind.QUOTE)) {
             if (match(tokens[iter], Token.Kind.CHAR)) {
 
@@ -646,6 +726,11 @@ function parse(tokensFromLex) {
     * parseType
     ***********/
     function parseType() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.TYPE)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -667,6 +752,11 @@ function parse(tokensFromLex) {
     * parseChar
     ***********/
     function parseChar() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.CHAR)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -688,6 +778,11 @@ function parse(tokensFromLex) {
     * parseSpace
     ***********/
     function parseSpace() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.SPACE)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -709,6 +804,11 @@ function parse(tokensFromLex) {
     * parseDigit
     ***********/
     function parseDigit() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.DIGIT)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -730,6 +830,11 @@ function parse(tokensFromLex) {
     * parseBoolop
     ***********/
     function parseBoolop() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.BOOLOP)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -751,6 +856,11 @@ function parse(tokensFromLex) {
     * parseBoolval
     ***********/
     function parseBoolval() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.BOOLVAL)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
@@ -772,6 +882,11 @@ function parse(tokensFromLex) {
     * parseIntop
     ***********/
     function parseIntop() {
+
+        if (!running) {
+            return;
+        }
+
         if (match(tokens[iter], Token.Kind.INTOP)) {
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
