@@ -16,8 +16,11 @@ function parse(tokensFromLex) {
     document.getElementById("parseOutput").value += "Program " + programCount + "\n";
     document.getElementById("parseOutput").value += "********** ********** **********\n";
 
-    //Grab token array from lex output
+    // Grab token array from lex output
     var tokens = tokensFromLex;
+
+    // This will contain the tokens need for the AST
+    var astTokens = [];
 
     // Keeps track of our position in the token array
     var iter = 0;
@@ -41,7 +44,12 @@ function parse(tokensFromLex) {
     document.getElementById("compStatus").value += "Found 0 warning(s)" + "\n";
     document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
 
-    return cst;
+    var parseReturns = {
+        tree: cst,
+        tokens: astTokens
+    }
+
+    return parseReturns;
 
 
     /********** ********** ********** ********** **********
@@ -91,6 +99,10 @@ function parse(tokensFromLex) {
 
         // call parseBlock
         cst.addNode("Block", "branch");
+
+        // Add Block to astTokens
+        astTokens.push("Block");
+
         parseBlock();
         cst.endChildren();
 
@@ -190,6 +202,10 @@ function parse(tokensFromLex) {
 
             // call parsePrintStatement
             cst.addNode("PrintStatement", "branch");
+
+            // Add PrintStatement to astTokens
+            astTokens.push("PrintStatement");
+
             parsePrintStatement();
             cst.endChildren();
 
@@ -197,6 +213,10 @@ function parse(tokensFromLex) {
 
             // call parseAssignmentStatement
             cst.addNode("AssignmentStatement", "branch");
+
+            // Add AssignmentStatement to astTokens
+            astTokens.push("AssignmentStatement");
+
             parseAssignmentStatement();
             cst.endChildren();
 
@@ -204,6 +224,10 @@ function parse(tokensFromLex) {
 
             // call parseVarDecl
             cst.addNode("VarDecl", "branch");
+
+            // Add VarDecl to astTokens
+            astTokens.push("VarDecl");
+
             parseVarDecl();
             cst.endChildren();
 
@@ -225,6 +249,10 @@ function parse(tokensFromLex) {
 
             // call parseBlock
             cst.addNode("Block", "branch");
+
+            // Add Block to astTokens
+            astTokens.push("Block");
+
             parseBlock();
             cst.endChildren();
 
@@ -370,6 +398,10 @@ function parse(tokensFromLex) {
 
         // call parseBlock
         cst.addNode("Block", "branch");
+
+        // Add Block to astTokens
+        astTokens.push("Block");
+
         parseBlock();
         cst.endChildren();
     }
@@ -394,6 +426,10 @@ function parse(tokensFromLex) {
 
         // call parseBlock
         cst.addNode("Block", "branch");
+
+        // Add Block to astTokens
+        astTokens.push("Block");
+
         parseBlock();
         cst.endChildren();
     }

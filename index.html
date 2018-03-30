@@ -61,6 +61,23 @@ main page for interacting with MAZ compiler
             </div>
         </div>
 
+        <br>
+
+        <!-- TODO: Change the id names for the following textareas... -->
+        <div class="row">
+            <div class="six columns" height="250px">
+                <label for="saOutputTable">SA Output (Symbol Table)</label> <!-- SA Output Textarea (Symbol Table) -->
+                <textarea id="saOutputTable" class="u-full-width" placeholder="" readonly></textarea>
+            </div>
+
+            <div class="six columns" height="250px">
+                <label for="saOutputTree">SA Output Textarea (AST)</label> <!-- SA Output Textarea (AST) -->
+                <textarea id="saOutputTree" class="u-full-width" placeholder="" readonly></textarea>
+            </div>
+        </div>
+
+        <br>
+
     </div>
 
     <!-- Load/point to compiler JS files -->
@@ -68,7 +85,8 @@ main page for interacting with MAZ compiler
     <script type="text/javascript" src="Scripts/utils.js"></script>
     <script type="text/javascript" src="Scripts/lexer.js"></script>
     <script type="text/javascript" src="Scripts/parser.js"></script>
-    <script type="text/javascript" src="Scripts/cst.js"></script>
+    <script type="text/javascript" src="Scripts/tree.js"></script>
+    <script type="text/javascript" src="Scripts/buildAST.js"></script>
 
     <script type="text/javascript">
 
@@ -79,6 +97,8 @@ main page for interacting with MAZ compiler
             document.getElementById("lexOutput").value = "";
             document.getElementById("parseOutput").value = "";
             document.getElementById("compStatus").value = "";
+            document.getElementById("saOutputTable").value = "";
+            document.getElementById("saOutputTree").value = ""
         }
 
         function compile() {

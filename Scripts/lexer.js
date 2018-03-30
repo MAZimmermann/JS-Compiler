@@ -392,11 +392,16 @@ function lex() {
 
                                     document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
 
-                                    var cst = parse(tokens, programCount);
-                                    var tree = cst.toString();
+                                    var parseReturns = parse(tokens, programCount);
+                                    var tree = parseReturns.tree.toString();
 
                                     document.getElementById("parseOutput").value += tree;
                                     document.getElementById("parseOutput").value += "\n";
+
+                                    /********** ********** ********** ********** **********
+                                     * Assuming parse has passed, build AST
+                                     ***********/
+                                    buildAST(parseReturns.tokens);
 
                                     /********** ********** ********** ********** **********
                                      * Reset all arrays / counts for lexing the next program
@@ -518,13 +523,16 @@ function lex() {
 
                 document.getElementById("compStatus").value += "Found 0 error(s)" + "\n" + "\n";
 
-                var cst = parse(tokens, programCount);
-
-                var tree = cst.toString();
+                var parseReturns = parse(tokens, programCount);
+                var tree = parseReturns.tree.toString();
 
                 document.getElementById("parseOutput").value += tree;
-
                 document.getElementById("parseOutput").value += "\n";
+
+                /********** ********** ********** ********** **********
+                 * Assuming parse has passed, build AST
+                 ***********/
+                buildAST(parseReturns.tokens);
 
             } else {
 
