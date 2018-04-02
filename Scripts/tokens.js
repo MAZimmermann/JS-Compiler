@@ -21,7 +21,7 @@ function Token(kind, value, line) {
 * Token build function
 **********/
 Token.build = function(kind, value, line) {
-    return new Token(kind, value, line)
+    return new Token(kind, value, line);
 }
 
 /********** ********** ********** ********** **********

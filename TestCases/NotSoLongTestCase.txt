@@ -1,0 +1,9 @@
+{
+ int a
+ int b
+ a = 0
+ while (a != 2) {
+  a = 1 + a
+ }
+}
+$

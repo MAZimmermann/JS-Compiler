@@ -49,3 +49,13 @@ function getKind(lexeme) {
         }
     }
 }
+
+/*
+function getASTokenKind(lexeme) {
+    for (var key in asToken.Kind) {
+        var kind = asTokenToken.Kind[key];
+        if (lexeme.match(kind.pattern)) {
+            return kind;
+        }
+    }
+}*/

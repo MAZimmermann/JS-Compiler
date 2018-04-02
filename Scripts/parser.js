@@ -22,6 +22,10 @@ function parse(tokensFromLex) {
     // This will contain the tokens need for the AST
     var astTokens = [];
 
+/*    for (var z = 0; z < tokensFromLex.length; z++) {
+        alert(tokensFromLex[z].value)
+    }*/
+
     // Keeps track of our position in the token array
     var iter = 0;
 
@@ -35,6 +39,9 @@ function parse(tokensFromLex) {
     cst.cur = cst.root;
 
     var running = true;
+
+    // Keep track of the depth/scope as we add new asTokens
+    var depth = 0;
 
     // Begin parseProgram
     parseProgram();
@@ -101,7 +108,10 @@ function parse(tokensFromLex) {
         cst.addNode("Block", "branch");
 
         // Add Block to astTokens
-        astTokens.push("Block");
+        newToken = asToken.build(asToken.Kind.Block, "Block", depth)
+        astTokens.push(newToken);
+
+        depth++;
 
         parseBlock();
         cst.endChildren();
@@ -166,6 +176,9 @@ function parse(tokensFromLex) {
             parseError(parseBlockError);
 
         }
+
+        depth--;
+
     }
 
 
@@ -204,7 +217,8 @@ function parse(tokensFromLex) {
             cst.addNode("PrintStatement", "branch");
 
             // Add PrintStatement to astTokens
-            astTokens.push("PrintStatement");
+            newToken = asToken.build(asToken.Kind.PrintStatement, "PrintStatement", depth)
+            astTokens.push(newToken);
 
             parsePrintStatement();
             cst.endChildren();
@@ -215,7 +229,8 @@ function parse(tokensFromLex) {
             cst.addNode("AssignmentStatement", "branch");
 
             // Add AssignmentStatement to astTokens
-            astTokens.push("AssignmentStatement");
+            newToken = asToken.build(asToken.Kind.AssignmentStatement, "AssignmentStatement", depth)
+            astTokens.push(newToken);
 
             parseAssignmentStatement();
             cst.endChildren();
@@ -226,7 +241,8 @@ function parse(tokensFromLex) {
             cst.addNode("VarDecl", "branch");
 
             // Add VarDecl to astTokens
-            astTokens.push("VarDecl");
+            newToken = asToken.build(asToken.Kind.VarDecl, "VarDecl", depth)
+            astTokens.push(newToken);
 
             parseVarDecl();
             cst.endChildren();
@@ -235,6 +251,11 @@ function parse(tokensFromLex) {
 
             // call parseWhileStatement
             cst.addNode("WhileStatement", "branch");
+
+            // Add WhileStatement to astTokens
+            newToken = asToken.build(asToken.Kind.WhileStatement, "WhileStatement", depth)
+            astTokens.push(newToken);
+
             parseWhileStatement();
             cst.endChildren();
 
@@ -242,6 +263,11 @@ function parse(tokensFromLex) {
 
             // call parseIfStatement
             cst.addNode("IfStatement", "branch");
+
+            // Add IfStatement to astTokens
+            newToken = asToken.build(asToken.Kind.IfStatement, "IfStatement", depth)
+            astTokens.push(newToken);
+
             parseIfStatement();
             cst.endChildren();
 
@@ -251,7 +277,10 @@ function parse(tokensFromLex) {
             cst.addNode("Block", "branch");
 
             // Add Block to astTokens
-            astTokens.push("Block");
+            newToken = asToken.build(asToken.Kind.Block, "Block", depth)
+            astTokens.push(newToken);
+
+            depth++;
 
             parseBlock();
             cst.endChildren();
@@ -393,14 +422,26 @@ function parse(tokensFromLex) {
 
         // call parseBooleanExpression
         cst.addNode("BooleanExpression", "branch")
+
+        // Add BooleanExpression to astTokens
+        newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth)
+        astTokens.push(newToken);
+
         parseBooleanExpression();
         cst.endChildren();
+
+        // Add EndBooleanExpression to astTokens
+        newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth)
+        astTokens.push(newToken);
 
         // call parseBlock
         cst.addNode("Block", "branch");
 
         // Add Block to astTokens
-        astTokens.push("Block");
+        newToken = asToken.build(asToken.Kind.Block, "Block", depth)
+        astTokens.push(newToken);
+
+        depth++;
 
         parseBlock();
         cst.endChildren();
@@ -420,15 +461,27 @@ function parse(tokensFromLex) {
         cst.addNode(tokens[iter].value, "leaf"); iter++;
 
         // call parseBooleanExpression
-        cst.addNode("BooleanExpression", "branch")
+        cst.addNode("BooleanExpression", "branch");
+
+        // Add BooleanExpression to astTokens
+        newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth)
+        astTokens.push(newToken);
+
         parseBooleanExpression();
         cst.endChildren();
+
+        // Add EndBooleanExpression to astTokens
+        newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth)
+        astTokens.push(newToken);
 
         // call parseBlock
         cst.addNode("Block", "branch");
 
         // Add Block to astTokens
-        astTokens.push("Block");
+        newToken = asToken.build(asToken.Kind.Block, "Block", depth)
+        astTokens.push(newToken);
+
+        depth++;
 
         parseBlock();
         cst.endChildren();
@@ -448,29 +501,79 @@ function parse(tokensFromLex) {
 
             // call parseIntExpression
             cst.addNode("IntExpression", "branch");
+
+            // Add IntExpression to astTokens
+            newToken = asToken.build(asToken.Kind.IntExpression, "IntExpression", depth)
+            astTokens.push(newToken);
+
             parseIntExpression();
             cst.endChildren();
+
+            // Add EndExpression to astTokens
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            astTokens.push(newToken);
 
         } else if (match(tokens[iter], Token.Kind.QUOTE)) {
 
             // call parseStringExpression
             cst.addNode("StringExpression", "branch");
+
+            // Add StringExpression to astTokens
+            newToken = asToken.build(asToken.Kind.StringExpression, "StringExpression", depth)
+            astTokens.push(newToken);
+
             parseStringExpression();
             cst.endChildren();
+
+            // Add EndExpression to astTokens
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            astTokens.push(newToken);
 
         } else if (match(tokens[iter], Token.Kind.L_PAREN)) {
 
             // call parseBooleanExpression
             cst.addNode("BooleanExpression", "branch");
+
+            // Add BooleanExpression to astTokens
+            newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth)
+            astTokens.push(newToken);
+
             parseBooleanExpression();
             cst.endChildren();
 
+            // Add EndBooleanExpression to astTokens
+            newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth)
+            astTokens.push(newToken);
+
+        } else if (match(tokens[iter], Token.Kind.BOOLVAL)) {
+
+            // Add BoolvalExpression to astTokens
+            newToken = asToken.build(asToken.Kind.BoolvalExpression, "BoolvalExpression", depth)
+            astTokens.push(newToken);
+
+            // call parseBoolval
+            cst.addNode("Boolval", "branch");
+            parseBoolval();
+            cst.endChildren();
+
+            // Add EndExpression to astTokens
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            astTokens.push(newToken);
+
         } else if (match(tokens[iter], Token.Kind.CHAR)) {
+
+            // Add IdExpression to astTokens
+            newToken = asToken.build(asToken.Kind.IdExpression, "IdExpression", depth)
+            astTokens.push(newToken);
 
             // call parseId
             cst.addNode("Id", "branch");
             parseId();
             cst.endChildren();
+
+            // Add EndExpression to astTokens
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            astTokens.push(newToken);
 
         } else {
 
@@ -636,6 +739,10 @@ function parse(tokensFromLex) {
 
         if (match(tokens[iter], Token.Kind.CHAR)) {
 
+            // Add Id (char) to astTokens
+            newToken = asToken.build(asToken.Kind.Char, tokens[iter].value, depth)
+            astTokens.push(newToken);
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
 
         } else {
@@ -769,6 +876,10 @@ function parse(tokensFromLex) {
 
         if (match(tokens[iter], Token.Kind.TYPE)) {
 
+            // Add Type to astTokens
+            newToken = asToken.build(asToken.Kind.TYPE, tokens[iter].value, depth)
+            astTokens.push(newToken);
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
 
         } else {
@@ -794,6 +905,10 @@ function parse(tokensFromLex) {
         }
 
         if (match(tokens[iter], Token.Kind.CHAR)) {
+
+            // Add Char to astTokens
+            newToken = asToken.build(asToken.Kind.Char, tokens[iter].value, depth)
+            astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
 
@@ -821,6 +936,10 @@ function parse(tokensFromLex) {
 
         if (match(tokens[iter], Token.Kind.SPACE)) {
 
+            // Add Space to astTokens
+            newToken = asToken.build(asToken.Kind.Space, tokens[iter].value, depth)
+            astTokens.push(newToken);
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
 
         } else {
@@ -846,6 +965,10 @@ function parse(tokensFromLex) {
         }
 
         if (match(tokens[iter], Token.Kind.DIGIT)) {
+
+            // Add Digit to astTokens
+            newToken = asToken.build(asToken.Kind.Digit, tokens[iter].value, depth)
+            astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
 
@@ -873,6 +996,10 @@ function parse(tokensFromLex) {
 
         if (match(tokens[iter], Token.Kind.BOOLOP)) {
 
+            // Add Boolop to astTokens
+            newToken = asToken.build(asToken.Kind.Boolop, tokens[iter].value, depth)
+            astTokens.push(newToken);
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
 
         } else {
@@ -899,6 +1026,10 @@ function parse(tokensFromLex) {
 
         if (match(tokens[iter], Token.Kind.BOOLVAL)) {
 
+            // Add Boolval to astTokens
+            newToken = asToken.build(asToken.Kind.Boolval, tokens[iter].value, depth)
+            astTokens.push(newToken);
+
             cst.addNode(tokens[iter].value, "leaf"); iter++;
 
         } else {
@@ -924,6 +1055,10 @@ function parse(tokensFromLex) {
         }
 
         if (match(tokens[iter], Token.Kind.INTOP)) {
+
+            // Add Intop to astTokens
+            newToken = asToken.build(asToken.Kind.Intop, tokens[iter].value, depth)
+            astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, "leaf"); iter++;
 

@@ -23,7 +23,9 @@ function Tree() {
         // Construct the node object.
         var node = { name: name,
             children: [],
-            parent: {}
+            parent: {},
+            depth: 0,
+            data: ""
         };
 
         // Check to see if it needs to be the root node.
