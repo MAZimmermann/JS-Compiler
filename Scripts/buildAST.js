@@ -1,33 +1,51 @@
 /********** ********** ********** ********** **********
  * buildAST.js
  *
- * Includes...
+ * Includes
+ *  Methods for "checking" each element in the array "astTokens"
+ *  The methods aid in building the AST,
+ *   while also conducting scope/type checks and building the symbol table
+ *
+ * The symbol table is only displayed if declarations/uses
+ *  pass scope and type checking
  *
  **********/
 
 function buildAST(astTokens) {
+
+    document.getElementById("compStatus").value += "\n";
+    document.getElementById("compStatus").value += "SEMANTIC ANALYSIS \n";
 
     document.getElementById("saOutputTree").value += "Program " + programCount + "\n";
     document.getElementById("saOutputTree").value += "********** ********** **********\n";
     document.getElementById("saOutputTable").value += "Program " + programCount + "\n";
     document.getElementById("saOutputTable").value += "********** ********** **********\n";
 
-    // Grab token array from lex output
+    // Grab token array "asTokens" from parse output
     var tokens = astTokens;
 
-    // Keeps track of our position in the token array
+    // Keeps track of our position in "asTokens"
     var iter = 0;
 
     // Used to assess whether we're assessing a boolean expression
     boolCheck = false;
 
+    // Assign -1 to level, placing the first block at 0
+    var level = -1;
+
+    // Create stack containing list of hash tables
+    var stack = [];
+
+    // Array containing list of errors
+    var errors = []; var errorCount = 0;
+    // Array containing list of warnings
+    var warnings = []; var warningCount = 0;
+
 /*    for (var k = 0; k < astTokens.length; k++) {
-        alert(astTokens[k].value /!*+ " " + astTokens[k].depth*!/);
-    }
+        alert(astTokens[k].value + " " + astTokens[k].depth);
+    } iter = 0;*/
 
-    iter = 0;*/
-
-    // Create new instance of tree
+    // Create new instance of tree, this time an AST
     var ast = new Tree();
 
     // Initialize tree with root node
@@ -37,98 +55,253 @@ function buildAST(astTokens) {
     // Set the current node to the root
     ast.cur = ast.root;
 
-    checkBlock(); /*iter++;*/
+    checkBlock();
 
     ast.endChildren();
 
+    // We passed through the entirety of the outermost block, return AST
     var tree = ast.toString();
 
-    document.getElementById("saOutputTree").value += tree + "\n";
+    if (errorCount == 0) {
 
+        if (warningCount == 0) {
+            document.getElementById("compStatus").value += "Found 0 warning(s)" + "\n";
+        } else {
+            for (var k = 0; k < warnings.length; k++) {
+                document.getElementById("compStatus").value += warnings[k]+ "\n";
+            }
+        }
+        document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
+        document.getElementById("saOutputTree").value += tree + "\n";
+
+        var table = document.getElementById("saOutputTable");
+        var rowCount = table.rows.length;
+        var row = table.insertRow(rowCount);
+        var cell1 = row.insertCell(0);
+        cell1.innerHTML = "Program" + programCount;
+        var cell1 = row.insertCell(1);
+        cell1.innerHTML = "";
+        var cell1 = row.insertCell(2);
+        cell1.innerHTML = "";
+        var cell1 = row.insertCell(3);
+        cell1.innerHTML = "";
+
+    } else {
+
+        document.getElementById("saOutputTree").value += "Semantic Analysis Skipped" + "\n";
+        document.getElementById("saOutputTree").value += "See error(s) and warning(s) above" + "\n";
+        document.getElementById("saOutputTree").value += "\n";
+
+    }
+
+
+
+    /********** ********** ********** ********** **********
+     * DONE :)
+     ***********/
+    return;
+
+
+
+    /********** ********** ********** ********** **********
+     * If we hit an error, semantic analysis process terminates and we display the error
+     ***********/
+    function saError(errorMsg) {
+
+        errorCount++;
+
+        if (warningCount == 0) {
+            document.getElementById("compStatus").value += "Found 0 warning(s)" + "\n";
+        } else {
+            for (var k = 0; k < warnings.length; k++) {
+                document.getElementById("compStatus").value += warnings[k]+ "\n";
+            }
+        }
+
+        document.getElementById("compStatus").value += "ERROR \n";
+        document.getElementById("compStatus").value += errorMsg + "\n";
+
+        return;
+
+    }
+
+
+
+    /********** ********** ********** ********** **********
+     * checkBlock()
+     ***********/
     function checkBlock() {
 
-        outer = tokens[iter].depth;
+        // Increase level (depth/scope) by 1
+        level++;
 
-/*        alert(tokens[iter].value + " " + tokens[iter].depth);*/
+        // Create new hashtable for the current block
+        var hashTable = buildTable(10000);
 
-        iter++;
+        // Push the new hashtable onto the stack
+        stack.push(hashTable);
 
-/*        alert(tokens[iter].value + " " + tokens[iter].depth);*/
+        // Assign the current blocks level (depth/scope) to outer
+        outer = tokens[iter].depth; iter++;
 
-        while (tokens[iter].depth - 1 == outer) {
+        if (tokens[iter] == undefined) {
 
-/*            alert(astTokens[iter].value);*/
+        } else {
 
-            if (tokens[iter].value.match(asToken.Kind.PrintStatement.pattern)) {
-                ast.addNode("PrintStatement", "branch"); iter++;
-                checkPrintStatement();
-                ast.endChildren();
-            } else if (tokens[iter].value.match(asToken.Kind.AssignmentStatement.pattern)) {
-                ast.addNode("AssignmentStatement", "branch"); iter++;
-                checkAssignment();
-/*                ast.endChildren();*/
-            } else if (tokens[iter].value.match(asToken.Kind.VarDecl.pattern)) {
-                ast.addNode("VarDecl", "branch"); iter++;
-                checkVarDecl();
-                ast.endChildren();
-            } else if (tokens[iter].value.match(asToken.Kind.WhileStatement.pattern)) {
-                ast.addNode("WhileStatement", "branch"); iter++;
-                checkWhileStatement();
-                ast.endChildren();
-            } else if (tokens[iter].value.match(asToken.Kind.IfStatement.pattern)) {
-                ast.addNode("IfStatement", "branch"); iter++;
-                checkIfStatement();
-                ast.endChildren();
-            } else if (tokens[iter].value.match(asToken.Kind.Block.pattern)) {
+            while (tokens[iter].depth - 1 == outer) {
 
-                alert("test");
+                if (tokens[iter].value.match(asToken.Kind.PrintStatement.pattern)) {
+                    ast.addNode("PrintStatement", "branch"); iter++;
+                    checkPrintStatement();
+    /*                ast.endChildren();*/
+                } else if (tokens[iter].value.match(asToken.Kind.AssignmentStatement.pattern)) {
+                    ast.addNode("AssignmentStatement", "branch"); iter++;
+                    checkAssignment();
+    /*                ast.endChildren();*/
+                } else if (tokens[iter].value.match(asToken.Kind.VarDecl.pattern)) {
+                    ast.addNode("VarDecl", "branch"); iter++;
+                    checkVarDecl();
+                    ast.endChildren();
+                } else if (tokens[iter].value.match(asToken.Kind.WhileStatement.pattern)) {
+                    ast.addNode("WhileStatement", "branch"); iter++;
+                    checkWhileStatement();
+                    ast.endChildren();
+                } else if (tokens[iter].value.match(asToken.Kind.IfStatement.pattern)) {
+                    ast.addNode("IfStatement", "branch"); iter++;
+                    checkIfStatement();
+                    ast.endChildren();
+                } else if (tokens[iter].value.match(asToken.Kind.Block.pattern)) {
 
-                ast.addNode("Block", "branch");
-                checkBlock();
-                ast.endChildren();
-                outer--;
+                    ast.addNode("Block", "branch");
+                    checkBlock();
+                    ast.endChildren();
+                    outer--;
+
+                } else {
+
+                    // Not sure what else could make its way through...
+                    break;
+
+                }
+
+                if (tokens[iter + 1] == undefined) {
+                    break;
+                }
+
+            }
+
+            /********** ********** ********** ********** **********
+             * Finished processing block, as hashtbale to final "list?"
+             ***********/
+
+/*            var table = document.getElementById("saOutputTable");
+            var tableSize = hashTable.getSize();
+            for (var q = tableSize; q > 0; q--) {
+                var row = table.insertRow(1);
+
+                var cell1 = row.insertCell(0);
+
+                cell1.innerHTML = q;
+            }*/
+        }
+    }
+
+
+
+    /********** ********** ********** ********** **********
+     * checkAssignment()
+     ***********/
+    function checkAssignment() {
+
+        if (stack[stack.length-1].retrieve(tokens[iter].value) == undefined) {
+
+            // Symbol not declared in scope
+
+            var lvl = level;
+
+            level--;
+
+            found = false;
+
+            while (level >= 0) {
+                if (stack[level].retrieve(tokens[iter].value) == undefined) {
+                    // continue
+                } else {
+                    found = true;
+                }
+                level--;
+            }
+
+            level = lvl;
+
+            if (found) {
+                // Move onto type checking
+
+                // TODO: TYPE CHECK
+
+                ast.addNode(tokens[iter].value, "leaf"); iter++;
+
+                checkExpression();
 
             } else {
+                // Symbol not declared at all
 
-                // Not sure what else could make its way through...
-                break;
+                errorMsg = "Symbol [" + tokens[iter].value + "] used before being declared";
+
+                saError(errorMsg);
 
             }
 
-/*            alert(tokens[iter].value + " " + tokens[iter].depth);*/
+        } else {
 
-            if (tokens[iter + 1] == undefined) {
-                break;
-            }
+            // TODO: TYPE CHECK
+
+            ast.addNode(tokens[iter].value, "leaf"); iter++;
+
+            checkExpression();
 
         }
 
     }
 
-    function checkAssignment() {
 
-/*        alert(tokens[iter].value + " " + tokens[iter].depth);*/
 
-        ast.addNode(tokens[iter].value, "leaf"); iter++;
-
-        checkExpression();
-
-    }
-
+    /********** ********** ********** ********** **********
+     * checkVarDecl()
+     ***********/
     function checkVarDecl() {
 
         ast.addNode(tokens[iter].value, "leaf"); iter++;
 
-        ast.addNode(tokens[iter].value, "leaf"); iter++;
+        if (stack[stack.length-1].retrieve(tokens[iter].value) != undefined) {
+
+            // Symbol already declared in this scope
+
+            errorMsg = "Symbol [" + tokens[iter].value + "] already declared in this scope";
+
+            saError(errorMsg);
+
+        } else {
+
+            //TODO: TYPE CHECK
+
+            stack[stack.length-1].insert(tokens[iter].value, [level]);
+
+            ast.addNode(tokens[iter].value, "leaf"); iter++;
+
+        }
 
     }
 
+
+
+    /********** ********** ********** ********** **********
+     * checkWhileStatement()
+     ***********/
     function checkWhileStatement() {
 
         checkExpression();
 
-/*        ast.endChildren();*/
-
         ast.addNode("Block", "branch");
 
         checkBlock();
@@ -137,12 +310,15 @@ function buildAST(astTokens) {
 
     }
 
+
+
+    /********** ********** ********** ********** **********
+     * checkIfStatement()
+     ***********/
     function checkIfStatement() {
 
         checkExpression();
 
-/*        ast.endChildren();*/
-
         ast.addNode("Block", "branch");
 
         checkBlock();
@@ -151,14 +327,24 @@ function buildAST(astTokens) {
 
     }
 
+
+
+    /********** ********** ********** ********** **********
+     * checkPrintStatement()
+     ***********/
     function checkPrintStatement() {
 
         checkExpression();
 
-        ast.endChildren();
+/*        ast.endChildren();*/
 
     }
 
+
+
+    /********** ********** ********** ********** **********
+     * checkExpression()
+     ***********/
     function checkExpression() {
 
         if (tokens[iter].value.match(asToken.Kind.BoolvalExpression.pattern)) {
@@ -198,7 +384,13 @@ function buildAST(astTokens) {
         }
     }
 
+
+
+    /********** ********** ********** ********** **********
+     * checkBoolvalStatement()
+     ***********/
     function checkBoolvalExpression() {
+
         ast.addNode(tokens[iter].value, "leaf"); iter++;
 
         if (tokens[iter] == undefined) {
@@ -231,6 +423,11 @@ function buildAST(astTokens) {
         }
     }
 
+
+
+    /********** ********** ********** ********** **********
+     * checkIntExpression()
+     ***********/
     function checkIntExpression() {
 
         if (tokens[iter + 1].value.match(asToken.Kind.Intop.pattern)) {
@@ -312,8 +509,6 @@ function buildAST(astTokens) {
                     } iter++;
                 } else {
 
-/*                    alert("test");*/
-
                     while (tokens[iter].value.match(asToken.Kind.EndExpression.pattern)) {
 
                         ast.endChildren(); iter++;
@@ -327,12 +522,17 @@ function buildAST(astTokens) {
         }
     }
 
+
+
+    /********** ********** ********** ********** **********
+     * checkStringExpression()
+     ***********/
     function checkStringExpression() {
+
         var holdIt = [];
 
         while (!tokens[iter].value.match(asToken.Kind.EndExpression.pattern)) {
-            holdIt.push(tokens[iter].value)
-            iter++;
+            holdIt.push(tokens[iter].value); iter++;
         }
 
         ast.addNode(holdIt, "leaf"); iter++;
@@ -367,6 +567,11 @@ function buildAST(astTokens) {
         }
     }
 
+
+
+    /********** ********** ********** ********** **********
+     * checkBooleanExpression()
+     ***********/
     function checkBooleanExpression() {
 
         var marker = iter;
@@ -400,7 +605,13 @@ function buildAST(astTokens) {
 
     }
 
+
+
+    /********** ********** ********** ********** **********
+     * checkIdExpression()
+     ***********/
     function checkIdExpression() {
+
         // TODO: Scope / Type check?
 
         ast.addNode(tokens[iter].value, "leaf"); iter++;

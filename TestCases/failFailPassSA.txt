@@ -1,0 +1,13 @@
+{
+while (k!=3) {
+ k = 1 + k
+}
+}$
+{
+int k
+string k
+}$
+{
+boolean k
+k = true
+}$

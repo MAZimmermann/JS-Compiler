@@ -3,10 +3,6 @@
  *
  * TODO summary for this file
  *
- * TODO reformat this file, too messy atm
- *
- * TODO revisit multiple program processing errors
- *
 **********/
 
 function lex() {

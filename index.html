@@ -66,8 +66,19 @@ main page for interacting with MAZ compiler
         <!-- TODO: Change the id names for the following textareas... -->
         <div class="row">
             <div class="six columns" height="250px">
-                <label for="saOutputTable">SA Output (Symbol Table)</label> <!-- SA Output Textarea (Symbol Table) -->
-                <textarea id="saOutputTable" class="u-full-width" placeholder="" readonly></textarea>
+                <label for="saOutputTable">SA Output (Symbol Table)</label> <!-- SA Output Textarea -->
+                <table id="saOutputTable" class="u-full-width" placeholder="" readonly>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Scope</th>
+                            <th>Position</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
 
             <div class="six columns" height="250px">
@@ -88,6 +99,7 @@ main page for interacting with MAZ compiler
     <script type="text/javascript" src="Scripts/tree.js"></script>
     <script type="text/javascript" src="Scripts/astokens.js"></script>
     <script type="text/javascript" src="Scripts/buildAST.js"></script>
+    <script type="text/javascript" src="Scripts/hashTable.js"></script>
 
     <script type="text/javascript">
 
@@ -95,9 +107,9 @@ main page for interacting with MAZ compiler
         function init() {
             // Start with blank textareas
             document.getElementById("taInput").placeholder = "Enter Source Code...";
+            document.getElementById("compStatus").value = "";
             document.getElementById("lexOutput").value = "";
             document.getElementById("parseOutput").value = "";
-            document.getElementById("compStatus").value = "";
             document.getElementById("saOutputTable").value = "";
             document.getElementById("saOutputTree").value = ""
         }
