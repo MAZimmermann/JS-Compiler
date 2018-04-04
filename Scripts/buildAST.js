@@ -21,6 +21,16 @@ function buildAST(astTokens) {
     document.getElementById("saOutputTable").value += "Program " + programCount + "\n";
     document.getElementById("saOutputTable").value += "********** ********** **********\n";
 
+    var table = document.getElementById("saOutputTable");
+    var rowCount = table.rows.length;
+    var row = table.insertRow(rowCount);
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = "Program " + programCount;
+    var cell1 = row.insertCell(1);
+    cell1.innerHTML = "**********";
+    var cell1 = row.insertCell(2);
+    cell1.innerHTML = "**********";
+
     // Grab token array "asTokens" from parse output
     var tokens = astTokens;
 
@@ -74,32 +84,13 @@ function buildAST(astTokens) {
         document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
         document.getElementById("saOutputTree").value += tree + "\n";
 
-        var table = document.getElementById("saOutputTable");
-        var rowCount = table.rows.length;
-        var row = table.insertRow(rowCount);
-        var cell1 = row.insertCell(0);
-        cell1.innerHTML = "Program" + programCount;
-        var cell1 = row.insertCell(1);
-        cell1.innerHTML = "";
-        var cell1 = row.insertCell(2);
-        cell1.innerHTML = "";
-        var cell1 = row.insertCell(3);
-        cell1.innerHTML = "";
-
     } else {
 
-        document.getElementById("saOutputTree").value += "Semantic Analysis Skipped" + "\n";
+        document.getElementById("saOutputTree").value += "Semantic analysis skipped" + "\n";
         document.getElementById("saOutputTree").value += "See error(s) and warning(s) above" + "\n";
         document.getElementById("saOutputTree").value += "\n";
 
     }
-
-
-
-    /********** ********** ********** ********** **********
-     * DONE :)
-     ***********/
-    return;
 
 
 
@@ -120,8 +111,6 @@ function buildAST(astTokens) {
 
         document.getElementById("compStatus").value += "ERROR \n";
         document.getElementById("compStatus").value += errorMsg + "\n";
-
-        return;
 
     }
 
@@ -153,11 +142,11 @@ function buildAST(astTokens) {
                 if (tokens[iter].value.match(asToken.Kind.PrintStatement.pattern)) {
                     ast.addNode("PrintStatement", "branch"); iter++;
                     checkPrintStatement();
-    /*                ast.endChildren();*/
+                    /*ast.endChildren();*/
                 } else if (tokens[iter].value.match(asToken.Kind.AssignmentStatement.pattern)) {
                     ast.addNode("AssignmentStatement", "branch"); iter++;
                     checkAssignment();
-    /*                ast.endChildren();*/
+                    /*ast.endChildren();*/
                 } else if (tokens[iter].value.match(asToken.Kind.VarDecl.pattern)) {
                     ast.addNode("VarDecl", "branch"); iter++;
                     checkVarDecl();
@@ -194,15 +183,8 @@ function buildAST(astTokens) {
              * Finished processing block, as hashtbale to final "list?"
              ***********/
 
-/*            var table = document.getElementById("saOutputTable");
-            var tableSize = hashTable.getSize();
-            for (var q = tableSize; q > 0; q--) {
-                var row = table.insertRow(1);
+            var temp = stack.pop();
 
-                var cell1 = row.insertCell(0);
-
-                cell1.innerHTML = q;
-            }*/
         }
     }
 
@@ -213,20 +195,23 @@ function buildAST(astTokens) {
      ***********/
     function checkAssignment() {
 
+        var holdType = tokens[iter + 1].value;
+
+        if (holdType.match(asToken.Kind.IdExpression.pattern)) {
+            var holdToken = tokens[iter + 2];
+        }
+
         if (stack[stack.length-1].retrieve(tokens[iter].value) == undefined) {
 
             // Symbol not declared in scope
 
-            var lvl = level;
-
-            level--;
-
-            found = false;
+            var lvl = level; level--; found = false;
 
             while (level >= 0) {
                 if (stack[level].retrieve(tokens[iter].value) == undefined) {
                     // continue
                 } else {
+                    var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
                     found = true;
                 }
                 level--;
@@ -235,13 +220,46 @@ function buildAST(astTokens) {
             level = lvl;
 
             if (found) {
+
                 // Move onto type checking
 
-                // TODO: TYPE CHECK
+                if (holdType.match(asToken.Kind.IntExpression.pattern)) {
+                    if (!(declaredAs == "int")) {
+                        errorMsg = "Type mismatch, expecting " + declaredAs;
+                        saError(errorMsg);
+                    } else {
+                        // Do nothing
+                    }
+                } else if (holdType.match(asToken.Kind.StringExpression.pattern)) {
+                    if (!(declaredAs == "string")) {
+                        errorMsg = "Type mismatch, expecting " + declaredAs;
+                        saError(errorMsg);
+                    } else {
+                        // Do nothing
+                    }
+                } else if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
+                    if (!(declaredAs == "boolean")) {
+                        errorMsg = "Type mismatch, expecting " + declaredAs;
+                        saError(errorMsg);
+                    } else {
+                        // Do nothing
+                    }
+                } else if (holdType.match(asToken.Kind.BoolvalExpression.pattern)) {
+                    if (!(declaredAs == "boolval")) {
+                        errorMsg = "Type mismatch, expecting " + declaredAs;
+                        saError(errorMsg);
+                    } else {
+                        // Do nothing
+                    }
+                }
 
                 ast.addNode(tokens[iter].value, "leaf"); iter++;
 
                 checkExpression();
+
+                if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
+                    ast.endChildren();
+                }
 
             } else {
                 // Symbol not declared at all
@@ -254,11 +272,98 @@ function buildAST(astTokens) {
 
         } else {
 
-            // TODO: TYPE CHECK
+            var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+
+            if (holdType.match(asToken.Kind.IntExpression.pattern)) {
+                if (!(declaredAs == "int")) {
+                    errorMsg = "Type mismatch, expecting " + declaredAs;
+                    saError(errorMsg);
+                } else {
+                    // Do nothing
+                }
+            } else if (holdType.match(asToken.Kind.StringExpression.pattern)) {
+                if (!(declaredAs == "string")) {
+                    errorMsg = "Type mismatch, expecting " + declaredAs;
+                    saError(errorMsg);
+                } else {
+                    // Do nothing
+                }
+            } else if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
+                if (!(declaredAs == "boolean")) {
+                    errorMsg = "Type mismatch, expecting " + declaredAs;
+                    saError(errorMsg);
+                } else {
+                    // Do nothing
+                }
+            } else if (holdType.match(asToken.Kind.BoolvalExpression.pattern)) {
+                if (!(declaredAs == "boolval")) {
+                    errorMsg = "Type mismatch, expecting " + declaredAs;
+                    saError(errorMsg);
+                } else {
+                    // Do nothing
+                }
+            } else if (holdType.match(asToken.Kind.IdExpression.pattern)) {
+
+                if (stack[stack.length-1].retrieve(holdToken.value) == undefined) {
+
+                    // Symbol not declared in scope
+
+                    var lvl = level; level--; found = false;
+
+                    while (level >= 0) {
+                        if (stack[level].retrieve(tokens[iter].value) == undefined) {
+                            // continue
+                        } else {
+                            var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                            found = true;
+                        }
+                        level--;
+                    }
+
+                    level = lvl;
+
+                    if (found) {
+                        // Move onto type checking
+
+                        ast.addNode(tokens[iter].value, "leaf"); iter++;
+
+                        checkExpression();
+
+                    } else {
+                        // Symbol not declared at all
+
+                        errorMsg = "Symbol [" + holdToken.value + "] used before being declared";
+
+                        saError(errorMsg);
+
+                    }
+                } else {
+
+                    var leftOfAssign = stack[level].retrieve(tokens[iter].value)[1];
+                    var rightOfAssign = stack[level].retrieve(holdToken.value)[1];
+
+                    if (leftOfAssign == rightOfAssign) {
+
+                        // no issue, do nothing
+
+                    } else {
+
+                        errorMsg = "Type mismatch, expecting " + leftOfAssign + " found " + rightOfAssign;
+
+                        saError(errorMsg);
+
+                    }
+
+                }
+            }
 
             ast.addNode(tokens[iter].value, "leaf"); iter++;
 
             checkExpression();
+
+            if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
+                ast.endChildren();
+            }
 
         }
 
@@ -283,9 +388,19 @@ function buildAST(astTokens) {
 
         } else {
 
-            //TODO: TYPE CHECK
+            var type = tokens[iter - 1].value;
 
-            stack[stack.length-1].insert(tokens[iter].value, [level]);
+            stack[stack.length-1].insert(tokens[iter].value, [tokens[iter].value, type, level]);
+
+            var table = document.getElementById("saOutputTable");
+            var rowCount = table.rows.length;
+            var row = table.insertRow(rowCount);
+            var cell1 = row.insertCell(0);
+            cell1.innerHTML = tokens[iter].value;
+            var cell1 = row.insertCell(1);
+            cell1.innerHTML = type;
+            var cell1 = row.insertCell(2);
+            cell1.innerHTML = level;
 
             ast.addNode(tokens[iter].value, "leaf"); iter++;
 
@@ -366,6 +481,8 @@ function buildAST(astTokens) {
             iter++;
 
             checkStringExpression();
+
+            ast.endChildren();
 
 
         } else if (tokens[iter].value.match(asToken.Kind.BooleanExpression.pattern)) {
@@ -555,7 +672,7 @@ function buildAST(astTokens) {
                     }
                 } iter++;
             } else {
-                while (tokens[iter].value.match(asToken.Kind.EndExpression.pattern)) {
+                while (tokens[iter + 1].value.match(asToken.Kind.EndExpression.pattern)) {
 
                     ast.endChildren(); iter++;
 

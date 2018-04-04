@@ -66,17 +66,16 @@ main page for interacting with MAZ compiler
         <!-- TODO: Change the id names for the following textareas... -->
         <div class="row">
             <div class="six columns" height="250px">
-                <label for="saOutputTable">SA Output (Symbol Table)</label> <!-- SA Output Textarea -->
+                <label for="saOutputTable">SA Output (Symbol Table)</label> <!-- SA Output Table -->
                 <table id="saOutputTable" class="u-full-width" placeholder="" readonly>
                     <thead>
                         <tr>
                             <th>Name</th>
                             <th>Type</th>
                             <th>Scope</th>
-                            <th>Position</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="symbolTableBody">
                     </tbody>
                 </table>
             </div>
@@ -111,11 +110,14 @@ main page for interacting with MAZ compiler
             document.getElementById("lexOutput").value = "";
             document.getElementById("parseOutput").value = "";
             document.getElementById("saOutputTable").value = "";
-            document.getElementById("saOutputTree").value = ""
+            document.getElementById("saOutputTree").value = "";
+            document.getElementById("symbolTableBody").value = ""
+
         }
 
         function compile() {
             init();
+            clearTable();
             lex();
         }
 
@@ -124,6 +126,13 @@ main page for interacting with MAZ compiler
                 {selectedLine: 1}
             );
         });
+
+        function clearTable() {
+            var table = document.getElementById("saOutputTable");
+            while(table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+        }
 
     </script>
 
