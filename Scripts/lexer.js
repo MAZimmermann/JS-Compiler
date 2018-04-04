@@ -1,7 +1,9 @@
 /********** ********** ********** ********** **********
 * lexer.js
  *
- * TODO summary for this file
+ * Breaks up input by line and assess each line
+ *
+ * When an EOP marker is hit, we pass the tokens to the parser
  *
 **********/
 

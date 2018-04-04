@@ -30,6 +30,8 @@ function buildAST(astTokens) {
     cell1.innerHTML = "**********";
     var cell1 = row.insertCell(2);
     cell1.innerHTML = "**********";
+/*    var cell1 = row.insertCell(3);
+    cell1.innerHTML = "**********";*/
 
     // Grab token array "asTokens" from parse output
     var tokens = astTokens;
@@ -160,7 +162,6 @@ function buildAST(astTokens) {
                     checkIfStatement();
                     ast.endChildren();
                 } else if (tokens[iter].value.match(asToken.Kind.Block.pattern)) {
-
                     ast.addNode("Block", "branch");
                     checkBlock();
                     ast.endChildren();
@@ -185,7 +186,10 @@ function buildAST(astTokens) {
 
             var temp = stack.pop();
 
+            level--;
+
         }
+
     }
 
 
@@ -245,11 +249,63 @@ function buildAST(astTokens) {
                         // Do nothing
                     }
                 } else if (holdType.match(asToken.Kind.BoolvalExpression.pattern)) {
-                    if (!(declaredAs == "boolval")) {
+                    if (!(declaredAs == "boolean")) {
                         errorMsg = "Type mismatch, expecting " + declaredAs;
                         saError(errorMsg);
                     } else {
                         // Do nothing
+                    }
+                } else if (holdType.match(asToken.Kind.IdExpression.pattern)) {
+                    if (stack[stack.length-1].retrieve(holdToken.value) == undefined) {
+
+                        // Symbol not declared in scope
+
+                        var lvl = level; level--; found = false;
+
+                        while (level >= 0) {
+                            if (stack[level].retrieve(tokens[iter].value) == undefined) {
+                                // continue
+                            } else {
+                                var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                                found = true;
+                            }
+                            level--;
+                        }
+
+                        level = lvl;
+
+                        if (found) {
+                            // Move onto type checking
+
+                            ast.addNode(tokens[iter].value, "leaf"); iter++;
+
+                            checkExpression();
+
+                        } else {
+                            // Symbol not declared at all
+
+                            errorMsg = "Symbol [" + holdToken.value + "] used before being declared";
+
+                            saError(errorMsg);
+
+                        }
+                    } else {
+
+                        var leftOfAssign = stack[level].retrieve(tokens[iter].value)[1];
+                        var rightOfAssign = stack[level].retrieve(holdToken.value)[1];
+
+                        if (leftOfAssign == rightOfAssign) {
+
+                            // no issue, do nothing
+
+                        } else {
+
+                            errorMsg = "Type mismatch, expecting " + leftOfAssign + " found " + rightOfAssign;
+
+                            saError(errorMsg);
+
+                        }
+
                     }
                 }
 
@@ -296,7 +352,7 @@ function buildAST(astTokens) {
                     // Do nothing
                 }
             } else if (holdType.match(asToken.Kind.BoolvalExpression.pattern)) {
-                if (!(declaredAs == "boolval")) {
+                if (!(declaredAs == "boolean")) {
                     errorMsg = "Type mismatch, expecting " + declaredAs;
                     saError(errorMsg);
                 } else {
@@ -401,6 +457,8 @@ function buildAST(astTokens) {
             cell1.innerHTML = type;
             var cell1 = row.insertCell(2);
             cell1.innerHTML = level;
+/*            var cell1 = row.insertCell(3);
+            cell1.innerHTML = scopeInstance;*/
 
             ast.addNode(tokens[iter].value, "leaf"); iter++;
 

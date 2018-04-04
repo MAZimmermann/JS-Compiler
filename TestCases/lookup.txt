@@ -1,0 +1,18 @@
+{
+int a
+boolean e
+e = true
+{
+int b
+int c
+{
+string s
+while (c==5) {
+a = 1 + b
+s = "string"
+}
+}
+}
+boolean d
+d = e
+}$

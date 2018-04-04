@@ -2,7 +2,11 @@
  * symbol.js
  *
  * Includes
- *  ...
+ *  Constructor for a hash table as well as
+ *   methods for operations on a hash table
+ *
+ *  Inspired by Alex Haskins
+ *   https://gist.github.com/alexhawkins/48d7fd31af6ed00e5c60
  *
  **********/
 
@@ -14,7 +18,7 @@ var buildTable = function(max) {
                 var hash = 0;
                 for (var i = 0; i < key.length; i++) {
                     hash = (hash << 5) - hash + key.charCodeAt(i);
-                    hash = hash >>> 0; //convert to 32bit unsigned integer
+                    hash = hash >>> 0;
                 }
                 return Math.abs(hash % max);
             },
