@@ -83,8 +83,11 @@ function buildAST(astTokens) {
                 document.getElementById("compStatus").value += warnings[k]+ "\n";
             }
         }
+
         document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
         document.getElementById("saOutputTree").value += tree + "\n";
+
+        codeGen(ast);
 
     } else {
 

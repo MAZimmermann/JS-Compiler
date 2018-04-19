@@ -63,7 +63,6 @@ main page for interacting with MAZ compiler
 
         <br>
 
-        <!-- TODO: Change the id names for the following textareas... -->
         <div class="row">
             <div class="six columns" height="250px">
                 <label for="saOutputTable">SA Output (Symbol Table)</label> <!-- SA Output Table -->
@@ -88,6 +87,15 @@ main page for interacting with MAZ compiler
 
         <br>
 
+        <div class="row">
+            <div class="twelve columns" height="250px">
+                <label for="saOutputTree">6502a Code</label> <!-- 6502a Code -->
+                <textarea id="codeGen" class="u-full-width" placeholder="" readonly></textarea>
+            </div>
+        </div>
+
+        <br>
+
     </div>
 
     <!-- Load/point to compiler JS files -->
@@ -99,6 +107,7 @@ main page for interacting with MAZ compiler
     <script type="text/javascript" src="Scripts/astokens.js"></script>
     <script type="text/javascript" src="Scripts/buildAST.js"></script>
     <script type="text/javascript" src="Scripts/hashTable.js"></script>
+    <script type="text/javascript" src="Scripts/codeGen.js"></script>
 
     <script type="text/javascript">
 
@@ -111,7 +120,8 @@ main page for interacting with MAZ compiler
             document.getElementById("parseOutput").value = "";
             document.getElementById("saOutputTable").value = "";
             document.getElementById("saOutputTree").value = "";
-            document.getElementById("symbolTableBody").value = ""
+            document.getElementById("symbolTableBody").value = "";
+            document.getElementById("codeGen").value = "";
 
         }
 
