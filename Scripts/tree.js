@@ -25,7 +25,7 @@ function Tree() {
             children: [],
             parent: {},
             depth: 0,
-            data: ""
+            data: nodeData
         };
 
         // Check to see if it needs to be the root node.

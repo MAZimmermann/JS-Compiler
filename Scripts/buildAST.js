@@ -30,8 +30,6 @@ function buildAST(astTokens) {
     cell1.innerHTML = "**********";
     var cell1 = row.insertCell(2);
     cell1.innerHTML = "**********";
-/*    var cell1 = row.insertCell(3);
-    cell1.innerHTML = "**********";*/
 
     // Grab token array "asTokens" from parse output
     var tokens = astTokens;
@@ -135,7 +133,7 @@ function buildAST(astTokens) {
         // Push the new hashtable onto the stack
         stack.push(hashTable);
 
-        // Assign the current blocks level (depth/scope) to outer
+        // Assign the current block's level (depth/scope) to outer
         outer = tokens[iter].depth; iter++;
 
         if (tokens[iter] == undefined) {
@@ -147,23 +145,26 @@ function buildAST(astTokens) {
                 if (tokens[iter].value.match(asToken.Kind.PrintStatement.pattern)) {
                     ast.addNode("PrintStatement", "PrintStatement", "branch"); iter++;
                     checkPrintStatement();
-                    /*ast.endChildren();*/
+
                 } else if (tokens[iter].value.match(asToken.Kind.AssignmentStatement.pattern)) {
                     ast.addNode("AssignmentStatement", "AssignmentStatement", "branch"); iter++;
                     checkAssignment();
-                    /*ast.endChildren();*/
+
                 } else if (tokens[iter].value.match(asToken.Kind.VarDecl.pattern)) {
                     ast.addNode("VarDecl", "VarDecl", "branch"); iter++;
                     checkVarDecl();
                     ast.endChildren();
+
                 } else if (tokens[iter].value.match(asToken.Kind.WhileStatement.pattern)) {
                     ast.addNode("WhileStatement", "WhileStatement", "branch"); iter++;
                     checkWhileStatement();
                     ast.endChildren();
+
                 } else if (tokens[iter].value.match(asToken.Kind.IfStatement.pattern)) {
                     ast.addNode("IfStatement", "IfStatement", "branch"); iter++;
                     checkIfStatement();
                     ast.endChildren();
+
                 } else if (tokens[iter].value.match(asToken.Kind.Block.pattern)) {
                     ast.addNode("Block", "Block", "branch");
                     checkBlock();
@@ -435,8 +436,6 @@ function buildAST(astTokens) {
      ***********/
     function checkVarDecl() {
 
-/*        alert(tokens[iter].value);*/
-
         var type = tokens[iter].value;
 
         ast.addNode(type, tokens[iter].value, "leaf"); iter++;
@@ -462,8 +461,6 @@ function buildAST(astTokens) {
             cell1.innerHTML = type;
             var cell1 = row.insertCell(2);
             cell1.innerHTML = level;
-/*            var cell1 = row.insertCell(3);
-            cell1.innerHTML = scopeInstance;*/
 
             ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
@@ -514,8 +511,6 @@ function buildAST(astTokens) {
 
         checkExpression();
 
-/*        ast.endChildren();*/
-
     }
 
 
@@ -526,8 +521,6 @@ function buildAST(astTokens) {
     function checkExpression() {
 
         if (tokens[iter].value.match(asToken.Kind.BoolvalExpression.pattern)) {
-
-            // TODO: Scope / Type check?
 
             iter++;
 
@@ -666,8 +659,6 @@ function buildAST(astTokens) {
 
         } else {
 
-            // TODO: Scope / Type check?
-
             ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
             if (tokens[iter] == undefined) {
@@ -791,8 +782,6 @@ function buildAST(astTokens) {
      * checkIdExpression()
      ***********/
     function checkIdExpression() {
-
-        // TODO: Scope / Type check?
 
         ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
