@@ -19,7 +19,7 @@ function Tree() {
     // -- ------- --
 
     // Add a node: kind in {branch, leaf}.
-    this.addNode = function(name, kind) {
+    this.addNode = function(name, nodeData, kind) {
         // Construct the node object.
         var node = { name: name,
             children: [],
@@ -103,4 +103,9 @@ function Tree() {
         // Return the result.
         return traversalResult;
     };
+
+    this.getRoot = function () {
+        return this.root;
+    }
+
 }

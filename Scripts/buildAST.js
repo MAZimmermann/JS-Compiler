@@ -62,7 +62,7 @@ function buildAST(astTokens) {
 
     // Initialize tree with root node
     // Since we passed parse, the first item will be a block
-    ast.addNode("Block", "branch");
+    ast.addNode("Block", "Block", "branch");
 
     // Set the current node to the root
     ast.cur = ast.root;
@@ -145,27 +145,27 @@ function buildAST(astTokens) {
             while (tokens[iter].depth - 1 == outer) {
 
                 if (tokens[iter].value.match(asToken.Kind.PrintStatement.pattern)) {
-                    ast.addNode("PrintStatement", "branch"); iter++;
+                    ast.addNode("PrintStatement", "PrintStatement", "branch"); iter++;
                     checkPrintStatement();
                     /*ast.endChildren();*/
                 } else if (tokens[iter].value.match(asToken.Kind.AssignmentStatement.pattern)) {
-                    ast.addNode("AssignmentStatement", "branch"); iter++;
+                    ast.addNode("AssignmentStatement", "AssignmentStatement", "branch"); iter++;
                     checkAssignment();
                     /*ast.endChildren();*/
                 } else if (tokens[iter].value.match(asToken.Kind.VarDecl.pattern)) {
-                    ast.addNode("VarDecl", "branch"); iter++;
+                    ast.addNode("VarDecl", "VarDecl", "branch"); iter++;
                     checkVarDecl();
                     ast.endChildren();
                 } else if (tokens[iter].value.match(asToken.Kind.WhileStatement.pattern)) {
-                    ast.addNode("WhileStatement", "branch"); iter++;
+                    ast.addNode("WhileStatement", "WhileStatement", "branch"); iter++;
                     checkWhileStatement();
                     ast.endChildren();
                 } else if (tokens[iter].value.match(asToken.Kind.IfStatement.pattern)) {
-                    ast.addNode("IfStatement", "branch"); iter++;
+                    ast.addNode("IfStatement", "IfStatement", "branch"); iter++;
                     checkIfStatement();
                     ast.endChildren();
                 } else if (tokens[iter].value.match(asToken.Kind.Block.pattern)) {
-                    ast.addNode("Block", "branch");
+                    ast.addNode("Block", "Block", "branch");
                     checkBlock();
                     ast.endChildren();
                     outer--;
@@ -280,7 +280,7 @@ function buildAST(astTokens) {
                         if (found) {
                             // Move onto type checking
 
-                            ast.addNode(tokens[iter].value, "leaf"); iter++;
+                            ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
                             checkExpression();
 
@@ -312,7 +312,7 @@ function buildAST(astTokens) {
                     }
                 }
 
-                ast.addNode(tokens[iter].value, "leaf"); iter++;
+                ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
                 checkExpression();
 
@@ -384,7 +384,7 @@ function buildAST(astTokens) {
                     if (found) {
                         // Move onto type checking
 
-                        ast.addNode(tokens[iter].value, "leaf"); iter++;
+                        ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
                         checkExpression();
 
@@ -416,7 +416,7 @@ function buildAST(astTokens) {
                 }
             }
 
-            ast.addNode(tokens[iter].value, "leaf"); iter++;
+            ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
             checkExpression();
 
@@ -435,7 +435,11 @@ function buildAST(astTokens) {
      ***********/
     function checkVarDecl() {
 
-        ast.addNode(tokens[iter].value, "leaf"); iter++;
+/*        alert(tokens[iter].value);*/
+
+        var type = tokens[iter].value;
+
+        ast.addNode(type, tokens[iter].value, "leaf"); iter++;
 
         if (stack[stack.length-1].retrieve(tokens[iter].value) != undefined) {
 
@@ -446,8 +450,6 @@ function buildAST(astTokens) {
             saError(errorMsg);
 
         } else {
-
-            var type = tokens[iter - 1].value;
 
             stack[stack.length-1].insert(tokens[iter].value, [tokens[iter].value, type, level]);
 
@@ -463,7 +465,7 @@ function buildAST(astTokens) {
 /*            var cell1 = row.insertCell(3);
             cell1.innerHTML = scopeInstance;*/
 
-            ast.addNode(tokens[iter].value, "leaf"); iter++;
+            ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
         }
 
@@ -478,7 +480,7 @@ function buildAST(astTokens) {
 
         checkExpression();
 
-        ast.addNode("Block", "branch");
+        ast.addNode("Block", "Block", "branch");
 
         checkBlock();
         ast.endChildren();
@@ -495,7 +497,7 @@ function buildAST(astTokens) {
 
         checkExpression();
 
-        ast.addNode("Block", "branch");
+        ast.addNode("Block", "Block","branch");
 
         checkBlock();
         ast.endChildren();
@@ -569,7 +571,7 @@ function buildAST(astTokens) {
      ***********/
     function checkBoolvalExpression() {
 
-        ast.addNode(tokens[iter].value, "leaf"); iter++;
+        ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
         if (tokens[iter] == undefined) {
 
@@ -616,9 +618,9 @@ function buildAST(astTokens) {
 
                 /* ... ___ ... _+_ ... INT EXPRESSION ... _END EXPRESSION_ ... */
 
-                ast.addNode(tokens[iter + 1].value, "branch");
-                ast.addNode(tokens[iter].value, "leaf"); iter++; iter++; iter++;
-                ast.addNode(tokens[iter].value, "leaf"); iter++;
+                ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
+                ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
+                ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
                 if (tokens[iter] == undefined) {
 
@@ -654,9 +656,9 @@ function buildAST(astTokens) {
 
                 /* ... ___ ... _+_ ... INT EXPRESSION ... _+_ ... */
 
-                ast.addNode(tokens[iter + 1].value, "branch");
+                ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
 
-                ast.addNode(tokens[iter].value, "leaf"); iter++; iter++; iter++;
+                ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
 
                 checkIntExpression();
 
@@ -666,7 +668,7 @@ function buildAST(astTokens) {
 
             // TODO: Scope / Type check?
 
-            ast.addNode(tokens[iter].value, "leaf"); iter++;
+            ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
             if (tokens[iter] == undefined) {
 
@@ -713,7 +715,7 @@ function buildAST(astTokens) {
             holdIt.push(tokens[iter].value); iter++;
         }
 
-        ast.addNode(holdIt, "leaf"); iter++;
+        ast.addNode("string", holdIt, "leaf"); iter++;
 
         if (tokens[iter] == undefined) {
 
@@ -764,7 +766,7 @@ function buildAST(astTokens) {
 
         }
 
-        ast.addNode(tokens[iter].value, "branch");
+        ast.addNode(tokens[iter].value, tokens[iter].value, "branch");
 
         iter = marker;
 
@@ -792,7 +794,7 @@ function buildAST(astTokens) {
 
         // TODO: Scope / Type check?
 
-        ast.addNode(tokens[iter].value, "leaf"); iter++;
+        ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
         if (tokens[iter] == undefined) {
 
