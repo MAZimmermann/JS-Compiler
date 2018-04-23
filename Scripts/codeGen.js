@@ -11,17 +11,7 @@
 function codeGen(ir) {
 
     // Declare new array (list of opcodes)
-    var opCodes = [];
-
-    // For now... fill opCodes with "00"s
-    for (var i = 0; i < 256; i++) {
-        opCodes[i] = "00";
-    }
-
-    // For now... fill "6502a Code" area with "00"s
-    for (var j = 0; j < opCodes.length; j++) {
-        document.getElementById("codeGen").value += opCodes[j] + " ";
-    }
+    codeGen.target = new Code();
 
     // Set the current node to the root
     var root = ir.getRoot();
@@ -29,7 +19,18 @@ function codeGen(ir) {
     // Begin AST(IR) traversal
     traverse(root);
 
-    return;
+    // // For now... fill opCodes with "00"s
+    // for (var i = 0; i < 256; i++) {
+    //     codeGen.target.opCodes[i] = "00";
+    // }
+
+    for (var j = 0; j < 256; j++) {
+        if (codeGen.target.opCodes[j] != undefined) {
+            document.getElementById("codeGen").value += codeGen.target.opCodes[j] + " ";
+        } else {
+            document.getElementById("codeGen").value += "00" + " ";
+        }
+    }
 
 
 
@@ -48,34 +49,34 @@ function codeGen(ir) {
             if (node.data.match(asToken.Kind.Block.pattern)) {
                 buildBlock(node);
 
-            } else if (node.data.match(asToken.Kind.PrintStatement)) {
+            } else if (node.data.match(asToken.Kind.PrintStatement.pattern)) {
                 buildPrintStatement(node);
 
-            } else if (node.data.match(asToken.Kind.AssignmentStatement)) {
+            } else if (node.data.match(asToken.Kind.AssignmentStatement.pattern)) {
                 buildAssignmentStatement(node);
 
-            } else if (node.data.match(asToken.Kind.VarDecl)) {
+            } else if (node.data.match(asToken.Kind.VarDecl.pattern)) {
                 buildVarDecl(node);
 
-            } else if (node.data.match(asToken.Kind.WhileStatement)) {
+            } else if (node.data.match(asToken.Kind.WhileStatement.pattern)) {
                 buildWhileStatement(node);
 
-            } else if (node.data.match(asToken.Kind.IfStatement)) {
+            } else if (node.data.match(asToken.Kind.IfStatement.pattern)) {
                 buildIfStatement(node);
 
-            } else if (node.data.match(asToken.Kind.IntExpression)) {
+            } else if (node.data.match(asToken.Kind.IntExpression.pattern)) {
                 buildIntExpression(node);
 
-            } else if (node.data.match(asToken.Kind.StringExpression)) {
+            } else if (node.data.match(asToken.Kind.StringExpression.pattern)) {
                 buildStringExpression(node);
 
-            } else if (node.data.match(asToken.Kind.BooleanExpression)) {
+            } else if (node.data.match(asToken.Kind.BooleanExpression.pattern)) {
                 buildBooleanExpression(node);
 
-            } else if (node.data.match(asToken.Kind.BoolvalExpression)) {
+            } else if (node.data.match(asToken.Kind.BoolvalExpression.pattern)) {
                 buildBoolvalExpression(node);
 
-            } else if (node.data.match(asToken.Kind.IdExpression)) {
+            } else if (node.data.match(asToken.Kind.IdExpression.pattern)) {
                 buildIdExpression(node);
 
             } else {
@@ -100,13 +101,19 @@ function codeGen(ir) {
          * buildPrintStatement()
          ***********/
         function buildPrintStatement(node){
-            if (node.children[0].name.match("int")) {
 
-            } else if (node.children[0].name.match("string")) {
+            var firstChild = node.children[0];
 
-            } else if (node.children[0].name.match("boolean")) {
+            if (firstChild.name.match("int")) {
+
+            } else if (firstChild.name.match("string")) {
+
+            } else if (firstChild.name.match("boolop")) {
+
+            } else if (firstChild.name.match("id")) {
 
             }
+
         }
 
 
@@ -124,6 +131,22 @@ function codeGen(ir) {
          * buildVarDecl()
          ***********/
         function buildVarDecl() {
+
+            var firstChild = node.children[0];
+
+            if (firstChild.name.match("int")) {
+
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('00');
+                codeGen.target.buildStaticEntry(node.children[1].data);
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
+
+            } else if (firstChild.name.match("string")) {
+
+            } else if (firstChild.name.match("boolean")) {
+
+            }
 
         }
 

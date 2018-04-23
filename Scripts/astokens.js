@@ -6,13 +6,13 @@
  *
  * Includes:
  *  asToken class via asToken constructor
- *  asToken build function
+ *  asToken "build" function
  *  Enumeration of acceptable asToken kinds
  *
  **********/
 
 /********** ********** ********** ********** **********
- * Token constructor
+ * asToken constructor
  **********/
 function asToken(kind, value, depth) {
     this.kind = kind;

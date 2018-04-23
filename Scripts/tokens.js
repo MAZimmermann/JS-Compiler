@@ -3,7 +3,7 @@
 *
 * Includes:
 *  Token class via token constructor
-*  Token build function
+*  Token "build" function
 *  Enumeration of acceptable token kinds
 *
 **********/
