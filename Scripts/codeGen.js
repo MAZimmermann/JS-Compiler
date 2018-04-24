@@ -3,12 +3,17 @@
  *
  * Includes...
  *
- * TODO: revise scope info/accuracy, place more data in AST(IR),
- *  TODO: define opcodes, pass along symbol table in addition to AST(IR)
+ *  TODO: Revise scope info/accuracy, place more data in AST(IR) ***(NEARLY THERE)***
+ *
+ *  TODO: Define opcodes, pass along symbol table in addition to AST(IR) ***(NEARLY THERE)***
+ *
+ *  TODO: Think about input needed, revise op code format
  *
  **********/
 
-function codeGen(ir) {
+function codeGen(ir, symbols) {
+
+    var finalTable = symbols;
 
     // Declare new array (list of opcodes)
     codeGen.target = new Code();
@@ -19,17 +24,38 @@ function codeGen(ir) {
     // Begin AST(IR) traversal
     traverse(root);
 
-    // // For now... fill opCodes with "00"s
-    // for (var i = 0; i < 256; i++) {
-    //     codeGen.target.opCodes[i] = "00";
-    // }
+    /*var wrapAt = 1;*/
 
     for (var j = 0; j < 256; j++) {
+
+        /********** ********** ********** ********** **********
+         * Cap each line at sixteen op codes TODO: Revise This
+         ***********/
+        /*if (wrapAt == 16) {
+            document.getElementById("codeGen").value += "\n";
+            wrapAt = 1;
+        } else {
+            wrapAt++;
+        }*/
+
         if (codeGen.target.opCodes[j] != undefined) {
             document.getElementById("codeGen").value += codeGen.target.opCodes[j] + " ";
         } else {
             document.getElementById("codeGen").value += "00" + " ";
         }
+
+    }
+
+
+
+    /********** ********** ********** ********** **********
+     * getType
+     ***********/
+    function getType(node) {
+        var data = node.data.split("");
+        var key = data[0].concat("@", data[1], data[2]);
+        var type = finalTable[key][0];
+        return type;
     }
 
 
@@ -121,8 +147,33 @@ function codeGen(ir) {
         /********** ********** ********** ********** **********
          * buildAssignmentStatement()
          ***********/
-        function buildAssignmentStatement() {
+        function buildAssignmentStatement(node) {
 
+            var firstChild = node.children[0];
+
+            var type = getType(firstChild);
+
+            if (type.match("int")) {
+
+                var firstExpressionChild = node.children[1];
+
+                if (firstExpressionChild.name.match(/^\+$/)) {
+
+                    // Don't know yet...
+
+                } else {
+                    codeGen.target.buildInstruction('A9');
+                    codeGen.target.buildInstruction(firstExpressionChild.data);
+                    codeGen.target.buildInstruction('8D');
+                }
+
+            } else if (type.match("string")) {
+
+            } else if (type.match("boolop")) {
+
+            } else if (type.match("id")) {
+
+            }
         }
 
 
@@ -130,7 +181,7 @@ function codeGen(ir) {
         /********** ********** ********** ********** **********
          * buildVarDecl()
          ***********/
-        function buildVarDecl() {
+        function buildVarDecl(node) {
 
             var firstChild = node.children[0];
 
@@ -138,9 +189,9 @@ function codeGen(ir) {
 
                 codeGen.target.buildInstruction('A9');
                 codeGen.target.buildInstruction('00');
-                codeGen.target.buildStaticEntry(node.children[1].data);
                 codeGen.target.buildInstruction('8D');
                 codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
+                codeGen.target.buildStaticEntry(node.children[1].data);
 
             } else if (firstChild.name.match("string")) {
 

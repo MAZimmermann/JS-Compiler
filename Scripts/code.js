@@ -33,10 +33,13 @@ function Code() {
     this.jumpTable = [];
 
     /********** ********** ********** ********** **********
-     * Current Address Pointer
+     * Current Address Pointer (start at zero)
      **********/
     this.currentAddress = 0;
 
+    /********** ********** ********** ********** **********
+     * Current Static Table Entry (start at T0XX)
+     **********/
     this.currentStaticEntry = 'T0XX';
 
 }
@@ -49,7 +52,7 @@ function Code() {
 Code.prototype.buildInstruction = function(instructions) {
     if (instructions.length == 4) {
 
-        for (var i = 0; i < instructions.length; i++) {
+        for (var i = 0; i < instructions.length/2; i++) {
             var instructionComponent = instructions.substr(2 * i, 2);
             this.opCodes[this.currentAddress] = instructionComponent;
             this.currentAddress++;
@@ -60,6 +63,7 @@ Code.prototype.buildInstruction = function(instructions) {
         /* TODO: Think about handling addresses */
         this.opCodes[this.currentAddress] = instructions;
         this.currentAddress++;
+
     }
 }
 
@@ -68,9 +72,34 @@ Code.prototype.buildInstruction = function(instructions) {
 /********** ********** ********** ********** **********
  * Push instruction to the list of Op Codes
  **********/
-Code.prototype.buildStaticEntry = function(id, scope) {
-    var entry = [id, scope];
-    this.staticTable[this.currentStaticEntry] = entry;
+Code.prototype.buildStaticEntry = function(data) {
+
+    var data = data.split("");
+
+    var key = data[0].concat("@", data[1], data[2]);
+
+    var entry = [];
+
+    entry.push(this.currentStaticEntry);
+
+    for (var j = 0; j < 3; j++) {
+        entry.push(data[j]);
+    }
+
+    this.staticTable[key] = entry;
+
+    this.currentStaticEntry = nextStaticEntry(this.currentStaticEntry);
+
+}
+
+
+
+/********** ********** ********** ********** **********
+ * nextStaticEntry()
+ ***********/
+function nextStaticEntry(cur) {
+    var next = String.fromCharCode(cur.charCodeAt(1) + 1);
+    return 'T' + next + 'XX';
 }
 
 
@@ -89,7 +118,7 @@ Code.Operations = {
      ***********/
     LDAC: function(value) {
 
-        /*return 'A9' + value;*/
+        return 'A9' + value;
 
     },
 

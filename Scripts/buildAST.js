@@ -30,6 +30,8 @@ function buildAST(astTokens) {
     cell1.innerHTML = "**********";
     var cell1 = row.insertCell(2);
     cell1.innerHTML = "**********";
+    var cell1 = row.insertCell(3);
+    cell1.innerHTML = "**********";
 
     // Grab token array "asTokens" from parse output
     var tokens = astTokens;
@@ -46,14 +48,16 @@ function buildAST(astTokens) {
     // Create stack containing list of hash tables
     var stack = [];
 
+    // Keep track of scope instances
+    var scopeCodes = [];
+
     // Array containing list of errors
     var errors = []; var errorCount = 0;
     // Array containing list of warnings
     var warnings = []; var warningCount = 0;
 
-/*    for (var k = 0; k < astTokens.length; k++) {
-        alert(astTokens[k].value + " " + astTokens[k].depth);
-    } iter = 0;*/
+    // Create final symbol table to pass along to Code Generation
+    var symbolTable = [];
 
     // Create new instance of tree, this time an AST
     var ast = new Tree();
@@ -85,7 +89,7 @@ function buildAST(astTokens) {
         document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
         document.getElementById("saOutputTree").value += tree + "\n";
 
-        codeGen(ast);
+        codeGen(ast, symbolTable);
 
     } else {
 
@@ -120,12 +124,35 @@ function buildAST(astTokens) {
 
 
     /********** ********** ********** ********** **********
+     * nextChar()
+     ***********/
+    function nextChar(c) {
+        return String.fromCharCode(c.charCodeAt(0) + 1);
+    }
+
+
+
+    /********** ********** ********** ********** **********
      * checkBlock()
      ***********/
     function checkBlock() {
 
         // Increase level (depth/scope) by 1
         level++;
+
+        var levelInstance;
+
+        if (scopeCodes[level] == null) {
+            scopeCodes[level] = [];
+            scopeCodes[level].push('A');
+            levelInstance = 'A';
+        } else {
+            var curLeng = scopeCodes[level].length;
+            var last = scopeCodes[level][curLeng - 1];
+            var newInstance = nextChar(last);
+            scopeCodes[level].push(newInstance);
+            levelInstance = newInstance;
+        }
 
         // Create new hashtable for the current block
         var hashTable = buildTable(10000);
@@ -148,11 +175,11 @@ function buildAST(astTokens) {
 
                 } else if (tokens[iter].value.match(asToken.Kind.AssignmentStatement.pattern)) {
                     ast.addNode("AssignmentStatement", "AssignmentStatement", "branch"); iter++;
-                    checkAssignment();
+                    checkAssignment(levelInstance);
 
                 } else if (tokens[iter].value.match(asToken.Kind.VarDecl.pattern)) {
                     ast.addNode("VarDecl", "VarDecl", "branch"); iter++;
-                    checkVarDecl();
+                    checkVarDecl(levelInstance);
                     ast.endChildren();
 
                 } else if (tokens[iter].value.match(asToken.Kind.WhileStatement.pattern)) {
@@ -201,7 +228,7 @@ function buildAST(astTokens) {
     /********** ********** ********** ********** **********
      * checkAssignment()
      ***********/
-    function checkAssignment() {
+    function checkAssignment(levelInstance) {
 
         var holdType = tokens[iter + 1].value;
 
@@ -281,7 +308,15 @@ function buildAST(astTokens) {
                         if (found) {
                             // Move onto type checking
 
-                            ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
+                            /*****
+                            * HERE MARCUS
+                            * *****/
+
+                            var data = tokens[iter].value.concat(level, levelInstance);
+
+                            /*tokens[iter].value + level + levelInstance*/
+
+                            ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
                             checkExpression();
 
@@ -313,7 +348,17 @@ function buildAST(astTokens) {
                     }
                 }
 
-                ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
+                /*****
+                 * HERE MARCUS
+                 * *****/
+
+                /*alert(tokens[iter].value + level + levelInstance);*/
+
+                var data = tokens[iter].value.concat(level, levelInstance);
+
+                /*tokens[iter].value + level + levelInstance*/
+
+                ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
                 checkExpression();
 
@@ -385,7 +430,19 @@ function buildAST(astTokens) {
                     if (found) {
                         // Move onto type checking
 
-                        ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
+                        /*****
+                         * HERE MARCUS
+                         * *****/
+
+                        /*alert(tokens[iter].value + level + levelInstance);*/
+
+                        var data = tokens[iter].value.concat(level, levelInstance);
+
+                        /*tokens[iter].value + level + levelInstance*/
+
+                        ast.addNode(tokens[iter].value, data, "leaf"); iter++;
+
+                        /*ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;*/
 
                         checkExpression();
 
@@ -417,7 +474,19 @@ function buildAST(astTokens) {
                 }
             }
 
-            ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
+            /*****
+             * HERE MARCUS
+             * *****/
+
+            /*alert(tokens[iter].value + level + levelInstance);*/
+
+            var data = tokens[iter].value.concat(level, levelInstance);
+
+            /*tokens[iter].value + level + levelInstance*/
+
+            ast.addNode(tokens[iter].value, data, "leaf"); iter++;
+
+            /*ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;*/
 
             checkExpression();
 
@@ -434,7 +503,7 @@ function buildAST(astTokens) {
     /********** ********** ********** ********** **********
      * checkVarDecl()
      ***********/
-    function checkVarDecl() {
+    function checkVarDecl(levelInstance) {
 
         var type = tokens[iter].value;
 
@@ -450,7 +519,7 @@ function buildAST(astTokens) {
 
         } else {
 
-            stack[stack.length-1].insert(tokens[iter].value, [tokens[iter].value, type, level]);
+            stack[stack.length-1].insert(tokens[iter].value, [tokens[iter].value, type, level, levelInstance]);
 
             var table = document.getElementById("saOutputTable");
             var rowCount = table.rows.length;
@@ -461,8 +530,13 @@ function buildAST(astTokens) {
             cell1.innerHTML = type;
             var cell1 = row.insertCell(2);
             cell1.innerHTML = level;
+            var cell1 = row.insertCell(3);
+            cell1.innerHTML = levelInstance;
 
-            ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
+            var key = tokens[iter].value.concat("@", level, levelInstance);
+            symbolTable[key] = [type, tokens[iter].value, level, levelInstance];
+
+            ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
 
         }
 
