@@ -9,6 +9,8 @@
  * The symbol table is only displayed if declarations/uses
  *  pass scope and type checking
  *
+ * TODO: Clean this up
+ *
  **********/
 
 function buildAST(astTokens) {

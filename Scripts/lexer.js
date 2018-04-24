@@ -5,6 +5,8 @@
  *
  * When an EOP marker is hit, we pass the tokens to the parser
  *
+ * TODO: Clean this up / revise summary
+ *
 **********/
 
 function lex() {

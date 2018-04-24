@@ -8,6 +8,8 @@
  *  Inspired by Alex Haskins
  *   https://gist.github.com/alexhawkins/48d7fd31af6ed00e5c60
  *
+ * TODO: Clean this up, consider new hash function
+ *
  **********/
 
 var buildTable = function(max) {

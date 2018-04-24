@@ -6,7 +6,8 @@
  *  Enumeration of code operations
  *
  * TODO: Figure out names and such
- *  TODO: revise/add to data held in instance of code object
+ *
+ * TODO: Revise/add to data held in instance of code object
  *
  **********/
 
