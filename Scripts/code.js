@@ -52,6 +52,13 @@ function Code() {
      **********/
     this.currentStaticEntry = 'T0XX';
 
+
+
+    /********** ********** ********** ********** **********
+     * Current Static Table Entry (start at T0XX)
+     **********/
+    this.currentTempAddress = 'T1XX';
+
 }
 
 
@@ -121,6 +128,7 @@ Code.prototype.buildStaticEntry = function(data) {
     /*alert(entry);*/
 
     this.currentStaticEntry = nextStaticEntry(this.currentStaticEntry);
+    this.currentTempAddress = nextStaticEntry(this.currentTempAddress);
 
 }
 

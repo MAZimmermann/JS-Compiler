@@ -11,9 +11,9 @@
  *
  **********/
 
-function codeGen(ir, symbols) {
+function codeGen(ir, st) {
 
-    var finalTable = symbols;
+    var symbolTable = st;
 
     // Declare new array (list of opcodes)
     codeGen.target = new Code();
@@ -54,8 +54,8 @@ function codeGen(ir, symbols) {
     function getType(node) {
         var data = node.data.split("");
         var key = data[0].concat("@", data[1], data[2]);
-        var type = finalTable[key][0];
-        return type;
+        var entry = symbolTable[key];
+        return entry[0];
     }
 
 
@@ -68,6 +68,17 @@ function codeGen(ir, symbols) {
         var key = data[0].concat("@", data[1], data[2]);
         var entry = codeGen.target.staticTable[key];
         return entry[0];
+    }
+
+
+
+    /********** ********** ********** ********** **********
+     * getKey
+     ***********/
+    function getKey(node) {
+        var data = node.data.split("");
+        var key = data[0].concat("@", data[1], data[2]);
+        return key;
     }
 
 
@@ -117,26 +128,15 @@ function codeGen(ir, symbols) {
 
             }
 
-            // For handling expressions
-            if (node.data.match(asToken.Kind.IntExpression.pattern)) {
-                buildIntExpression(node);
-
-            } else if (node.data.match(asToken.Kind.StringExpression.pattern)) {
-                buildStringExpression(node);
-
-            } else if (node.data.match(asToken.Kind.BooleanExpression.pattern)) {
-                buildBooleanExpression(node);
-
-            } else if (node.data.match(asToken.Kind.BoolvalExpression.pattern)) {
-                buildBoolvalExpression(node);
-
-            } else if (node.data.match(asToken.Kind.IdExpression.pattern)) {
-                buildIdExpression(node);
-
-            } else {
-                // Don't know yet...
-            }
         }
+
+/*        // For handling expressions
+        if (node.data.match(asToken.Kind.Digit.pattern)) {
+            buildIntExpression(node);
+
+        } else {
+            // TODO: More to do here...
+        }*/
 
 
 
@@ -191,24 +191,17 @@ function codeGen(ir, symbols) {
                 codeGen.target.buildInstruction('8D');
                 codeGen.target.buildInstruction(address);
 
+                var key = getKey(firstChild);
+                codeGen.target.staticTable[key][0] = secondAddress;
+
             } else {
                 if (type.match("int")) {
 
-                    if (secondChild.name.match(/^\+$/)) {
-
-                        // Don't know yet...
-                        // TODO: Use the traversal method to handle different expressions
-                        traverse(secondChild);
-
-                    } else {
-
-                        codeGen.target.buildInstruction('A9');
-                        value = ("0000" + secondChild.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(address);
-
-                    }
+/*                    codeGen.target.buildInstruction('A9');
+                    codeGen.target.buildInstruction(address);*/
+                    buildIntExpression(secondChild);
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(address);
 
                 } else if (type.match("string")) {
 
@@ -218,7 +211,7 @@ function codeGen(ir, symbols) {
                     codeGen.target.buildInstruction('8D');
                     codeGen.target.buildInstruction(address);
 
-                } else if (type.match("boolop")) {
+                } else if (type.match("boolval")) {
 
                     // Don't know yet...
 
@@ -287,8 +280,29 @@ function codeGen(ir, symbols) {
         /********** ********** ********** ********** **********
          * buildIntExpression()
          ***********/
-        function buildIntExpression() {
+        function buildIntExpression(node) {
+            if (node.name.match(/^\+$/)) {
 
+                buildIntExpression(node.children[1]);
+                codeGen.target.buildInstruction('A9');
+                value = ("0000" + node.children[0].data.toString(16)).substr(-2);
+                codeGen.target.buildInstruction(value);
+                codeGen.target.buildInstruction('6D');
+                codeGen.target.buildInstruction(codeGen.target.currentTempAddress);
+
+            } else {
+
+                if (node.name.match(/^[a-z]$/)) {
+                    // TODO: account for ID at the end of int expression thingy
+                }
+
+                codeGen.target.buildInstruction('A9');
+                value = ("0000" + node.data.toString(16)).substr(-2);
+                codeGen.target.buildInstruction(value);
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.currentTempAddress);
+
+            }
         }
 
 

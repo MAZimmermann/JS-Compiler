@@ -256,6 +256,7 @@ function buildAST(astTokens) {
                     // continue
                 } else {
                     var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                    var declaredAt = level;
                     found = true;
                 }
                 level--;
@@ -307,12 +308,11 @@ function buildAST(astTokens) {
                                 // continue
                             } else {
                                 var declaredAs = stack[level].retrieve(holdToken.value)[1];
+                                var declaredAt = level;
                                 found = true;
                             }
                             level--;
                         }
-
-                        level = lvl;
 
                         if (found) {
                             // Move onto type checking
@@ -321,7 +321,9 @@ function buildAST(astTokens) {
                             * HERE MARCUS
                             * *****/
 
-                            var data = holdToken.value.concat(level, levelInstance);
+                            var data = holdToken.value.concat(declaredAt, levelInstance);
+
+                            /*alert(data + " " + level);*/
 
                             ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
@@ -337,6 +339,9 @@ function buildAST(astTokens) {
                             saError(errorMsg);
 
                         }
+
+                        level = lvl;
+
                     } else {
 
                         var leftOfAssign = stack[level].retrieve(tokens[iter].value)[1];
@@ -361,11 +366,13 @@ function buildAST(astTokens) {
                  * HERE MARCUS
                  * *****/
 
-                var data = tokens[iter].value.concat(level, levelInstance);
+                if (!added) {
+                    var data = tokens[iter].value.concat(declaredAt, levelInstance);
 
-                ast.addNode(tokens[iter].value, data, "leaf"); iter++;
+                    ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
-                checkExpression();
+                    checkExpression();
+                }
 
                 if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
                     ast.endChildren();
@@ -425,12 +432,11 @@ function buildAST(astTokens) {
                             // continue
                         } else {
                             var declaredAs = stack[level].retrieve(holdToken.value)[1];
+                            var declaredAt = level;
                             found = true;
                         }
                         level--;
                     }
-
-                    level = lvl;
 
                     if (found) {
                         // Move onto type checking
@@ -439,7 +445,9 @@ function buildAST(astTokens) {
                          * HERE MARCUS
                          * *****/
 
-                        var data = holdToken.value.concat(level, levelInstance);
+                        var data = holdToken.value.concat(declaredAt, levelInstance);
+
+                        /*alert(data + " " + level);*/
 
                         ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
@@ -455,6 +463,9 @@ function buildAST(astTokens) {
                         saError(errorMsg);
 
                     }
+
+                    level = lvl;
+
                 } else {
 
                     var leftOfAssign = stack[level].retrieve(tokens[iter].value)[1];
@@ -480,7 +491,7 @@ function buildAST(astTokens) {
              * *****/
 
             if (!added) {
-                var data = tokens[iter].value.concat(level, levelInstance);
+                var data = tokens[iter].value.concat(declaredAt, levelInstance);
 
                 ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
