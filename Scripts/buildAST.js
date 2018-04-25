@@ -390,6 +390,7 @@ function buildAST(astTokens) {
         } else {
 
             var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+            var declaredAt = level;
 
             if (holdType.match(asToken.Kind.IntExpression.pattern)) {
                 if (!(declaredAs == "int")) {

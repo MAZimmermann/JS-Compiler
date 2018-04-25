@@ -62,6 +62,40 @@ function Code() {
 }
 
 
+/********** ********** ********** ********** **********
+ * Format code
+ **********/
+Code.prototype.format = function() {
+
+    var static = this.currentAddress + 1;
+
+    for (var j = 0; j < this.currentAddress; j++) {
+
+        alert("test");
+
+        if (this.bytes[j].match(/^T[0-9]$/)) {
+
+            /*TODO: REVISE THIS*/
+
+            this.bytes[j] = ("0000" + static.toString(16)).substr(-2).toUpperCase() + " ";
+            this.bytes[j + 1] = "00 ";
+
+            j++; static++; static++;
+
+        } else {
+            this.bytes[j] = this.bytes[j] + " ";
+        }
+    }
+
+    alert(this.heapAddress);
+
+    for (var k = this.currentAddress; k < this.heapAddress; k++) {
+        this.bytes[k] = "00" + " ";
+    }
+
+}
+
+
 
 /********** ********** ********** ********** **********
  * Push instruction to the list of Op Codes

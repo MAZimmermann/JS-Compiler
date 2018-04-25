@@ -24,26 +24,10 @@ function codeGen(ir, st) {
     // Begin AST(IR) traversal
     traverse(root);
 
-    /*var wrapAt = 1;*/
+    codeGen.target.format();
 
-    for (var j = 0; j < 256; j++) {
-
-        /********** ********** ********** ********** **********
-         * Cap each line at sixteen op codes TODO: Revise This
-         ***********/
-        /*if (wrapAt == 16) {
-            document.getElementById("codeGen").value += "\n";
-            wrapAt = 1;
-        } else {
-            wrapAt++;
-        }*/
-
-        if (codeGen.target.bytes[j] != undefined) {
-            document.getElementById("codeGen").value += codeGen.target.bytes[j] + " ";
-        } else {
-            document.getElementById("codeGen").value += "00" + " ";
-        }
-
+    for (var i = 0; i < codeGen.target.bytes.length; i++) {
+        document.getElementById("codeGen").value += codeGen.target.bytes[i];
     }
 
 
@@ -130,14 +114,6 @@ function codeGen(ir, st) {
 
         }
 
-/*        // For handling expressions
-        if (node.data.match(asToken.Kind.Digit.pattern)) {
-            buildIntExpression(node);
-
-        } else {
-            // TODO: More to do here...
-        }*/
-
 
 
         /********** ********** ********** ********** **********
@@ -159,6 +135,7 @@ function codeGen(ir, st) {
             var firstChild = node.children[0];
 
             if (firstChild.name.match("int")) {
+                buildIntExpression(node.children[1]);
 
             } else if (firstChild.name.match("string")) {
 
@@ -197,8 +174,6 @@ function codeGen(ir, st) {
             } else {
                 if (type.match("int")) {
 
-/*                    codeGen.target.buildInstruction('A9');
-                    codeGen.target.buildInstruction(address);*/
                     buildIntExpression(secondChild);
                     codeGen.target.buildInstruction('8D');
                     codeGen.target.buildInstruction(address);
@@ -284,23 +259,31 @@ function codeGen(ir, st) {
             if (node.name.match(/^\+$/)) {
 
                 buildIntExpression(node.children[1]);
+
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.currentTempAddress);
+
                 codeGen.target.buildInstruction('A9');
                 value = ("0000" + node.children[0].data.toString(16)).substr(-2);
+
                 codeGen.target.buildInstruction(value);
                 codeGen.target.buildInstruction('6D');
                 codeGen.target.buildInstruction(codeGen.target.currentTempAddress);
 
             } else {
-
                 if (node.name.match(/^[a-z]$/)) {
-                    // TODO: account for ID at the end of int expression thingy
-                }
 
-                codeGen.target.buildInstruction('A9');
-                value = ("0000" + node.data.toString(16)).substr(-2);
-                codeGen.target.buildInstruction(value);
-                codeGen.target.buildInstruction('8D');
-                codeGen.target.buildInstruction(codeGen.target.currentTempAddress);
+                    codeGen.target.buildInstruction('AD');
+                    var address = getAddress(node);
+                    codeGen.target.buildInstruction(address);
+
+                } else {
+
+                    codeGen.target.buildInstruction('A9');
+                    value = ("0000" + node.data.toString(16)).substr(-2);
+                    codeGen.target.buildInstruction(value);
+
+                }
 
             }
         }
