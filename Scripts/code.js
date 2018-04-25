@@ -21,7 +21,7 @@ function Code() {
     /********** ********** ********** ********** **********
      * List of Op Codes to be displayed at the end of code gen
      **********/
-    this.opCodes = [];
+    this.bytes = [256];
 
     /********** ********** ********** ********** **********
      * Static Table
@@ -34,9 +34,18 @@ function Code() {
     this.jumpTable = [];
 
     /********** ********** ********** ********** **********
-     * Current Address Pointer (start at zero)
+     * Current Address (start at zero)
      **********/
     this.currentAddress = 0;
+
+
+
+    /********** ********** ********** ********** **********
+     * Heap Address (start at 255)
+     **********/
+    this.heapAddress = 255;
+
+
 
     /********** ********** ********** ********** **********
      * Current Static Table Entry (start at T0XX)
@@ -55,17 +64,38 @@ Code.prototype.buildInstruction = function(instructions) {
 
         for (var i = 0; i < instructions.length/2; i++) {
             var instructionComponent = instructions.substr(2 * i, 2);
-            this.opCodes[this.currentAddress] = instructionComponent;
+            this.bytes[this.currentAddress] = instructionComponent;
             this.currentAddress++;
         }
 
     } else {
 
         /* TODO: Think about handling addresses */
-        this.opCodes[this.currentAddress] = instructions;
+        this.bytes[this.currentAddress] = instructions;
         this.currentAddress++;
 
     }
+}
+
+
+
+/********** ********** ********** ********** **********
+ * Push instruction to the list of Op Codes
+ **********/
+Code.prototype.buildString = function(string) {
+    this.bytes[this.heapAddress] = '00';
+
+    for (var i = 0; i < string.length; i++) {
+        var position = string.length - i;
+        var cur = string[i];
+        cur = ("0000" + cur.charCodeAt(0).toString(16)).substr(-2).toUpperCase();
+        this.bytes[this.heapAddress - position] = cur;
+    }
+
+    this.heapAddress -= string.length + 1;
+
+    return cur = ("0000" + (this.heapAddress + 1).toString(16)).substr(-2).toUpperCase();
+
 }
 
 
@@ -82,12 +112,13 @@ Code.prototype.buildStaticEntry = function(data) {
     var entry = [];
 
     entry.push(this.currentStaticEntry);
-
     for (var j = 0; j < 3; j++) {
         entry.push(data[j]);
     }
 
     this.staticTable[key] = entry;
+
+    /*alert(entry);*/
 
     this.currentStaticEntry = nextStaticEntry(this.currentStaticEntry);
 
@@ -119,8 +150,6 @@ Code.Operations = {
      ***********/
     LDAC: function(value) {
 
-        return 'A9' + value;
-
     },
 
 
@@ -128,7 +157,7 @@ Code.Operations = {
     /********** ********** ********** ********** **********
      * Load the accumulator from memory
      ***********/
-    LDAM: function() {
+    LDAM: function(address) {
 
     },
 

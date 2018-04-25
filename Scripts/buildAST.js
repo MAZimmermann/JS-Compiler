@@ -47,6 +47,9 @@ function buildAST(astTokens) {
     // Assign -1 to level, placing the first block at 0
     var level = -1;
 
+    // Assign 'A' for the first level instance
+    var levelInstance = 'A';
+
     // Create stack containing list of hash tables
     var stack = [];
 
@@ -141,8 +144,6 @@ function buildAST(astTokens) {
 
         // Increase level (depth/scope) by 1
         level++;
-
-        var levelInstance;
 
         if (scopeCodes[level] == null) {
             scopeCodes[level] = [];
@@ -859,7 +860,7 @@ function buildAST(astTokens) {
      ***********/
     function checkIdExpression() {
 
-        ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
+        ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
 
         if (tokens[iter] == undefined) {
 

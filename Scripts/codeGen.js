@@ -38,8 +38,8 @@ function codeGen(ir, symbols) {
             wrapAt++;
         }*/
 
-        if (codeGen.target.opCodes[j] != undefined) {
-            document.getElementById("codeGen").value += codeGen.target.opCodes[j] + " ";
+        if (codeGen.target.bytes[j] != undefined) {
+            document.getElementById("codeGen").value += codeGen.target.bytes[j] + " ";
         } else {
             document.getElementById("codeGen").value += "00" + " ";
         }
@@ -61,6 +61,30 @@ function codeGen(ir, symbols) {
 
 
     /********** ********** ********** ********** **********
+     * getAddress
+     ***********/
+    function getAddress(node) {
+        var data = node.data.split("");
+        var key = data[0].concat("@", data[1], data[2]);
+        var entry = codeGen.target.staticTable[key];
+        return entry[0];
+    }
+
+
+
+    /********** ********** ********** ********** **********
+     * getHeapAddress
+     ***********/
+    /*function getAddress(node) {
+        var data = node.data.split("");
+        var key = data[0].concat("@", data[1], data[2]);
+        var entry = codeGen.target.staticTable[key];
+        return entry[3];
+    }*/
+
+
+
+    /********** ********** ********** ********** **********
      * traverse() ... IR Traversal
      ***********/
     function traverse(node) {
@@ -72,6 +96,7 @@ function codeGen(ir, symbols) {
 
             // There are children
 
+            // For handling Blocks and Statements
             if (node.data.match(asToken.Kind.Block.pattern)) {
                 buildBlock(node);
 
@@ -90,7 +115,10 @@ function codeGen(ir, symbols) {
             } else if (node.data.match(asToken.Kind.IfStatement.pattern)) {
                 buildIfStatement(node);
 
-            } else if (node.data.match(asToken.Kind.IntExpression.pattern)) {
+            }
+
+            // For handling expressions
+            if (node.data.match(asToken.Kind.IntExpression.pattern)) {
                 buildIntExpression(node);
 
             } else if (node.data.match(asToken.Kind.StringExpression.pattern)) {
@@ -150,29 +178,51 @@ function codeGen(ir, symbols) {
         function buildAssignmentStatement(node) {
 
             var firstChild = node.children[0];
+            var secondChild = node.children[1];
 
             var type = getType(firstChild);
+            var address = getAddress(firstChild);
 
-            if (type.match("int")) {
+            if (secondChild.name.match(/^[a-z]$/)){
 
-                var firstExpressionChild = node.children[1];
+                var secondAddress = getAddress(secondChild);
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction(secondAddress);
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(address);
 
-                if (firstExpressionChild.name.match(/^\+$/)) {
+            } else {
+                if (type.match("int")) {
+
+                    if (secondChild.name.match(/^\+$/)) {
+
+                        // Don't know yet...
+                        // TODO: Use the traversal method to handle different expressions
+                        traverse(secondChild);
+
+                    } else {
+
+                        codeGen.target.buildInstruction('A9');
+                        value = ("0000" + secondChild.data.toString(16)).substr(-2);
+                        codeGen.target.buildInstruction(value);
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(address);
+
+                    }
+
+                } else if (type.match("string")) {
+
+                    var heapAddress = codeGen.target.buildString(secondChild.data);
+                    codeGen.target.buildInstruction('A9');
+                    codeGen.target.buildInstruction(heapAddress);
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(address);
+
+                } else if (type.match("boolop")) {
 
                     // Don't know yet...
 
-                } else {
-                    codeGen.target.buildInstruction('A9');
-                    codeGen.target.buildInstruction(firstExpressionChild.data);
-                    codeGen.target.buildInstruction('8D');
                 }
-
-            } else if (type.match("string")) {
-
-            } else if (type.match("boolop")) {
-
-            } else if (type.match("id")) {
-
             }
         }
 
@@ -195,7 +245,20 @@ function codeGen(ir, symbols) {
 
             } else if (firstChild.name.match("string")) {
 
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('00');
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
+                codeGen.target.buildStaticEntry(node.children[1].data);
+
             } else if (firstChild.name.match("boolean")) {
+
+                /*codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('00');
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
+                codeGen.target.buildStaticEntry(node.children[1].data);
+                TODO: Come back to this one... */
 
             }
 
