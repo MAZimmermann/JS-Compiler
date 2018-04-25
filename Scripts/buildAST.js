@@ -38,6 +38,10 @@ function buildAST(astTokens) {
     // Grab token array "asTokens" from parse output
     var tokens = astTokens;
 
+/*   for (var k = 0; k < astTokens.length; k++) {
+        alert(astTokens[k].value + " " + astTokens[k].depth);
+    } iter = 0;*/
+
     // Keeps track of our position in "asTokens"
     var iter = 0;
 
@@ -178,11 +182,11 @@ function buildAST(astTokens) {
 
                 } else if (tokens[iter].value.match(asToken.Kind.AssignmentStatement.pattern)) {
                     ast.addNode("AssignmentStatement", "AssignmentStatement", "branch"); iter++;
-                    checkAssignment(levelInstance);
+                    checkAssignment();
 
                 } else if (tokens[iter].value.match(asToken.Kind.VarDecl.pattern)) {
                     ast.addNode("VarDecl", "VarDecl", "branch"); iter++;
-                    checkVarDecl(levelInstance);
+                    checkVarDecl();
                     ast.endChildren();
 
                 } else if (tokens[iter].value.match(asToken.Kind.WhileStatement.pattern)) {
@@ -231,7 +235,9 @@ function buildAST(astTokens) {
     /********** ********** ********** ********** **********
      * checkAssignment()
      ***********/
-    function checkAssignment(levelInstance) {
+    function checkAssignment() {
+
+        var added = false;
 
         var holdType = tokens[iter + 1].value;
 
@@ -297,10 +303,10 @@ function buildAST(astTokens) {
                         var lvl = level; level--; found = false;
 
                         while (level >= 0) {
-                            if (stack[level].retrieve(tokens[iter].value) == undefined) {
+                            if (stack[level].retrieve(holdToken.value) == undefined) {
                                 // continue
                             } else {
-                                var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                                var declaredAs = stack[level].retrieve(holdToken.value)[1];
                                 found = true;
                             }
                             level--;
@@ -315,13 +321,13 @@ function buildAST(astTokens) {
                             * HERE MARCUS
                             * *****/
 
-                            var data = tokens[iter].value.concat(level, levelInstance);
-
-                            /*tokens[iter].value + level + levelInstance*/
+                            var data = holdToken.value.concat(level, levelInstance);
 
                             ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
                             checkExpression();
+
+                            added = true;
 
                         } else {
                             // Symbol not declared at all
@@ -355,11 +361,7 @@ function buildAST(astTokens) {
                  * HERE MARCUS
                  * *****/
 
-                /*alert(tokens[iter].value + level + levelInstance);*/
-
                 var data = tokens[iter].value.concat(level, levelInstance);
-
-                /*tokens[iter].value + level + levelInstance*/
 
                 ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
@@ -419,10 +421,10 @@ function buildAST(astTokens) {
                     var lvl = level; level--; found = false;
 
                     while (level >= 0) {
-                        if (stack[level].retrieve(tokens[iter].value) == undefined) {
+                        if (stack[level].retrieve(holdToken.value) == undefined) {
                             // continue
                         } else {
-                            var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                            var declaredAs = stack[level].retrieve(holdToken.value)[1];
                             found = true;
                         }
                         level--;
@@ -437,17 +439,13 @@ function buildAST(astTokens) {
                          * HERE MARCUS
                          * *****/
 
-                        /*alert(tokens[iter].value + level + levelInstance);*/
-
-                        var data = tokens[iter].value.concat(level, levelInstance);
-
-                        /*tokens[iter].value + level + levelInstance*/
+                        var data = holdToken.value.concat(level, levelInstance);
 
                         ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
-                        /*ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;*/
-
                         checkExpression();
+
+                        added = true;
 
                     } else {
                         // Symbol not declared at all
@@ -481,17 +479,13 @@ function buildAST(astTokens) {
              * HERE MARCUS
              * *****/
 
-            /*alert(tokens[iter].value + level + levelInstance);*/
+            if (!added) {
+                var data = tokens[iter].value.concat(level, levelInstance);
 
-            var data = tokens[iter].value.concat(level, levelInstance);
+                ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
-            /*tokens[iter].value + level + levelInstance*/
-
-            ast.addNode(tokens[iter].value, data, "leaf"); iter++;
-
-            /*ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;*/
-
-            checkExpression();
+                checkExpression();
+            }
 
             if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
                 ast.endChildren();
@@ -506,7 +500,7 @@ function buildAST(astTokens) {
     /********** ********** ********** ********** **********
      * checkVarDecl()
      ***********/
-    function checkVarDecl(levelInstance) {
+    function checkVarDecl() {
 
         var type = tokens[iter].value;
 
@@ -522,6 +516,7 @@ function buildAST(astTokens) {
 
         } else {
 
+            // TODO: Think about this...
             stack[stack.length-1].insert(tokens[iter].value, [tokens[iter].value, type, level, levelInstance]);
 
             var table = document.getElementById("saOutputTable");

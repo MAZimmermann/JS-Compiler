@@ -2,7 +2,11 @@
 int a
 boolean e
 e = true
+string z
+z = "alan"
 {
+string y
+y = z
 int b
 int c
 {
