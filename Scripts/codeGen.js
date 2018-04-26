@@ -68,18 +68,6 @@ function codeGen(ir, st) {
 
 
     /********** ********** ********** ********** **********
-     * getHeapAddress
-     ***********/
-    /*function getAddress(node) {
-        var data = node.data.split("");
-        var key = data[0].concat("@", data[1], data[2]);
-        var entry = codeGen.target.staticTable[key];
-        return entry[3];
-    }*/
-
-
-
-    /********** ********** ********** ********** **********
      * traverse() ... IR Traversal
      ***********/
     function traverse(node) {
@@ -134,16 +122,27 @@ function codeGen(ir, st) {
 
             var firstChild = node.children[0];
 
-            if (firstChild.name.match("int")) {
-                buildIntExpression(node.children[1]);
+            if (firstChild.data.match(/^\d$/) || firstChild.data.match(/^\+$/)) {
+                buildIntExpression(firstChild);
 
-            } else if (firstChild.name.match("string")) {
+            } else if (firstChild.data.match(/^[a-z]*$/)) {
+                buildStringExpression(firstChild);
 
-            } else if (firstChild.name.match("boolop")) {
+            } else if (type.match("boolean")) {
 
-            } else if (firstChild.name.match("id")) {
+            } else if (type.match("id")) {
 
+            } else {
+                // Don't know yet
             }
+
+            codeGen.target.buildInstruction("A2");
+            codeGen.target.buildInstruction("01");
+            codeGen.target.buildInstruction("8D");
+            codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
+            codeGen.target.buildInstruction("AC");
+            codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
+            codeGen.target.buildInstruction("FF");
 
         }
 

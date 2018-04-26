@@ -27,6 +27,7 @@ function Code() {
      * Static Table
      **********/
     this.staticTable = [];
+    this.offset = 0;
 
     /********** ********** ********** ********** **********
      * Jump Table
@@ -38,28 +39,24 @@ function Code() {
      **********/
     this.currentAddress = 0;
 
-
-
     /********** ********** ********** ********** **********
      * Heap Address (start at 255)
      **********/
     this.heapAddress = 255;
-
-
+    this.bytes[this.heapAddress] = '00';
 
     /********** ********** ********** ********** **********
      * Current Static Table Entry (start at T0XX)
      **********/
     this.currentStaticEntry = 'T0XX';
 
-
-
     /********** ********** ********** ********** **********
-     * Current Static Table Entry (start at T0XX)
+     * Current TempAddress?
      **********/
     this.currentTempAddress = 'T1XX';
 
 }
+
 
 
 /********** ********** ********** ********** **********
@@ -67,30 +64,40 @@ function Code() {
  **********/
 Code.prototype.format = function() {
 
-    var static = this.currentAddress + 1;
+    var staticStart = this.currentAddress + 1;
 
-    for (var j = 0; j < this.currentAddress; j++) {
+    // Replaces all temporary variable memory locations with the actual location
+    for (var key in this.staticTable) {
 
-        alert("test");
+        var thisOffset = this.staticTable[key][4];
 
-        if (this.bytes[j].match(/^T[0-9]$/)) {
+        var position = staticStart + thisOffset;
 
-            /*TODO: REVISE THIS*/
+        var temporaryAddress = this.staticTable[key][0];
 
-            this.bytes[j] = ("0000" + static.toString(16)).substr(-2).toUpperCase() + " ";
-            this.bytes[j + 1] = "00 ";
+        var newAddress = ("0000" + position.toString(16)).substr(-2).toUpperCase() + " ";
 
-            j++; static++; static++;
-
-        } else {
-            this.bytes[j] = this.bytes[j] + " ";
+        for (var j = 0; j < this.currentAddress; j++) {
+            if (this.bytes[j].match(/^T[0-9]$/)) {
+                var cur = this.bytes[j].concat(this.bytes[j + 1]);
+                if (cur.match(temporaryAddress)) {
+                    this.bytes[j] = newAddress;
+                    this.bytes[j + 1] = "00";
+                }
+            }
         }
     }
 
-    alert(this.heapAddress);
+    for (var j = 0; j < this.currentAddress; j++) {
+        this.bytes[j] = this.bytes[j] + " ";
+    }
 
     for (var k = this.currentAddress; k < this.heapAddress; k++) {
         this.bytes[k] = "00" + " ";
+    }
+
+    for (var l = this.heapAddress; l < this.bytes.length; l++) {
+        this.bytes[l] = this.bytes[l] + " ";
     }
 
 }
@@ -124,7 +131,6 @@ Code.prototype.buildInstruction = function(instructions) {
  * Push instruction to the list of Op Codes
  **********/
 Code.prototype.buildString = function(string) {
-    this.bytes[this.heapAddress] = '00';
 
     for (var i = 0; i < string.length; i++) {
         var position = string.length - i;
@@ -134,6 +140,8 @@ Code.prototype.buildString = function(string) {
     }
 
     this.heapAddress -= string.length + 1;
+
+    this.bytes[this.heapAddress] = '00';
 
     return cur = ("0000" + (this.heapAddress + 1).toString(16)).substr(-2).toUpperCase();
 
@@ -157,9 +165,10 @@ Code.prototype.buildStaticEntry = function(data) {
         entry.push(data[j]);
     }
 
-    this.staticTable[key] = entry;
+    entry.push(this.offset);
+    this.offset++;
 
-    /*alert(entry);*/
+    this.staticTable[key] = entry;
 
     this.currentStaticEntry = nextStaticEntry(this.currentStaticEntry);
     this.currentTempAddress = nextStaticEntry(this.currentTempAddress);
