@@ -208,7 +208,7 @@ function codeGen(ir, st) {
                 codeGen.target.buildInstruction('00');
                 codeGen.target.buildInstruction('8D');
                 codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
-                codeGen.target.buildStaticEntry(node.children[1].data);
+                codeGen.target.buildStaticEntry(node.children[1]);
 
             } else if (firstChild.name.match("string")) {
 
@@ -216,7 +216,7 @@ function codeGen(ir, st) {
                 codeGen.target.buildInstruction('00');
                 codeGen.target.buildInstruction('8D');
                 codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
-                codeGen.target.buildStaticEntry(node.children[1].data);
+                codeGen.target.buildStaticEntry(node.children[1]);
 
             } else if (firstChild.name.match("boolean")) {
 

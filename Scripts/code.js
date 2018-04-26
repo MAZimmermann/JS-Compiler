@@ -5,121 +5,127 @@
  *  Code class via code constructor
  *  Enumeration of code operations
  *
- * TODO: Figure out names and such
- *
- * TODO: Revise/add to data held in instance of code object
- *
  **********/
 
 
 
 /********** ********** ********** ********** **********
- * Code constructor
+ * Code (constructor for code object containing generated code)
  **********/
 function Code() {
 
     /********** ********** ********** ********** **********
-     * List of Op Codes to be displayed at the end of code gen
+     * List of Op Codes (start at 0)
      **********/
-    this.bytes = [256];
-
-    /********** ********** ********** ********** **********
-     * Static Table
-     **********/
-    this.staticTable = [];
-    this.offset = 0;
-
-    /********** ********** ********** ********** **********
-     * Jump Table
-     **********/
-    this.jumpTable = [];
-
-    /********** ********** ********** ********** **********
-     * Current Address (start at zero)
-     **********/
+    this.opCodes = [];
     this.currentAddress = 0;
 
     /********** ********** ********** ********** **********
-     * Heap Address (start at 255)
+     * List containing heap data (start at 255)
      **********/
+    this.heap = [];
     this.heapAddress = 255;
-    this.bytes[this.heapAddress] = '00';
 
     /********** ********** ********** ********** **********
-     * Current Static Table Entry (start at T0XX)
+     * Static Data Table ('T0XX' and 0 are the starting points)
      **********/
-    this.currentStaticEntry = 'T0XX';
+    this.staticTable = [];
+    this.currentStaticAddress = 'T0XX';
+    this.currentStaticOffset = 0;
 
     /********** ********** ********** ********** **********
-     * Current TempAddress?
+     * Jump Table (starting points TBD...)
      **********/
-    this.currentTempAddress = 'T1XX';
+    this.jumpTable = [];
+    this.currentJumpAddress = 'TBD...';
+
+    /********** ********** ********** ********** **********
+     * TODO: Figure use of temporary addresses in int calculations
+     **********/
 
 }
 
 
 
 /********** ********** ********** ********** **********
- * Format code
+ * FormatProgram (combines the results of code gen to be displayed)
  **********/
-Code.prototype.format = function() {
+Code.prototype.formatProgram = function() {
 
-    var staticStart = this.currentAddress + 1;
+    // this.currentAddress is incremented every time we build an instruction,
+    //  so the beginning of the static area should be... TODO: finish/phrase better?
+    var staticStart = this.currentAddress;
 
     // Replaces all temporary variable memory locations with the actual location
     for (var key in this.staticTable) {
 
-        var thisOffset = this.staticTable[key][4];
+        var staticAddressOffset = this.staticTable[key][4];
 
-        var position = staticStart + thisOffset;
+        var position = staticStart + staticAddressOffset;
 
         var temporaryAddress = this.staticTable[key][0];
 
-        var newAddress = ("0000" + position.toString(16)).substr(-2).toUpperCase() + " ";
+        var newAddress = ("0000" + position.toString(16)).substr(-2).toUpperCase();
 
         for (var j = 0; j < this.currentAddress; j++) {
-            if (this.bytes[j].match(/^T[0-9]$/)) {
-                var cur = this.bytes[j].concat(this.bytes[j + 1]);
+            if (this.opCodes[j].match(/^T[0-9]$/)) {
+                var cur = this.opCodes[j].concat(this.opCodes[j + 1]);
                 if (cur.match(temporaryAddress)) {
-                    this.bytes[j] = newAddress;
-                    this.bytes[j + 1] = "00";
+                    this.opCodes[j] = newAddress;
+                    this.opCodes[j + 1] = "00";
                 }
             }
         }
     }
 
-    for (var j = 0; j < this.currentAddress; j++) {
-        this.bytes[j] = this.bytes[j] + " ";
+    // add space following each op code
+    for (var k = 0; k < this.currentAddress; k++) {
+        this.opCodes[k] = this.opCodes[k] + " ";
     }
 
-    for (var k = this.currentAddress; k < this.heapAddress; k++) {
-        this.bytes[k] = "00" + " ";
+    // fill space between current address and current heap address with 00
+    for (var l = this.currentAddress; l < this.heapAddress; l++) {
+        this.opCodes[l] = "00" + " ";
     }
 
-    for (var l = this.heapAddress; l < this.bytes.length; l++) {
-        this.bytes[l] = this.bytes[l] + " ";
+    // // add space following each entry in the heap
+    for (var m = this.heapAddress; m < this.opCodes.length; m++) {
+        this.opCodes[m] = this.opCodes[m] + " ";
     }
+
+    /********** ********** ********** ********** **********
+     *
+     * TODO: Consider final text array instead?
+     *
+     * TODO: Implement error check for memory collisions
+     *
+     * TODO: Potential meme here...
+     *
+     **********/
 
 }
 
 
 
 /********** ********** ********** ********** **********
- * Push instruction to the list of Op Codes
+ * Build instruction and add it to the list of Op Codes
  **********/
 Code.prototype.buildInstruction = function(instructions) {
+
+    /*TODO: Better distinction between whether we're dealing with instruction or address*/
+
     if (instructions.length == 4) {
 
         for (var i = 0; i < instructions.length/2; i++) {
             var instructionComponent = instructions.substr(2 * i, 2);
-            this.bytes[this.currentAddress] = instructionComponent;
+            this.opCodes[this.currentAddress] = instructionComponent;
             this.currentAddress++;
         }
 
     } else {
 
         /* TODO: Think about handling addresses */
-        this.bytes[this.currentAddress] = instructions;
+        this.opCodes[this.currentAddress] = instructions;
         this.currentAddress++;
 
     }
@@ -128,7 +134,7 @@ Code.prototype.buildInstruction = function(instructions) {
 
 
 /********** ********** ********** ********** **********
- * Push instruction to the list of Op Codes
+ * Build instruction associated with new string, adds string the heap
  **********/
 Code.prototype.buildString = function(string) {
 
@@ -136,12 +142,12 @@ Code.prototype.buildString = function(string) {
         var position = string.length - i;
         var cur = string[i];
         cur = ("0000" + cur.charCodeAt(0).toString(16)).substr(-2).toUpperCase();
-        this.bytes[this.heapAddress - position] = cur;
+        this.opCodes[this.heapAddress - position] = cur;
     }
 
     this.heapAddress -= string.length + 1;
 
-    this.bytes[this.heapAddress] = '00';
+    this.opCodes[this.heapAddress] = '00';
 
     return cur = ("0000" + (this.heapAddress + 1).toString(16)).substr(-2).toUpperCase();
 
@@ -149,41 +155,71 @@ Code.prototype.buildString = function(string) {
 
 
 
+/********** ********** ********** ********** ********** ********** **********
+ * OPERATIONS ASSOCIATED WITH THE STATIC DATA TABLE
+ ********** ********** ********** ********** ********** ********** **********/
+
 /********** ********** ********** ********** **********
- * Push instruction to the list of Op Codes
+ * buildStaticEntry (create new static data table entry)
  **********/
-Code.prototype.buildStaticEntry = function(data) {
-
-    var data = data.split("");
-
-    var key = data[0].concat("@", data[1], data[2]);
+Code.prototype.buildStaticEntry = function(node) {
 
     var entry = [];
 
-    entry.push(this.currentStaticEntry);
+    var key = getKey(node);
+
+    var data = node.data.split("");
+
+    entry.push(nextStaticEntry(this.currentStaticEntry));
+
     for (var j = 0; j < 3; j++) {
         entry.push(data[j]);
     }
 
-    entry.push(this.offset);
-    this.offset++;
+    entry.push(this.currentStaticOffset);
+
+    this.currentStaticOffset++;
 
     this.staticTable[key] = entry;
 
-    this.currentStaticEntry = nextStaticEntry(this.currentStaticEntry);
-    this.currentTempAddress = nextStaticEntry(this.currentTempAddress);
-
 }
 
-
-
 /********** ********** ********** ********** **********
- * nextStaticEntry()
+ * nextStaticEntry (get the next static data table entry)
  ***********/
 function nextStaticEntry(cur) {
     var next = String.fromCharCode(cur.charCodeAt(1) + 1);
     return 'T' + next + 'XX';
 }
+
+/********** ********** ********** ********** **********
+ * getKey (the key associated with a given node)
+ ***********/
+function getKey(node) {
+    var data = node.data.split("");
+    var key = data[0].concat("@", data[1], data[2]);
+    return key;
+}
+
+/********** ********** ********** ********** **********
+ * getAddress (get the address associated with this node's corresponding static data table entry)
+ ***********/
+function getAddress(node) {
+    var data = node.data.split("");
+    var key = data[0].concat("@", data[1], data[2]);
+    var entry = codeGen.target.staticTable[key];
+    return entry[0];
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
