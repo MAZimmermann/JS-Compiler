@@ -141,6 +141,10 @@ function codeGen(ir, st) {
             var firstChild = node.children[0];
 
             if (firstChild.name.match("string")) {
+
+                /*TODO: check if string has already been stored
+                * Helper function checkHeap() */
+
                 var string = firstChild.data.join('');
                 var address = codeGen.target.buildString(string);
                 codeGen.target.buildInstruction("AD");
@@ -153,15 +157,43 @@ function codeGen(ir, st) {
                 codeGen.target.buildInstruction("02");
 
             } else if (firstChild.name.match(/^[a-z]$/)) {
+
+                /*TODO: This depends on the value stored... */
+
                 var address = getAddress(firstChild);
-                codeGen.target.buildInstruction("AC");
-                codeGen.target.buildInstruction(address);
-                codeGen.target.buildInstruction("A2");
-                codeGen.target.buildInstruction("01");
+                var key = getKey(firstChild);
+
+                if (symbolTable[key][0] == "string") {
+                    /*TODO: string id*/
+
+                } else if (symbolTable[key][0] == "boolean") {
+                    /*TODO: boolean id*/
+
+                } else if (symbolTable[key][0] == "int") {
+
+                    /*TODO: int id*/
+                    codeGen.target.buildInstruction("AC");
+                    codeGen.target.buildInstruction(address);
+                    codeGen.target.buildInstruction("A2");
+                    codeGen.target.buildInstruction("01");
+
+                }
 
             }  else if (firstChild.name.match(/^(true|false)$/)) {
+                /*TODO: print boolean value*/
 
             } else if (firstChild.name.match(/^[0-9]$/)) {
+
+                codeGen.target.buildInstruction("A0");
+                codeGen.target.buildInstruction("0" + firstChild.name);
+                codeGen.target.buildInstruction('A2');
+                codeGen.target.buildInstruction('01');
+
+            } else if (firstChild.name.match(/^\+$/)) {
+
+                buildIntExpression(firstChild);
+                codeGen.target.buildInstruction('A2');
+                codeGen.target.buildInstruction('01');
 
             }
 
@@ -203,7 +235,7 @@ function codeGen(ir, st) {
 
             }  else if (secondChild.name.match(/^(true|false)$/)) {
 
-            } else if (secondChild.name.match(/^[0-9]$/) || node.name.match(/^\+$/)) {
+            } else if (secondChild.name.match(/^[0-9]$/) || secondChild.name.match(/^\+$/)) {
 
                 buildIntExpression(secondChild);
                 codeGen.target.buildInstruction('8D');
