@@ -3,19 +3,18 @@
  *
  * Includes...
  *
- *  TODO: Revise scope info/accuracy, place more data in AST(IR) ***(NEARLY THERE)***
+ * TODO: Clean up and refactor / look for areas to consolidate
  *
- *  TODO: Define opcodes, pass along symbol table in addition to AST(IR) ***(NEARLY THERE)***
- *
- *  TODO: Think about input needed, revise op code format
+ * TODO: Errors and Warnings?
  *
  **********/
 
 function codeGen(ir, st) {
 
+    // Grab symbol table from AST
     var symbolTable = st;
 
-    // Declare new array (list of opcodes)
+    // Declare new instance of code to be generated (target program)
     codeGen.target = new Code();
 
     // Set the current node to the root
@@ -24,16 +23,22 @@ function codeGen(ir, st) {
     // Begin AST(IR) traversal
     traverse(root);
 
-    codeGen.target.format();
+    // Format the generated code
+    codeGen.target.formatProgram();
 
-    for (var i = 0; i < codeGen.target.bytes.length; i++) {
-        document.getElementById("codeGen").value += codeGen.target.bytes[i];
+    // Print output to the codeGen textarea
+    for (var i = 0; i < codeGen.target.output.length; i++) {
+        document.getElementById("codeGen").value += codeGen.target.output[i];
     }
 
 
 
+    /********** ********** ********** ********** ********** ********** **********
+     * HELPER FUNCTIONS FOR CODE GEN
+     ********** ********** ********** ********** ********** ********** **********/
+
     /********** ********** ********** ********** **********
-     * getType
+     * getType ()
      ***********/
     function getType(node) {
         var data = node.data.split("");
@@ -41,8 +46,6 @@ function codeGen(ir, st) {
         var entry = symbolTable[key];
         return entry[0];
     }
-
-
 
     /********** ********** ********** ********** **********
      * getAddress
@@ -53,8 +56,6 @@ function codeGen(ir, st) {
         var entry = codeGen.target.staticTable[key];
         return entry[0];
     }
-
-
 
     /********** ********** ********** ********** **********
      * getKey
@@ -67,6 +68,10 @@ function codeGen(ir, st) {
 
 
 
+    /********** ********** ********** ********** ********** ********** **********
+     * TREE TRAVERSAL AND OPERATIONS ASSOCIATED WITH CODE GEN
+     ********** ********** ********** ********** ********** ********** **********/
+
     /********** ********** ********** ********** **********
      * traverse() ... IR Traversal
      ***********/
@@ -74,7 +79,21 @@ function codeGen(ir, st) {
 
         // If there are no children (i.e., leaf nodes)...
         if (!node.children || node.children.length === 0) {
-            // We've hit a leaf node, do nothing
+            // We've hit a leaf node
+
+            /*TODO: Do I want to assess children up here? Separately?*/
+
+            if (node.name.match("string")) {
+                buildString(node);
+
+            } else if (node.name.match(/^[a-z]$/)) {
+
+            }  else if (node.name.match(/^(true|false)$/)) {
+
+            } else if (node.name.match(/^[0-9]$/)) {
+
+            }
+
         } else {
 
             // There are children
@@ -99,7 +118,6 @@ function codeGen(ir, st) {
                 buildIfStatement(node);
 
             }
-
         }
 
 
@@ -122,26 +140,31 @@ function codeGen(ir, st) {
 
             var firstChild = node.children[0];
 
-            if (firstChild.data.match(/^\d$/) || firstChild.data.match(/^\+$/)) {
-                buildIntExpression(firstChild);
+            if (firstChild.name.match("string")) {
+                var string = firstChild.data.join('');
+                var address = codeGen.target.buildString(string);
+                codeGen.target.buildInstruction("AD");
+                codeGen.target.buildInstruction(address);
+                codeGen.target.buildInstruction("A0");
+                codeGen.target.buildInstruction(address.substring(0, 2));
+                codeGen.target.buildInstruction("8D");
+                codeGen.target.buildInstruction(codeGen.target.temp1);
+                codeGen.target.buildInstruction("A2");
+                codeGen.target.buildInstruction("02");
 
-            } else if (firstChild.data.match(/^[a-z]*$/)) {
-                buildStringExpression(firstChild);
+            } else if (firstChild.name.match(/^[a-z]$/)) {
+                var address = getAddress(firstChild);
+                codeGen.target.buildInstruction("AC");
+                codeGen.target.buildInstruction(address);
+                codeGen.target.buildInstruction("A2");
+                codeGen.target.buildInstruction("01");
 
-            } else if (type.match("boolean")) {
+            }  else if (firstChild.name.match(/^(true|false)$/)) {
 
-            } else if (type.match("id")) {
+            } else if (firstChild.name.match(/^[0-9]$/)) {
 
-            } else {
-                // Don't know yet
             }
 
-            codeGen.target.buildInstruction("A2");
-            codeGen.target.buildInstruction("01");
-            codeGen.target.buildInstruction("8D");
-            codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
-            codeGen.target.buildInstruction("AC");
-            codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
             codeGen.target.buildInstruction("FF");
 
         }
@@ -159,7 +182,15 @@ function codeGen(ir, st) {
             var type = getType(firstChild);
             var address = getAddress(firstChild);
 
-            if (secondChild.name.match(/^[a-z]$/)){
+            if (secondChild.name.match("string")) {
+
+                var heapAddress = codeGen.target.buildString(secondChild.data);
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction(heapAddress);
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(address);
+
+            } else if (secondChild.name.match(/^[a-z]$/)) {
 
                 var secondAddress = getAddress(secondChild);
                 codeGen.target.buildInstruction('A9');
@@ -170,27 +201,16 @@ function codeGen(ir, st) {
                 var key = getKey(firstChild);
                 codeGen.target.staticTable[key][0] = secondAddress;
 
-            } else {
-                if (type.match("int")) {
+            }  else if (secondChild.name.match(/^(true|false)$/)) {
 
-                    buildIntExpression(secondChild);
-                    codeGen.target.buildInstruction('8D');
-                    codeGen.target.buildInstruction(address);
+            } else if (secondChild.name.match(/^[0-9]$/) || node.name.match(/^\+$/)) {
 
-                } else if (type.match("string")) {
+                buildIntExpression(secondChild);
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(address);
 
-                    var heapAddress = codeGen.target.buildString(secondChild.data);
-                    codeGen.target.buildInstruction('A9');
-                    codeGen.target.buildInstruction(heapAddress);
-                    codeGen.target.buildInstruction('8D');
-                    codeGen.target.buildInstruction(address);
-
-                } else if (type.match("boolval")) {
-
-                    // Don't know yet...
-
-                }
             }
+
         }
 
 
@@ -207,7 +227,7 @@ function codeGen(ir, st) {
                 codeGen.target.buildInstruction('A9');
                 codeGen.target.buildInstruction('00');
                 codeGen.target.buildInstruction('8D');
-                codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
+                codeGen.target.buildInstruction(codeGen.target.currentStaticAddress);
                 codeGen.target.buildStaticEntry(node.children[1]);
 
             } else if (firstChild.name.match("string")) {
@@ -215,17 +235,12 @@ function codeGen(ir, st) {
                 codeGen.target.buildInstruction('A9');
                 codeGen.target.buildInstruction('00');
                 codeGen.target.buildInstruction('8D');
-                codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
+                codeGen.target.buildInstruction(codeGen.target.currentStaticAddress);
                 codeGen.target.buildStaticEntry(node.children[1]);
 
             } else if (firstChild.name.match("boolean")) {
 
-                /*codeGen.target.buildInstruction('A9');
-                codeGen.target.buildInstruction('00');
-                codeGen.target.buildInstruction('8D');
-                codeGen.target.buildInstruction(codeGen.target.currentStaticEntry);
-                codeGen.target.buildStaticEntry(node.children[1].data);
-                TODO: Come back to this one... */
+                /* TODO: Begin boolean code gen */
 
             }
 
