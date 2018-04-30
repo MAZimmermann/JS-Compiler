@@ -90,6 +90,7 @@ Code.prototype.formatProgram = function() {
         for (var j = 0; j < this.currentAddress; j++) {
             if (this.opCodes[j].match(/^T[0-9]$/)) {
                 var cur = this.opCodes[j].concat(this.opCodes[j + 1]);
+
                 if (cur.match(temporaryAddress)) {
                     this.opCodes[j] = newAddress;
                     this.opCodes[j + 1] = "00";
@@ -232,7 +233,7 @@ Code.prototype.buildStaticEntry = function(node) {
 
     this.currentStaticOffset++;
 
-    nextStaticEntry(this.currentStaticAddress);
+    this.currentStaticAddress = nextStaticEntry(this.currentStaticAddress);
 
 }
 

@@ -192,6 +192,8 @@ function codeGen(ir, st) {
             } else if (firstChild.name.match(/^\+$/)) {
 
                 buildIntExpression(firstChild);
+                codeGen.target.buildInstruction('AC');
+                codeGen.target.buildInstruction(codeGen.target.temp2);
                 codeGen.target.buildInstruction('A2');
                 codeGen.target.buildInstruction('01');
 
@@ -307,14 +309,23 @@ function codeGen(ir, st) {
                 buildIntExpression(node.children[1]);
 
                 codeGen.target.buildInstruction('8D');
-                codeGen.target.buildInstruction(codeGen.target.currentTempAddress);
+                codeGen.target.buildInstruction(codeGen.target.temp2);
 
                 codeGen.target.buildInstruction('A9');
                 value = ("0000" + node.children[0].data.toString(16)).substr(-2);
-
                 codeGen.target.buildInstruction(value);
+
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                codeGen.target.buildInstruction('AD');
+                codeGen.target.buildInstruction(codeGen.target.temp2);
+
                 codeGen.target.buildInstruction('6D');
-                codeGen.target.buildInstruction(codeGen.target.currentTempAddress);
+                codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.temp2);
 
             } else {
                 if (node.name.match(/^[a-z]$/)) {

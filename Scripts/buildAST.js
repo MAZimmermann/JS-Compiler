@@ -689,11 +689,19 @@ function buildAST(astTokens) {
 
         if (tokens[iter + 1].value.match(asToken.Kind.Intop.pattern)) {
 
+            if (tokens[iter - 2].value.match(asToken.Kind.PrintStatement.pattern)) {
+                /*TODO: Come back to this, AST could be better */
+            }
+
             if (tokens[iter + 4].value.match(asToken.Kind.EndExpression.pattern)) {
 
                 /* We have the following...  */
 
                 /* ... ___ ... _+_ ... INT EXPRESSION ... _END EXPRESSION_ ... */
+
+                if (tokens[iter - 1].value.match(asToken.Kind.PrintStatement.pattern)) {
+                    alert("test");
+                }
 
                 ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
                 ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
