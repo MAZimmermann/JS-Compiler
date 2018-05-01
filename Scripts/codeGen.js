@@ -26,9 +26,30 @@ function codeGen(ir, st) {
     // Format the generated code
     codeGen.target.formatProgram();
 
+    // For viewing clarity
+    var trackerThing = 0;
+
     // Print output to the codeGen textarea
     for (var i = 0; i < codeGen.target.output.length; i++) {
+
+        /*TODO: Format code output area*/
+
         document.getElementById("codeGen").value += codeGen.target.output[i];
+
+        /*if (trackerThing == 0) {
+            document.getElementById("codeGen").style.color = "magenta";
+            document.getElementById("codeGen").value += codeGen.target.output[i];
+            document.getElementById("codeGen").style.color = "black";
+            trackerThing++;
+        } else {
+            document.getElementById("codeGen").value += codeGen.target.output[i];
+            if (trackerThing == 15) {
+                trackerThing = 0;
+            } else {
+                trackerThing++;
+            }
+        }*/
+
     }
 
 
@@ -191,9 +212,9 @@ function codeGen(ir, st) {
 
             } else if (firstChild.name.match(/^\+$/)) {
 
-                codeGen.target.buildInstruction('A9');
+                /*codeGen.target.buildInstruction('A9');
                 value = ("0000" + firstChild.children[0].data.toString(16)).substr(-2);
-                codeGen.target.buildInstruction(value);
+                codeGen.target.buildInstruction(value);*/
 
                 buildIntExpression(firstChild);
 
@@ -242,6 +263,18 @@ function codeGen(ir, st) {
 
             }  else if (secondChild.name.match(/^(true|false)$/)) {
 
+                if (secondChild.name.match(/^(true)$/)) {
+                    codeGen.target.buildInstruction('A9');
+                    codeGen.target.buildInstruction('01');
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(address);
+                } else {
+                    codeGen.target.buildInstruction('A9');
+                    codeGen.target.buildInstruction('00');
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(address);
+                }
+
             } else if (secondChild.name.match(/^[0-9]$/)) {
 
                 codeGen.target.buildInstruction('A9');
@@ -253,9 +286,9 @@ function codeGen(ir, st) {
 
             } else if (secondChild.name.match(/^\+$/)) {
 
-                codeGen.target.buildInstruction('A9');
+                /*codeGen.target.buildInstruction('A9');
                 value = ("0000" + secondChild.children[0].data.toString(16)).substr(-2);
-                codeGen.target.buildInstruction(value);
+                codeGen.target.buildInstruction(value);*/
 
                 buildIntExpression(secondChild);
 
@@ -293,7 +326,11 @@ function codeGen(ir, st) {
 
             } else if (firstChild.name.match("boolean")) {
 
-                /* TODO: Begin boolean code gen */
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('00');
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.currentStaticAddress);
+                codeGen.target.buildStaticEntry(node.children[1]);
 
             }
 
@@ -325,8 +362,14 @@ function codeGen(ir, st) {
         function buildIntExpression(node) {
             if (node.name.match(/^\+$/)) {
 
+                /*codeGen.target.buildInstruction('A9');
+                value = ("0000" + node.children[0].data.toString(16)).substr(-2);
+                codeGen.target.buildInstruction(value);
+
                 codeGen.target.buildInstruction('8D');
-                codeGen.target.buildInstruction(codeGen.target.temp2);
+                codeGen.target.buildInstruction(codeGen.target.temp2);*/
+
+                buildIntExpression(node.children[1]);
 
                 codeGen.target.buildInstruction('A9');
                 value = ("0000" + node.children[0].data.toString(16)).substr(-2);
@@ -341,7 +384,8 @@ function codeGen(ir, st) {
                 codeGen.target.buildInstruction('6D');
                 codeGen.target.buildInstruction(codeGen.target.temp1);
 
-                buildIntExpression(node.children[1]);
+                codeGen.target.buildInstruction("8D");
+                codeGen.target.buildInstruction(codeGen.target.temp2);
 
             } else {
                 if (node.name.match(/^[a-z]$/)) {
@@ -352,10 +396,14 @@ function codeGen(ir, st) {
 
                 } else {
 
+                    codeGen.target.buildInstruction('A9');
+                    value = ("0000" + node.data.toString(16)).substr(-2);
+                    codeGen.target.buildInstruction(value);
+
                     codeGen.target.buildInstruction("8D");
                     codeGen.target.buildInstruction(codeGen.target.temp2);
 
-                    codeGen.target.buildInstruction('A9');
+/*                    codeGen.target.buildInstruction('A9');
                     value = ("0000" + node.data.toString(16)).substr(-2);
                     codeGen.target.buildInstruction(value);
 
@@ -366,7 +414,7 @@ function codeGen(ir, st) {
                     codeGen.target.buildInstruction(codeGen.target.temp2);
 
                     codeGen.target.buildInstruction('6D');
-                    codeGen.target.buildInstruction(codeGen.target.temp1);
+                    codeGen.target.buildInstruction(codeGen.target.temp1);*/
 
                 }
 
