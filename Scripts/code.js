@@ -3,15 +3,16 @@
  *
  * Includes:
  *  Code class via code constructor
- *   TODO: Enumeration of code operations (might not use this) *****
+ *
+ *  TODO: Start boolvals and comparisons
+ *
+ *  TODO: Enumeration of code operations (might not use this) *****
  *
  *  TODO: Clean up and refactor / look for areas to consolidate
  *
  *  TODO: Consider editing static data table format
  *
  *  TODO: Jump table? That'll come with loops...
- *
- *  TODO: How to use temporary addresses
  *
  *  TODO: Errors and Warnings?
  *
