@@ -452,6 +452,8 @@ function buildAST(astTokens) {
 
                         ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
+                        alert(tokens[iter].value);
+
                         checkExpression();
 
                         added = true;
@@ -699,13 +701,86 @@ function buildAST(astTokens) {
 
                 /* ... ___ ... _+_ ... INT EXPRESSION ... _END EXPRESSION_ ... */
 
-                if (tokens[iter - 1].value.match(asToken.Kind.PrintStatement.pattern)) {
-                    alert("test");
-                }
+                if (tokens[iter+3].value.match(asToken.Kind.Id.pattern)) {
 
-                ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
-                ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
-                ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
+                    var intExprId = tokens[iter + 3];
+
+                    if (stack[stack.length-1].retrieve(intExprId.value) == undefined) {
+
+                        // Symbol not declared in scope
+
+                        var lvl = level; level--; found = false;
+
+                        while (level >= 0) {
+                            if (stack[level].retrieve(intExprId.value) == undefined) {
+                                // continue
+                            } else {
+                                var declaredAs = stack[level].retrieve(intExprId.value)[1];
+                                var declaredAt = level;
+                                found = true;
+                            } level--;
+                        }
+
+                        level = lvl;
+
+                        if (found) {
+
+                            // Move onto type checking
+
+                            if (declaredAs == "int") {
+
+                                /* TODO: Warning could be issued here... */
+
+                                ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
+                                ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
+                                ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
+
+                            } else {
+
+                                errorMsg = "Type mismatch, expecting int";
+                                saError(errorMsg);
+
+                            }
+
+                        } else {
+
+                            // Symbol not declared at all
+
+                            errorMsg = "Symbol [" + intExprId.value + "] used before being declared";
+
+                            saError(errorMsg);
+
+                        }
+
+                    } else {
+
+                        var declaredAs = stack[level].retrieve(intExprId.value)[1];
+                        var declaredAt = level;
+
+                        if (declaredAs == "int") {
+
+                            /* TODO: Warning could be issued here... */
+
+                            ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
+                            ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
+                            ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
+
+                        } else {
+
+                            errorMsg = "Type mismatch, expecting int";
+                            saError(errorMsg);
+
+                        }
+
+                    }
+
+                } else {
+
+                    ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
+                    ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
+                    ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
+
+                }
 
                 if (tokens[iter] == undefined) {
 
@@ -875,7 +950,45 @@ function buildAST(astTokens) {
      ***********/
     function checkIdExpression() {
 
-        ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
+        /*ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;*/
+
+        if (stack[stack.length-1].retrieve(tokens[iter].value) == undefined) {
+
+            // Symbol not declared in scope
+
+            var lvl = level; level--; found = false;
+
+            while (level >= 0) {
+                if (stack[level].retrieve(tokens[iter].value) == undefined) {
+                    // continue
+                } else {
+                    var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                    var declaredAt = level;
+                    found = true;
+                } level--;
+            }
+
+            level = lvl;
+
+            if (found) {
+
+                ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
+
+            } else {
+
+                // Symbol not declared at all
+
+                errorMsg = "Symbol [" + tokens[iter].value + "] used before being declared";
+
+                saError(errorMsg);
+
+            }
+
+        } else {
+
+            ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
+
+        }
 
         if (tokens[iter] == undefined) {
 
