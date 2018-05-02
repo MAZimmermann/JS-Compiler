@@ -691,10 +691,6 @@ function buildAST(astTokens) {
 
         if (tokens[iter + 1].value.match(asToken.Kind.Intop.pattern)) {
 
-            if (tokens[iter - 2].value.match(asToken.Kind.PrintStatement.pattern)) {
-                /*TODO: Come back to this, AST could be better */
-            }
-
             if (tokens[iter + 4].value.match(asToken.Kind.EndExpression.pattern)) {
 
                 /* We have the following...  */
@@ -776,9 +772,18 @@ function buildAST(astTokens) {
 
                 } else {
 
-                    ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
-                    ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
-                    ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
+                    if (tokens[iter+3].value.match(asToken.Kind.Digit.pattern)) {
+
+                        ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
+                        ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
+                        ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
+
+                    } else {
+
+                        errorMsg = "Type mismatch, expecting int";
+                        saError(errorMsg);
+
+                    }
 
                 }
 
@@ -816,11 +821,20 @@ function buildAST(astTokens) {
 
                 /* ... ___ ... _+_ ... INT EXPRESSION ... _+_ ... */
 
-                ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
+                if (tokens[iter+3].value.match(asToken.Kind.Digit.pattern)) {
 
-                ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
+                    ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
 
-                checkIntExpression();
+                    ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
+
+                    checkIntExpression();
+
+                } else {
+
+                    errorMsg = "Type mismatch, expecting int";
+                    saError(errorMsg);
+
+                }
 
             }
 
