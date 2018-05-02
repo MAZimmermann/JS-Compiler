@@ -478,7 +478,7 @@ function codeGen(ir, st) {
 
                     /*TODO: Come back to strings IDs... */
 
-                    var address = getAddress(rightSide);
+                    var address = getAddress(leftSide);
                     codeGen.target.buildInstruction('AE');
                     codeGen.target.buildInstruction(address);
 
