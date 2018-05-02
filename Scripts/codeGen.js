@@ -72,6 +72,28 @@ function codeGen(ir, st) {
         return key;
     }
 
+    /********** ********** ********** ********** **********
+     * checkHeap
+     ***********/
+    function checkHeap(string) {
+        var heapToString = codeGen.target.heap.toString();
+
+        /*TODO: Finish writing this function*/
+        heapToString = heapToString.replace(',', '');
+
+        var stringToHex = "";
+
+        for (var i = string.length - 1; i >= 0; i--) {
+            var currentLetter = string[i];
+            currentLetter = ("0000" + currentLetter.charCodeAt(0).toString(16)).substr(-2).toUpperCase();
+            stringToHex = stringToHex + currentLetter;
+        }
+
+        /*alert(heapToString);
+        alert(stringToHex);*/
+
+    }
+
 
 
     /********** ********** ********** ********** ********** ********** **********
@@ -122,6 +144,7 @@ function codeGen(ir, st) {
 
             } else if (node.data.match(asToken.Kind.IfStatement.pattern)) {
                 buildIfStatement(node);
+                buildBlock(node.children[1]);
 
             }
         }
@@ -148,11 +171,12 @@ function codeGen(ir, st) {
 
             if (firstChild.name.match("string")) {
 
-                /*TODO: check if string has already been stored
-                * Helper function checkHeap() */
-
                 var string = firstChild.data.join('');
                 var address = codeGen.target.buildString(string);
+
+                /*
+                TODO: Remember to revisit this...
+                checkHeap(string);*/
 
                 codeGen.target.buildInstruction('AD');
                 codeGen.target.buildInstruction(address);
@@ -368,6 +392,61 @@ function codeGen(ir, st) {
          ***********/
         function buildIfStatement() {
 
+            var firstChild = node.children[0];
+
+            var leftSide = firstChild.children[0];
+            var rightSide = firstChild.children[1];
+
+            if (leftSide.name.match("string")) {
+
+            } else if (leftSide.name.match(/^[a-z]$/)) {
+
+            }  else if (leftSide.name.match(/^(true|false)$/)) {
+
+                if (leftSide.name.match(/^(true)$/)) {
+
+                } else {
+
+                }
+
+            } else if (leftSide.name.match(/^[0-9]$/)) {
+
+                codeGen.target.buildInstruction('A2');
+                value = ("0000" + leftSide.data.toString(16)).substr(-2);
+                codeGen.target.buildInstruction(value);
+
+
+            } else if (leftSide.name.match(/^\+$/)) {
+
+            }
+
+            codeGen.target.buildInstruction('EC');
+
+            if (rightSide.name.match("string")) {
+
+            } else if (rightSide.name.match(/^[a-z]$/)) {
+
+            }  else if (rightSide.name.match(/^(true|false)$/)) {
+
+                if (rightSide.name.match(/^(true)$/)) {
+
+                } else {
+
+                }
+
+            } else if (rightSide.name.match(/^[0-9]$/)) {
+
+                codeGen.target.buildInstruction('A0');
+                value = ("0000" + rightSide.data.toString(16)).substr(-2);
+                codeGen.target.buildInstruction(value);
+
+            } else if (rightSide.name.match(/^\+$/)) {
+
+            }
+
+            codeGen.target.buildInstruction("D0");
+            codeGen.target.buildInstruction("J0");
+
         }
 
 
@@ -447,7 +526,7 @@ function codeGen(ir, st) {
 
 
         /********** ********** ********** ********** **********
-         * buildIfExpression()
+         * buildIdExpression()
          ***********/
         function buildIdExpression() {
 
