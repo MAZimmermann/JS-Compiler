@@ -143,8 +143,23 @@ function codeGen(ir, st) {
                 buildWhileStatement(node);
 
             } else if (node.data.match(asToken.Kind.IfStatement.pattern)) {
+
+                var holdCurrentJump = codeGen.target.currentJumpAddress;
+
+                codeGen.target.buildJumpEntry();
+
                 buildIfStatement(node);
+
+                codeGen.target.buildInstruction('D0');
+                codeGen.target.buildInstruction(holdCurrentJump);
+
+                var holdCurrentAddress = codeGen.target.currentAddress;
+
                 buildBlock(node.children[1]);
+
+                var jumpVal = (codeGen.target.currentAddress - holdCurrentAddress) + 1;
+
+                codeGen.target.jumpTable[holdCurrentJump] = jumpVal;
 
             }
         }
@@ -399,7 +414,16 @@ function codeGen(ir, st) {
 
             if (leftSide.name.match("string")) {
 
+                /*TODO: Come back to strings... */
+
+                var string = leftSide.data.join('');
+                var address = codeGen.target.buildString(string);
+
             } else if (leftSide.name.match(/^[a-z]$/)) {
+
+                var address = getAddress(rightSide);
+                codeGen.target.buildInstruction('A2');
+                codeGen.target.buildInstruction(address);
 
             }  else if (leftSide.name.match(/^(true|false)$/)) {
 
@@ -418,13 +442,28 @@ function codeGen(ir, st) {
 
             } else if (leftSide.name.match(/^\+$/)) {
 
+                buildIntExpression(firstChild);
+
+                codeGen.target.buildInstruction('A2');
+                codeGen.target.buildInstruction(codeGen.target.temp2);
+
             }
 
+            /* Compare byte in memory to the x register */
             codeGen.target.buildInstruction('EC');
 
             if (rightSide.name.match("string")) {
 
+                /*TODO: Come back to strings... */
+
+                var string = rightSide.data.join('');
+                var address = codeGen.target.buildString(string);
+
             } else if (rightSide.name.match(/^[a-z]$/)) {
+
+                var address = getAddress(rightSide);
+                codeGen.target.buildInstruction('A0');
+                codeGen.target.buildInstruction(address);
 
             }  else if (rightSide.name.match(/^(true|false)$/)) {
 
@@ -442,10 +481,12 @@ function codeGen(ir, st) {
 
             } else if (rightSide.name.match(/^\+$/)) {
 
-            }
+                buildIntExpression(firstChild);
 
-            codeGen.target.buildInstruction("D0");
-            codeGen.target.buildInstruction("J0");
+                codeGen.target.buildInstruction('A0');
+                codeGen.target.buildInstruction(codeGen.target.temp2);
+
+            }
 
         }
 
