@@ -57,6 +57,9 @@ function Code() {
     this.temp1 = 'TMP1';
     this.temp2 = 'TMP2';
 
+    /* Added for intExpr == | != intExpr */
+    this.temp3 = 'TMP3';
+
 }
 
 
@@ -119,8 +122,13 @@ Code.prototype.formatProgram = function() {
     var newTemp2 = ('0000' + temp2Position.toString(16)).substr(-2).toUpperCase();
     this.temp2 = newTemp2;
 
+    var temp3Position = staticStart + this.currentStaticOffset + 2;
+    var newTemp3 = ('0000' + temp3Position.toString(16)).substr(-2).toUpperCase();
+    this.temp3 = newTemp3;
+
     this.opCodes[temp1Position] = this.temp1;
     this.opCodes[temp2Position] = this.temp2;
+    this.opCodes[temp3Position] = this.temp3;
 
     for (var j = 0; j < this.currentAddress; j++) {
         if (this.opCodes[j].match(/^TM$/)) {
@@ -130,6 +138,9 @@ Code.prototype.formatProgram = function() {
                 this.opCodes[j + 1] = '00';
             } else if (cur.match(/^TMP2$/)) {
                 this.opCodes[j] = this.temp2;
+                this.opCodes[j + 1] = '00';
+            } else if (cur.match(/^TMP3$/)) {
+                this.opCodes[j] = this.temp3;
                 this.opCodes[j + 1] = '00';
             }
         }
