@@ -4,8 +4,6 @@
 // By Alan G. Labouseur, based on the 2009
 // work by Michael Ardizzone and Tim Smith.
 //
-// TODO: Mention any edits to this file
-//
 //-----------------------------------------
 
 function Tree() {
@@ -29,6 +27,11 @@ function Tree() {
             parent: {},
             depth: 0,
             data: nodeData
+
+            /********** ********** ********** ********** **********
+             * Added parameters and changed initialized values
+             **********/
+
         };
 
         // Check to see if it needs to be the root node.
@@ -107,6 +110,9 @@ function Tree() {
         return traversalResult;
     };
 
+    /********** ********** ********** ********** **********
+     * Returns root of the tree
+     **********/
     this.getRoot = function () {
         return this.root;
     }

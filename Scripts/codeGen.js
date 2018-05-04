@@ -3,11 +3,13 @@
  *
  * Includes...
  *
- * TODO: Start boolvals and comparisons
+ * TODO: Better description for this file
+ *
+ * TODO: Continue working with boolean values and comparisons
  *
  * TODO: Clean up and refactor / look for areas to consolidate
  *
- * TODO: Errors and Warnings?
+ * TODO: Generate errors and warnings (memory collision, etc.)
  *
  **********/
 

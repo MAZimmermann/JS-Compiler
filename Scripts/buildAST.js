@@ -6,23 +6,31 @@
  *  The methods aid in building the AST,
  *   while also conducting scope/type checks and building the symbol table
  *
- * The symbol table is only displayed if declarations/uses
+ * The symbol table is only displayed if declarations/usage
  *  pass scope and type checking
  *
- * TODO: Clean this up
+ * TODO: Add warnings to this phase of the compiler
+ *  ex: "Declared but never used"
+ *  ex: "Declared and used but not initialized"
+ *
+ * TODO: Add more details to errors
+ *  ex: "Type Mismatch: Expected __, Found __"
  *
  **********/
 
 function buildAST(astTokens) {
 
+    // Display SEMANTIC ANALYSIS
     document.getElementById("compStatus").value += "\n";
     document.getElementById("compStatus").value += "SEMANTIC ANALYSIS \n";
 
+    // Display Program __Program__Count__
     document.getElementById("saOutputTree").value += "Program " + programCount + "\n";
     document.getElementById("saOutputTree").value += "********** ********** **********\n";
     document.getElementById("saOutputTable").value += "Program " + programCount + "\n";
     document.getElementById("saOutputTable").value += "********** ********** **********\n";
 
+    // Initialize table with header rows
     var table = document.getElementById("saOutputTable");
     var rowCount = table.rows.length;
     var row = table.insertRow(rowCount);
@@ -42,7 +50,7 @@ function buildAST(astTokens) {
         alert(astTokens[k].value + " " + astTokens[k].depth);
     } iter = 0;*/
 
-    // Keeps track of our position in "asTokens"
+    // Keeps track of our position in "tokens"
     var iter = 0;
 
     // Used to assess whether we're assessing a boolean expression
@@ -51,7 +59,7 @@ function buildAST(astTokens) {
     // Assign -1 to level, placing the first block at 0
     var level = -1;
 
-    // Assign 'A' for the first level instance
+    // Assign 'A' for the first level instance (ex "0A", "1A", "2A")
     var levelInstance = 'A';
 
     // Create stack containing list of hash tables
@@ -98,6 +106,7 @@ function buildAST(astTokens) {
         document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
         document.getElementById("saOutputTree").value += tree + "\n";
 
+        // pass the ast and symbol table along to code gen
         codeGen(ast, symbolTable);
 
     } else {
@@ -214,15 +223,11 @@ function buildAST(astTokens) {
 
                 }
 
-                if (tokens[iter + 1] == undefined) {
+                if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
                     break;
                 }
 
             }
-
-            /********** ********** ********** ********** **********
-             * Finished processing block, as hashtbale to final "list?"
-             ***********/
 
             var temp = stack.pop();
 
@@ -319,6 +324,7 @@ function buildAST(astTokens) {
                         }
 
                         if (found) {
+
                             // Move onto type checking
 
                             /*****
@@ -334,6 +340,7 @@ function buildAST(astTokens) {
                             added = true;
 
                         } else {
+
                             // Symbol not declared at all
 
                             errorMsg = "Symbol [" + holdToken.value + "] used before being declared";
@@ -369,18 +376,17 @@ function buildAST(astTokens) {
                  * *****/
 
                 if (!added) {
+
                     var data = tokens[iter].value.concat(declaredAt, levelInstance);
 
                     ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
                     checkExpression();
+
                 }
 
-                /*if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
-                    ast.endChildren();
-                }*/
-
             } else {
+
                 // Symbol not declared at all
 
                 errorMsg = "Symbol [" + tokens[iter].value + "] used before being declared";
@@ -493,16 +499,14 @@ function buildAST(astTokens) {
              * *****/
 
             if (!added) {
+
                 var data = tokens[iter].value.concat(declaredAt, levelInstance);
 
                 ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
                 checkExpression();
-            }
 
-            /*if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
-                ast.endChildren();
-            }*/
+            }
 
         }
 
@@ -529,7 +533,6 @@ function buildAST(astTokens) {
 
         } else {
 
-            // TODO: Think about this...
             stack[stack.length-1].insert(tokens[iter].value, [tokens[iter].value, type, level, levelInstance]);
 
             var table = document.getElementById("saOutputTable");
@@ -544,8 +547,9 @@ function buildAST(astTokens) {
             var cell1 = row.insertCell(3);
             cell1.innerHTML = levelInstance;
 
+            // Add new variable to the symbol table
             var key = tokens[iter].value.concat("@", level, levelInstance);
-            symbolTable[key] = [type, tokens[iter].value, level, levelInstance];
+            symbolTable[key] = [type, tokens[iter].value, level, levelInstance, 0];
 
             ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
 
@@ -987,8 +991,10 @@ function buildAST(astTokens) {
 
                         if (tokens[iter].value.match(asToken.Kind.IntExpression.pattern)) {
                             if (!(declaredAs == "int")) {
+
                                 errorMsg = "Type mismatch, expecting " + declaredAs;
                                 saError(errorMsg);
+
                             } else {
 
                                 checkExpression();
@@ -1000,8 +1006,10 @@ function buildAST(astTokens) {
                             }
                         } else if (tokens[iter].value.match(asToken.Kind.StringExpression.pattern)) {
                             if (!(declaredAs == "string")) {
+
                                 errorMsg = "Type mismatch, expecting " + declaredAs;
                                 saError(errorMsg);
+
                             } else {
 
                                 checkExpression();
@@ -1013,8 +1021,10 @@ function buildAST(astTokens) {
                             }
                         } else if (tokens[iter].value.match(asToken.Kind.BooleanExpression.pattern)) {
                             if (!(declaredAs == "boolean")) {
+
                                 errorMsg = "Type mismatch, expecting " + declaredAs;
                                 saError(errorMsg);
+
                             } else {
 
                                 checkExpression();
@@ -1026,8 +1036,10 @@ function buildAST(astTokens) {
                             }
                         } else if (tokens[iter].value.match(asToken.Kind.BoolvalExpression.pattern)) {
                             if (!(declaredAs == "boolean")) {
+
                                 errorMsg = "Type mismatch, expecting " + declaredAs;
                                 saError(errorMsg);
+
                             } else {
 
                                 checkExpression();
@@ -1137,8 +1149,10 @@ function buildAST(astTokens) {
 
                     if (tokens[iter].value.match(asToken.Kind.IntExpression.pattern)) {
                         if (!(declaredAs == "int")) {
+
                             errorMsg = "Type mismatch, expecting " + declaredAs;
                             saError(errorMsg);
+
                         } else {
 
                             checkExpression();
@@ -1150,8 +1164,10 @@ function buildAST(astTokens) {
                         }
                     } else if (tokens[iter].value.match(asToken.Kind.StringExpression.pattern)) {
                         if (!(declaredAs == "string")) {
+
                             errorMsg = "Type mismatch, expecting " + declaredAs;
                             saError(errorMsg);
+
                         } else {
 
                             checkExpression();
@@ -1163,8 +1179,10 @@ function buildAST(astTokens) {
                         }
                     } else if (tokens[iter].value.match(asToken.Kind.BooleanExpression.pattern)) {
                         if (!(declaredAs == "boolean")) {
+
                             errorMsg = "Type mismatch, expecting " + declaredAs;
                             saError(errorMsg);
+
                         } else {
 
                             checkExpression();
@@ -1176,8 +1194,10 @@ function buildAST(astTokens) {
                         }
                     } else if (tokens[iter].value.match(asToken.Kind.BoolvalExpression.pattern)) {
                         if (!(declaredAs == "boolean")) {
+
                             errorMsg = "Type mismatch, expecting " + declaredAs;
                             saError(errorMsg);
+
                         } else {
 
                             checkExpression();
@@ -1302,8 +1322,10 @@ function buildAST(astTokens) {
 
                         if (tokens[holdExpressionStart].value.match(asToken.Kind.IntExpression.pattern)) {
                             if (!(declaredAs == "int")) {
+
                                 errorMsg = "Type mismatch, expecting int";
                                 saError(errorMsg);
+
                             } else {
 
                                 checkExpression();
@@ -1315,8 +1337,10 @@ function buildAST(astTokens) {
                             }
                         } else if (tokens[holdExpressionStart].value.match(asToken.Kind.StringExpression.pattern)) {
                             if (!(declaredAs == "string")) {
+
                                 errorMsg = "Type mismatch, expecting string";
                                 saError(errorMsg);
+
                             } else {
 
                                 checkExpression();
@@ -1328,8 +1352,10 @@ function buildAST(astTokens) {
                             }
                         } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BooleanExpression.pattern)) {
                             if (!(declaredAs == "boolean")) {
+
                                 errorMsg = "Type mismatch, expecting boolean";
                                 saError(errorMsg);
+
                             } else {
 
                                 checkExpression();
@@ -1341,8 +1367,10 @@ function buildAST(astTokens) {
                             }
                         } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BoolvalExpression.pattern)) {
                             if (!(declaredAs == "boolean")) {
+
                                 errorMsg = "Type mismatch, expecting boolean";
                                 saError(errorMsg);
+
                             } else {
 
                                 checkExpression();
@@ -1361,8 +1389,10 @@ function buildAST(astTokens) {
 
                     if (tokens[holdExpressionStart].value.match(asToken.Kind.IntExpression.pattern)) {
                         if (!(declaredAs == "int")) {
+
                             errorMsg = "Type mismatch, expecting int";
                             saError(errorMsg);
+
                         } else {
 
                             checkExpression();
@@ -1374,8 +1404,10 @@ function buildAST(astTokens) {
                         }
                     } else if (tokens[holdExpressionStart].value.match(asToken.Kind.StringExpression.pattern)) {
                         if (!(declaredAs == "string")) {
+
                             errorMsg = "Type mismatch, expecting string";
                             saError(errorMsg);
+
                         } else {
 
                             checkExpression();
@@ -1387,8 +1419,10 @@ function buildAST(astTokens) {
                         }
                     } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BooleanExpression.pattern)) {
                         if (!(declaredAs == "boolean")) {
+
                             errorMsg = "Type mismatch, expecting boolean";
                             saError(errorMsg);
+
                         } else {
 
                             checkExpression();
@@ -1400,8 +1434,10 @@ function buildAST(astTokens) {
                         }
                     } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BoolvalExpression.pattern)) {
                         if (!(declaredAs == "boolean")) {
+
                             errorMsg = "Type mismatch, expecting boolean";
                             saError(errorMsg);
+
                         } else {
 
                             checkExpression();
@@ -1508,7 +1544,6 @@ function buildAST(astTokens) {
                     }
                 } iter++;
             } else {
-
                 while (tokens[iter + 1].value.match(asToken.Kind.EndExpression.pattern)) {
 
                     ast.endChildren(); iter++;

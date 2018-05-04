@@ -4,17 +4,15 @@
  * Includes:
  *  Code class via code constructor
  *
- *  TODO: Start boolvals and comparisons
+ * TODO: Better description for this file
  *
- *  TODO: Clean up and refactor / look for areas to consolidate
+ * TODO: Continue working with boolean values and comparisons
  *
- *  TODO: Consider editing static data table format
+ * TODO: Clean up and refactor / look for areas to consolidate
  *
- *  TODO: Errors and Warnings?
+ * TODO: Consider editing static data table format
  *
- *
- *  TODO: Fix END CHILDREN
- *
+ * TODO: Generate errors and warnings (memory collision, etc.)
  *
  **********/
 
