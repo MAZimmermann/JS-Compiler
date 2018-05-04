@@ -179,10 +179,12 @@ function buildAST(astTokens) {
                 if (tokens[iter].value.match(asToken.Kind.PrintStatement.pattern)) {
                     ast.addNode("PrintStatement", "PrintStatement", "branch"); iter++;
                     checkPrintStatement();
+                    ast.endChildren();
 
                 } else if (tokens[iter].value.match(asToken.Kind.AssignmentStatement.pattern)) {
                     ast.addNode("AssignmentStatement", "AssignmentStatement", "branch"); iter++;
                     checkAssignment();
+                    ast.endChildren();
 
                 } else if (tokens[iter].value.match(asToken.Kind.VarDecl.pattern)) {
                     ast.addNode("VarDecl", "VarDecl", "branch"); iter++;
@@ -621,8 +623,6 @@ function buildAST(astTokens) {
 
             checkStringExpression();
 
-            /*ast.endChildren();*/
-
 
         } else if (tokens[iter].value.match(asToken.Kind.BooleanExpression.pattern)) {
 
@@ -649,7 +649,7 @@ function buildAST(astTokens) {
 
         ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
-        if (tokens[iter] == undefined) {
+        if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
 
             /*
             * End of program??
@@ -662,19 +662,19 @@ function buildAST(astTokens) {
 
                     ast.endChildren(); iter++;
 
-                    if (tokens[iter] == undefined) {
+                    if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
                         break;
                     }
                 } iter++;
             } else {
-                while (tokens[iter].value.match(asToken.Kind.EndExpression.pattern)) {
+                while (tokens[iter + 1].value.match(asToken.Kind.EndExpression.pattern)) {
 
                     ast.endChildren(); iter++;
 
-                    if (tokens[iter] == undefined) {
+                    if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
                         break;
                     }
-                }
+                } iter++;
             }
         }
     }
@@ -694,7 +694,7 @@ function buildAST(astTokens) {
 
                 /* ... ___ ... _+_ ... INT EXPRESSION ... _END EXPRESSION_ ... */
 
-                if (tokens[iter+3].value.match(asToken.Kind.Id.pattern)) {
+                if (tokens[iter + 3].value.match(asToken.Kind.Id.pattern)) {
 
                     var intExprId = tokens[iter + 3];
 
@@ -786,7 +786,7 @@ function buildAST(astTokens) {
 
                 }
 
-                if (tokens[iter] == undefined) {
+                if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
 
                     /*
                     * End of program??
@@ -799,20 +799,20 @@ function buildAST(astTokens) {
 
                             ast.endChildren(); iter++;
 
-                            if (tokens[iter] == undefined) {
+                            if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
                                 break;
                             }
                         } iter++;
                     } else {
-                        while (tokens[iter].value.match(asToken.Kind.EndExpression.pattern)) {
+                        while (tokens[iter + 1].value.match(asToken.Kind.EndExpression.pattern)) {
 
                             ast.endChildren(); iter++;
 
-                            if (tokens[iter] == undefined) {
+                            if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
                                 break;
                             }
                         }
-                    }
+                    } iter++;
                 }
             } else {
 
@@ -820,7 +820,7 @@ function buildAST(astTokens) {
 
                 /* ... ___ ... _+_ ... INT EXPRESSION ... _+_ ... */
 
-                if (tokens[iter+3].value.match(asToken.Kind.Digit.pattern)) {
+                if (tokens[iter + 3].value.match(asToken.Kind.Digit.pattern)) {
 
                     ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
 
@@ -841,7 +841,7 @@ function buildAST(astTokens) {
 
             ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
-            if (tokens[iter] == undefined) {
+            if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
 
                 /*
                 * End of program??
@@ -854,20 +854,19 @@ function buildAST(astTokens) {
 
                         ast.endChildren(); iter++;
 
-                        if (tokens[iter] == undefined) {
+                        if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
                             break;
                         }
                     } iter++;
                 } else {
-
-                    while (tokens[iter].value.match(asToken.Kind.EndExpression.pattern)) {
+                    while (tokens[iter + 1].value.match(asToken.Kind.EndExpression.pattern)) {
 
                         ast.endChildren(); iter++;
 
-                        if (tokens[iter] == undefined) {
+                        if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
                             break;
                         }
-                    }
+                    } iter++;
                 }
             }
         }
@@ -888,7 +887,7 @@ function buildAST(astTokens) {
 
         ast.addNode("string", holdIt, "leaf"); iter++;
 
-        if (tokens[iter] == undefined) {
+        if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
 
             /*
             * End of program??
@@ -904,14 +903,13 @@ function buildAST(astTokens) {
                     if (tokens[iter] == undefined) {
                         break;
                     }
-
                 }
             } else {
                 while (tokens[iter + 1].value.match(asToken.Kind.EndExpression.pattern)) {
 
                     ast.endChildren(); iter++;
 
-                    if (tokens[iter] == undefined) {
+                    if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
                         break;
                     }
                 }
@@ -953,31 +951,189 @@ function buildAST(astTokens) {
 
         boolCheck = false;
 
-        if (tokens[holdExpressionStart].value.match(asToken.Kind.IdExpression.pattern)) {
+        if (errorCount>0) {
 
-            if (stack[stack.length-1].retrieve(tokens[holdExpressionStart + 1].value) == undefined) {
+            // Halt SA
 
-                // Symbol not declared in scope
+        } else {
 
-                var lvl = level; level--; found = false;
+            if (tokens[holdExpressionStart].value.match(asToken.Kind.IdExpression.pattern)) {
 
-                while (level >= 0) {
-                    if (stack[level].retrieve(tokens[holdExpressionStart + 1].value) == undefined) {
-                        // continue
-                        level--;
-                    } else {
-                        var declaredAs = stack[level].retrieve(tokens[holdExpressionStart + 1].value)[1];
-                        var declaredAt = level;
-                        found = true;
-                        break;
+                if (stack[stack.length - 1].retrieve(tokens[holdExpressionStart + 1].value) == undefined) {
+
+                    // Symbol not declared in scope
+
+                    var lvl = level;
+                    level--;
+                    found = false;
+
+                    while (level >= 0) {
+                        if (stack[level].retrieve(tokens[holdExpressionStart + 1].value) == undefined) {
+                            // continue
+                            level--;
+                        } else {
+                            var declaredAs = stack[level].retrieve(tokens[holdExpressionStart + 1].value)[1];
+                            var declaredAt = level;
+                            found = true;
+                            break;
+                        }
                     }
-                }
 
-                level = lvl;
+                    level = lvl;
 
-                if (found) {
+                    if (found) {
 
-                    // Move onto type checking
+                        // Move onto type checking
+
+                        if (tokens[iter].value.match(asToken.Kind.IntExpression.pattern)) {
+                            if (!(declaredAs == "int")) {
+                                errorMsg = "Type mismatch, expecting " + declaredAs;
+                                saError(errorMsg);
+                            } else {
+
+                                checkExpression();
+
+                                ast.endChildren();
+
+                                iter++;
+
+                            }
+                        } else if (tokens[iter].value.match(asToken.Kind.StringExpression.pattern)) {
+                            if (!(declaredAs == "string")) {
+                                errorMsg = "Type mismatch, expecting " + declaredAs;
+                                saError(errorMsg);
+                            } else {
+
+                                checkExpression();
+
+                                ast.endChildren();
+
+                                iter++;
+
+                            }
+                        } else if (tokens[iter].value.match(asToken.Kind.BooleanExpression.pattern)) {
+                            if (!(declaredAs == "boolean")) {
+                                errorMsg = "Type mismatch, expecting " + declaredAs;
+                                saError(errorMsg);
+                            } else {
+
+                                checkExpression();
+
+                                ast.endChildren();
+
+                                iter++;
+
+                            }
+                        } else if (tokens[iter].value.match(asToken.Kind.BoolvalExpression.pattern)) {
+                            if (!(declaredAs == "boolean")) {
+                                errorMsg = "Type mismatch, expecting " + declaredAs;
+                                saError(errorMsg);
+                            } else {
+
+                                checkExpression();
+
+                                ast.endChildren();
+
+                                iter++;
+
+                            }
+                        } else if (tokens[iter].value.match(asToken.Kind.IdExpression.pattern)) {
+
+                            if (stack[stack.length - 1].retrieve(tokens[iter + 1].value) == undefined) {
+
+                                // Symbol not declared in scope
+
+                                var lvl = level;
+                                level--;
+                                found = false;
+
+                                while (level >= 0) {
+                                    if (stack[level].retrieve(tokens[iter + 1].value) == undefined) {
+                                        // continue
+                                        level--;
+                                    } else {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (found) {
+
+                                    // Move onto type checking
+
+                                    var leftOfComp = stack[declaredAt].retrieve(tokens[holdExpressionStart + 1].value)[1];
+                                    var rightOfComp = stack[level].retrieve(tokens[iter + 1].value)[1];
+
+                                    if (leftOfComp == rightOfComp) {
+
+                                        level = lvl;
+
+                                        checkExpression();
+
+                                        ast.endChildren();
+
+                                        iter++;
+
+                                    } else {
+
+                                        level = lvl;
+
+                                        errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
+
+                                        saError(errorMsg);
+
+                                    }
+
+                                } else {
+
+                                    level = lvl;
+
+                                    // Symbol not declared at all
+
+                                    errorMsg = "Symbol [" + tokens[iter + 1].value + "] used before being declared";
+
+                                    saError(errorMsg);
+
+                                }
+
+                            } else {
+
+                                var leftOfComp = stack[declaredAt].retrieve(tokens[holdExpressionStart + 1].value)[1];
+                                var rightOfComp = stack[level].retrieve(tokens[iter + 1].value)[1];
+
+                                if (leftOfComp == rightOfComp) {
+
+                                    checkExpression();
+
+                                    ast.endChildren();
+
+                                    iter++;
+
+                                } else {
+
+                                    errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
+
+                                    saError(errorMsg);
+
+                                }
+
+                            }
+                        }
+
+                    } else {
+
+                        // Symbol not declared at all
+
+                        errorMsg = "Symbol [" + tokens[iter + 1].value + "] used before being declared";
+
+                        saError(errorMsg);
+
+                    }
+
+                } else {
+
+                    var declaredAs = stack[level].retrieve(tokens[holdExpressionStart + 1].value)[1];
+                    var declaredAt = level;
 
                     if (tokens[iter].value.match(asToken.Kind.IntExpression.pattern)) {
                         if (!(declaredAs == "int")) {
@@ -986,6 +1142,8 @@ function buildAST(astTokens) {
                         } else {
 
                             checkExpression();
+
+                            ast.endChildren();
 
                             iter++;
 
@@ -998,6 +1156,8 @@ function buildAST(astTokens) {
 
                             checkExpression();
 
+                            ast.endChildren();
+
                             iter++;
 
                         }
@@ -1008,6 +1168,8 @@ function buildAST(astTokens) {
                         } else {
 
                             checkExpression();
+
+                            ast.endChildren();
 
                             iter++;
 
@@ -1020,16 +1182,20 @@ function buildAST(astTokens) {
 
                             checkExpression();
 
+                            ast.endChildren();
+
                             iter++;
 
                         }
                     } else if (tokens[iter].value.match(asToken.Kind.IdExpression.pattern)) {
 
-                        if (stack[stack.length-1].retrieve(tokens[iter + 1].value) == undefined) {
+                        if (stack[stack.length - 1].retrieve(tokens[iter + 1].value) == undefined) {
 
                             // Symbol not declared in scope
 
-                            var lvl = level; level--; found = false;
+                            var lvl = level;
+                            level--;
+                            found = false;
 
                             while (level >= 0) {
                                 if (stack[level].retrieve(tokens[iter + 1].value) == undefined) {
@@ -1053,6 +1219,8 @@ function buildAST(astTokens) {
                                     level = lvl;
 
                                     checkExpression();
+
+                                    ast.endChildren();
 
                                     iter++;
 
@@ -1087,6 +1255,8 @@ function buildAST(astTokens) {
 
                                 checkExpression();
 
+                                ast.endChildren();
+
                                 iter++;
 
                             } else {
@@ -1100,169 +1270,94 @@ function buildAST(astTokens) {
                         }
                     }
 
-                } else {
-
-                    // Symbol not declared at all
-
-                    errorMsg = "Symbol [" + tokens[iter + 1].value + "] used before being declared";
-
-                    saError(errorMsg);
-
                 }
 
-            } else {
+            } else if (tokens[iter].value.match(asToken.Kind.IdExpression.pattern)) {
 
-                var declaredAs = stack[level].retrieve(tokens[holdExpressionStart + 1].value)[1];
-                var declaredAt = level;
+                if (stack[stack.length - 1].retrieve(tokens[iter + 1].value) == undefined) {
 
-                if (tokens[iter].value.match(asToken.Kind.IntExpression.pattern)) {
-                    if (!(declaredAs == "int")) {
-                        errorMsg = "Type mismatch, expecting " + declaredAs;
-                        saError(errorMsg);
-                    } else {
+                    // Symbol not declared in scope
 
-                        checkExpression();
+                    var lvl = level;
+                    level--;
+                    found = false;
 
-                        iter++;
-
-                    }
-                } else if (tokens[iter].value.match(asToken.Kind.StringExpression.pattern)) {
-                    if (!(declaredAs == "string")) {
-                        errorMsg = "Type mismatch, expecting " + declaredAs;
-                        saError(errorMsg);
-                    } else {
-
-                        checkExpression();
-
-                        iter++;
-
-                    }
-                } else if (tokens[iter].value.match(asToken.Kind.BooleanExpression.pattern)) {
-                    if (!(declaredAs == "boolean")) {
-                        errorMsg = "Type mismatch, expecting " + declaredAs;
-                        saError(errorMsg);
-                    } else {
-
-                        checkExpression();
-
-                        iter++;
-
-                    }
-                } else if (tokens[iter].value.match(asToken.Kind.BoolvalExpression.pattern)) {
-                    if (!(declaredAs == "boolean")) {
-                        errorMsg = "Type mismatch, expecting " + declaredAs;
-                        saError(errorMsg);
-                    } else {
-
-                        checkExpression();
-
-                        iter++;
-
-                    }
-                } else if (tokens[iter].value.match(asToken.Kind.IdExpression.pattern)) {
-
-                    if (stack[stack.length-1].retrieve(tokens[iter + 1].value) == undefined) {
-
-                        // Symbol not declared in scope
-
-                        var lvl = level; level--; found = false;
-
-                        while (level >= 0) {
-                            if (stack[level].retrieve(tokens[iter + 1].value) == undefined) {
-                                // continue
-                                level--;
-                            } else {
-                                found = true;
-                                break;
-                            }
+                    while (level >= 0) {
+                        if (stack[level].retrieve(tokens[iter + 1].value) == undefined) {
+                            // continue
+                            level--;
+                        } else {
+                            var declaredAs = stack[level].retrieve(tokens[iter + 1].value)[1];
+                            var declaredAt = level;
+                            found = true;
+                            break;
                         }
+                    }
 
-                        if (found) {
+                    level = lvl;
 
-                            // Move onto type checking
+                    if (found) {
 
-                            var leftOfComp = stack[declaredAt].retrieve(tokens[holdExpressionStart + 1].value)[1];
-                            var rightOfComp = stack[level].retrieve(tokens[iter + 1].value)[1];
+                        // Move onto type checking
 
-                            if (leftOfComp == rightOfComp) {
-
-                                level = lvl;
+                        if (tokens[holdExpressionStart].value.match(asToken.Kind.IntExpression.pattern)) {
+                            if (!(declaredAs == "int")) {
+                                errorMsg = "Type mismatch, expecting int";
+                                saError(errorMsg);
+                            } else {
 
                                 checkExpression();
 
+                                ast.endChildren();
+
                                 iter++;
 
+                            }
+                        } else if (tokens[holdExpressionStart].value.match(asToken.Kind.StringExpression.pattern)) {
+                            if (!(declaredAs == "string")) {
+                                errorMsg = "Type mismatch, expecting string";
+                                saError(errorMsg);
                             } else {
 
-                                level = lvl;
+                                checkExpression();
 
-                                errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
+                                ast.endChildren();
 
-                                saError(errorMsg);
+                                iter++;
 
                             }
+                        } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BooleanExpression.pattern)) {
+                            if (!(declaredAs == "boolean")) {
+                                errorMsg = "Type mismatch, expecting boolean";
+                                saError(errorMsg);
+                            } else {
 
-                        } else {
+                                checkExpression();
 
-                            level = lvl;
+                                ast.endChildren();
 
-                            // Symbol not declared at all
+                                iter++;
 
-                            errorMsg = "Symbol [" + tokens[iter + 1].value + "] used before being declared";
+                            }
+                        } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BoolvalExpression.pattern)) {
+                            if (!(declaredAs == "boolean")) {
+                                errorMsg = "Type mismatch, expecting boolean";
+                                saError(errorMsg);
+                            } else {
 
-                            saError(errorMsg);
+                                checkExpression();
 
+                                ast.endChildren();
+
+                                iter++;
+
+                            }
                         }
-
-                    } else {
-
-                        var leftOfComp = stack[declaredAt].retrieve(tokens[holdExpressionStart + 1].value)[1];
-                        var rightOfComp = stack[level].retrieve(tokens[iter + 1].value)[1];
-
-                        if (leftOfComp == rightOfComp) {
-
-                            checkExpression();
-
-                            iter++;
-
-                        } else {
-
-                            errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
-
-                            saError(errorMsg);
-
-                        }
-
                     }
-                }
+                } else {
 
-            }
-
-        } else if (tokens[iter].value.match(asToken.Kind.IdExpression.pattern)) {
-
-            if (stack[stack.length-1].retrieve(tokens[iter + 1].value) == undefined) {
-
-                // Symbol not declared in scope
-
-                var lvl = level; level--; found = false;
-
-                while (level >= 0) {
-                    if (stack[level].retrieve(tokens[iter + 1].value) == undefined) {
-                        // continue
-                        level--;
-                    } else {
-                        var declaredAs = stack[level].retrieve(tokens[iter + 1].value)[1];
-                        var declaredAt = level;
-                        found = true;
-                        break;
-                    }
-                }
-
-                level = lvl;
-
-                if (found) {
-
-                    // Move onto type checking
+                    var declaredAs = stack[level].retrieve(tokens[iter + 1].value)[1];
+                    var declaredAt = level;
 
                     if (tokens[holdExpressionStart].value.match(asToken.Kind.IntExpression.pattern)) {
                         if (!(declaredAs == "int")) {
@@ -1271,6 +1366,8 @@ function buildAST(astTokens) {
                         } else {
 
                             checkExpression();
+
+                            ast.endChildren();
 
                             iter++;
 
@@ -1283,6 +1380,8 @@ function buildAST(astTokens) {
 
                             checkExpression();
 
+                            ast.endChildren();
+
                             iter++;
 
                         }
@@ -1293,6 +1392,8 @@ function buildAST(astTokens) {
                         } else {
 
                             checkExpression();
+
+                            ast.endChildren();
 
                             iter++;
 
@@ -1305,81 +1406,36 @@ function buildAST(astTokens) {
 
                             checkExpression();
 
+                            ast.endChildren();
+
                             iter++;
 
                         }
                     }
                 }
+
             } else {
 
-                var declaredAs = stack[level].retrieve(tokens[iter + 1].value)[1];
-                var declaredAt = level;
+                // Move onto type checking
 
-                if (tokens[holdExpressionStart].value.match(asToken.Kind.IntExpression.pattern)) {
-                    if (!(declaredAs == "int")) {
-                        errorMsg = "Type mismatch, expecting int";
-                        saError(errorMsg);
-                    } else {
+                var leftOfComp = tokens[holdExpressionStart].value;
+                var rightOfComp = tokens[iter].value;
 
-                        checkExpression();
+                if (leftOfComp == rightOfComp) {
 
-                        iter++;
+                    checkExpression();
 
-                    }
-                } else if (tokens[holdExpressionStart].value.match(asToken.Kind.StringExpression.pattern)) {
-                    if (!(declaredAs == "string")) {
-                        errorMsg = "Type mismatch, expecting string";
-                        saError(errorMsg);
-                    } else {
+                    ast.endChildren();
 
-                        checkExpression();
+                    iter++;
 
-                        iter++;
+                } else {
 
-                    }
-                } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BooleanExpression.pattern)) {
-                    if (!(declaredAs == "boolean")) {
-                        errorMsg = "Type mismatch, expecting boolean";
-                        saError(errorMsg);
-                    } else {
+                    errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
 
-                        checkExpression();
+                    saError(errorMsg);
 
-                        iter++;
-
-                    }
-                } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BoolvalExpression.pattern)) {
-                    if (!(declaredAs == "boolean")) {
-                        errorMsg = "Type mismatch, expecting boolean";
-                        saError(errorMsg);
-                    } else {
-
-                        checkExpression();
-
-                        iter++;
-
-                    }
                 }
-            }
-
-        } else {
-
-            // Move onto type checking
-
-            var leftOfComp = tokens[holdExpressionStart].value;
-            var rightOfComp = tokens[iter].value;
-
-            if (leftOfComp == rightOfComp) {
-
-                checkExpression();
-
-                iter++;
-
-            } else {
-
-                errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
-
-                saError(errorMsg);
 
             }
 
@@ -1393,8 +1449,6 @@ function buildAST(astTokens) {
      * checkIdExpression()
      ***********/
     function checkIdExpression() {
-
-        /*ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;*/
 
         if (stack[stack.length-1].retrieve(tokens[iter].value) == undefined) {
 
@@ -1436,7 +1490,7 @@ function buildAST(astTokens) {
 
         }
 
-        if (tokens[iter] == undefined) {
+        if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
 
             /*
             * End of program??
@@ -1454,14 +1508,15 @@ function buildAST(astTokens) {
                     }
                 } iter++;
             } else {
-                while (tokens[iter].value.match(asToken.Kind.EndExpression.pattern)) {
 
-                    /*ast.endChildren();*/ iter++;
+                while (tokens[iter + 1].value.match(asToken.Kind.EndExpression.pattern)) {
 
-                    if (tokens[iter] == undefined) {
+                    ast.endChildren(); iter++;
+
+                    if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
                         break;
                     }
-                }
+                } iter++;
             }
         }
     }
