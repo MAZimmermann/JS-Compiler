@@ -376,9 +376,9 @@ function buildAST(astTokens) {
                     checkExpression();
                 }
 
-                if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
+                /*if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
                     ast.endChildren();
-                }
+                }*/
 
             } else {
                 // Symbol not declared at all
@@ -500,9 +500,9 @@ function buildAST(astTokens) {
                 checkExpression();
             }
 
-            if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
+            /*if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
                 ast.endChildren();
-            }
+            }*/
 
         }
 
@@ -802,7 +802,7 @@ function buildAST(astTokens) {
                             if (tokens[iter] == undefined || tokens[iter + 1] == undefined) {
                                 break;
                             }
-                        } iter++;
+                        } /*iter++;*/
                     } else {
                         while (tokens[iter + 1].value.match(asToken.Kind.EndExpression.pattern)) {
 
