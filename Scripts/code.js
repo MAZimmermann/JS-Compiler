@@ -59,7 +59,7 @@ function Code() {
     this.temp1 = 'TMP1';
     this.temp2 = 'TMP2';
 
-    /* Added for intExpr == | != intExpr */
+    /* Added for ( intExpr == | != intExpr ) */
     this.temp3 = 'TMP3';
 
 }

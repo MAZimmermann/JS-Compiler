@@ -1,0 +1,11 @@
+{
+ int a
+ a = 2
+ if true {
+ a = 1 + a
+ print(a)
+ }
+{
+print(a)
+}
+} $

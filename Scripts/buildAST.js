@@ -278,28 +278,28 @@ function buildAST(astTokens) {
 
                 if (holdType.match(asToken.Kind.IntExpression.pattern)) {
                     if (!(declaredAs == "int")) {
-                        errorMsg = "Type mismatch, expecting " + declaredAs;
+                        errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found int";
                         saError(errorMsg);
                     } else {
                         // Do nothing
                     }
                 } else if (holdType.match(asToken.Kind.StringExpression.pattern)) {
                     if (!(declaredAs == "string")) {
-                        errorMsg = "Type mismatch, expecting " + declaredAs;
+                        errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found string";
                         saError(errorMsg);
                     } else {
                         // Do nothing
                     }
                 } else if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
                     if (!(declaredAs == "boolean")) {
-                        errorMsg = "Type mismatch, expecting " + declaredAs;
+                        errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found boolean";
                         saError(errorMsg);
                     } else {
                         // Do nothing
                     }
                 } else if (holdType.match(asToken.Kind.BoolvalExpression.pattern)) {
                     if (!(declaredAs == "boolean")) {
-                        errorMsg = "Type mismatch, expecting " + declaredAs;
+                        errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found boolean";
                         saError(errorMsg);
                     } else {
                         // Do nothing
@@ -363,7 +363,7 @@ function buildAST(astTokens) {
 
                         } else {
 
-                            errorMsg = "Type mismatch, expecting " + leftOfAssign + " found " + rightOfAssign;
+                            errorMsg = "Type Mismatch: Expected " + leftOfAssign + ", Found " + rightOfAssign;
 
                             saError(errorMsg);
 
@@ -403,28 +403,28 @@ function buildAST(astTokens) {
 
             if (holdType.match(asToken.Kind.IntExpression.pattern)) {
                 if (!(declaredAs == "int")) {
-                    errorMsg = "Type mismatch, expecting " + declaredAs;
+                    errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found int";
                     saError(errorMsg);
                 } else {
                     // Do nothing
                 }
             } else if (holdType.match(asToken.Kind.StringExpression.pattern)) {
                 if (!(declaredAs == "string")) {
-                    errorMsg = "Type mismatch, expecting " + declaredAs;
+                    errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found string";
                     saError(errorMsg);
                 } else {
                     // Do nothing
                 }
             } else if (holdType.match(asToken.Kind.BooleanExpression.pattern)) {
                 if (!(declaredAs == "boolean")) {
-                    errorMsg = "Type mismatch, expecting " + declaredAs;
+                    errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found boolean";
                     saError(errorMsg);
                 } else {
                     // Do nothing
                 }
             } else if (holdType.match(asToken.Kind.BoolvalExpression.pattern)) {
                 if (!(declaredAs == "boolean")) {
-                    errorMsg = "Type mismatch, expecting " + declaredAs;
+                    errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found boolean";
                     saError(errorMsg);
                 } else {
                     // Do nothing
@@ -487,7 +487,7 @@ function buildAST(astTokens) {
 
                     } else {
 
-                        errorMsg = "Type mismatch, expecting " + leftOfAssign + " found " + rightOfAssign;
+                        errorMsg = "Type Mismatch: Expected " + leftOfAssign + ", Found " + rightOfAssign;
 
                         saError(errorMsg);
 
@@ -715,9 +715,9 @@ function buildAST(astTokens) {
                                 // continue
                                 level--;
                             } else {
-                                var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
-                                var declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
-                                var declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];;
+                                var declaredAs = stack[level].retrieve(intExprId.value)[1];
+                                var declaredAtLevel = stack[level].retrieve(intExprId.value)[2];
+                                var declaredAtInstance = stack[level].retrieve(intExprId.value)[3];;
                                 found = true;
                                 break;
                             }
@@ -739,7 +739,7 @@ function buildAST(astTokens) {
 
                             } else {
 
-                                errorMsg = "Type mismatch, expecting int";
+                                errorMsg = "Type Mismatch: Expected int, Found " + declaredAs;
                                 saError(errorMsg);
 
                             }
@@ -769,7 +769,7 @@ function buildAST(astTokens) {
 
                         } else {
 
-                            errorMsg = "Type mismatch, expecting int";
+                            errorMsg = "Type Mismatch: Expected int, Found " + declaredAs;
                             saError(errorMsg);
 
                         }
@@ -786,7 +786,7 @@ function buildAST(astTokens) {
 
                     } else {
 
-                        errorMsg = "Type mismatch, expecting int";
+                        errorMsg = "Type Mismatch: Expected int, Found " + tokens[iter+3].value;
                         saError(errorMsg);
 
                     }
@@ -837,7 +837,7 @@ function buildAST(astTokens) {
 
                 } else {
 
-                    errorMsg = "Type mismatch, expecting int";
+                    errorMsg = "Type Mismatch: Expected int, Found " + tokens[iter+3].value;
                     saError(errorMsg);
 
                 }
@@ -995,7 +995,7 @@ function buildAST(astTokens) {
                         if (tokens[iter].value.match(asToken.Kind.IntExpression.pattern)) {
                             if (!(declaredAs == "int")) {
 
-                                errorMsg = "Type mismatch, expecting " + declaredAs;
+                                errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found int";
                                 saError(errorMsg);
 
                             } else {
@@ -1010,7 +1010,7 @@ function buildAST(astTokens) {
                         } else if (tokens[iter].value.match(asToken.Kind.StringExpression.pattern)) {
                             if (!(declaredAs == "string")) {
 
-                                errorMsg = "Type mismatch, expecting " + declaredAs;
+                                errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found string";
                                 saError(errorMsg);
 
                             } else {
@@ -1025,7 +1025,7 @@ function buildAST(astTokens) {
                         } else if (tokens[iter].value.match(asToken.Kind.BooleanExpression.pattern)) {
                             if (!(declaredAs == "boolean")) {
 
-                                errorMsg = "Type mismatch, expecting " + declaredAs;
+                                errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found boolean";
                                 saError(errorMsg);
 
                             } else {
@@ -1040,7 +1040,7 @@ function buildAST(astTokens) {
                         } else if (tokens[iter].value.match(asToken.Kind.BoolvalExpression.pattern)) {
                             if (!(declaredAs == "boolean")) {
 
-                                errorMsg = "Type mismatch, expecting " + declaredAs;
+                                errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found boolean";
                                 saError(errorMsg);
 
                             } else {
@@ -1093,7 +1093,7 @@ function buildAST(astTokens) {
 
                                         level = lvl;
 
-                                        errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
+                                        errorMsg = "Type Mismatch: Expected " + leftOfComp + ", Found " + rightOfComp;
 
                                         saError(errorMsg);
 
@@ -1126,7 +1126,7 @@ function buildAST(astTokens) {
 
                                 } else {
 
-                                    errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
+                                    errorMsg = "Type Mismatch: Expected " + leftOfComp + ", Found " + rightOfComp;
 
                                     saError(errorMsg);
 
@@ -1153,7 +1153,7 @@ function buildAST(astTokens) {
                     if (tokens[iter].value.match(asToken.Kind.IntExpression.pattern)) {
                         if (!(declaredAs == "int")) {
 
-                            errorMsg = "Type mismatch, expecting " + declaredAs;
+                            errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found int";
                             saError(errorMsg);
 
                         } else {
@@ -1168,7 +1168,7 @@ function buildAST(astTokens) {
                     } else if (tokens[iter].value.match(asToken.Kind.StringExpression.pattern)) {
                         if (!(declaredAs == "string")) {
 
-                            errorMsg = "Type mismatch, expecting " + declaredAs;
+                            errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found string";
                             saError(errorMsg);
 
                         } else {
@@ -1183,7 +1183,7 @@ function buildAST(astTokens) {
                     } else if (tokens[iter].value.match(asToken.Kind.BooleanExpression.pattern)) {
                         if (!(declaredAs == "boolean")) {
 
-                            errorMsg = "Type mismatch, expecting " + declaredAs;
+                            errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found boolean";
                             saError(errorMsg);
 
                         } else {
@@ -1198,7 +1198,7 @@ function buildAST(astTokens) {
                     } else if (tokens[iter].value.match(asToken.Kind.BoolvalExpression.pattern)) {
                         if (!(declaredAs == "boolean")) {
 
-                            errorMsg = "Type mismatch, expecting " + declaredAs;
+                            errorMsg = "Type Mismatch: Expected " + declaredAs + ", Found boolean";
                             saError(errorMsg);
 
                         } else {
@@ -1251,7 +1251,7 @@ function buildAST(astTokens) {
 
                                     level = lvl;
 
-                                    errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
+                                    errorMsg = "Type Mismatch: Expected " + leftOfComp + ", Found " + rightOfComp;
 
                                     saError(errorMsg);
 
@@ -1284,7 +1284,7 @@ function buildAST(astTokens) {
 
                             } else {
 
-                                errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
+                                errorMsg = "Type Mismatch: Expected " + leftOfComp + ", Found " + rightOfComp;
 
                                 saError(errorMsg);
 
@@ -1326,7 +1326,7 @@ function buildAST(astTokens) {
                         if (tokens[holdExpressionStart].value.match(asToken.Kind.IntExpression.pattern)) {
                             if (!(declaredAs == "int")) {
 
-                                errorMsg = "Type mismatch, expecting int";
+                                errorMsg = "Type Mismatch: Expected int, Found " + declaredAs;
                                 saError(errorMsg);
 
                             } else {
@@ -1341,7 +1341,7 @@ function buildAST(astTokens) {
                         } else if (tokens[holdExpressionStart].value.match(asToken.Kind.StringExpression.pattern)) {
                             if (!(declaredAs == "string")) {
 
-                                errorMsg = "Type mismatch, expecting string";
+                                errorMsg = "Type Mismatch: Expected string, Found " + declaredAs;
                                 saError(errorMsg);
 
                             } else {
@@ -1356,7 +1356,7 @@ function buildAST(astTokens) {
                         } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BooleanExpression.pattern)) {
                             if (!(declaredAs == "boolean")) {
 
-                                errorMsg = "Type mismatch, expecting boolean";
+                                errorMsg = "Type Mismatch: Expected boolean, Found " + declaredAs;
                                 saError(errorMsg);
 
                             } else {
@@ -1371,7 +1371,7 @@ function buildAST(astTokens) {
                         } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BoolvalExpression.pattern)) {
                             if (!(declaredAs == "boolean")) {
 
-                                errorMsg = "Type mismatch, expecting boolean";
+                                errorMsg = "Type Mismatch: Expected boolean, Found " + declaredAs;
                                 saError(errorMsg);
 
                             } else {
@@ -1393,7 +1393,7 @@ function buildAST(astTokens) {
                     if (tokens[holdExpressionStart].value.match(asToken.Kind.IntExpression.pattern)) {
                         if (!(declaredAs == "int")) {
 
-                            errorMsg = "Type mismatch, expecting int";
+                            errorMsg = "Type Mismatch: Expected int, Found " + declaredAs;
                             saError(errorMsg);
 
                         } else {
@@ -1408,7 +1408,7 @@ function buildAST(astTokens) {
                     } else if (tokens[holdExpressionStart].value.match(asToken.Kind.StringExpression.pattern)) {
                         if (!(declaredAs == "string")) {
 
-                            errorMsg = "Type mismatch, expecting string";
+                            errorMsg = "Type Mismatch: Expected string, Found " + declaredAs;
                             saError(errorMsg);
 
                         } else {
@@ -1423,7 +1423,7 @@ function buildAST(astTokens) {
                     } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BooleanExpression.pattern)) {
                         if (!(declaredAs == "boolean")) {
 
-                            errorMsg = "Type mismatch, expecting boolean";
+                            errorMsg = "Type Mismatch: Expected boolean, Found " + declaredAs;
                             saError(errorMsg);
 
                         } else {
@@ -1438,7 +1438,7 @@ function buildAST(astTokens) {
                     } else if (tokens[holdExpressionStart].value.match(asToken.Kind.BoolvalExpression.pattern)) {
                         if (!(declaredAs == "boolean")) {
 
-                            errorMsg = "Type mismatch, expecting boolean";
+                            errorMsg = "Type Mismatch: Expected boolean, Found " + declaredAs;
                             saError(errorMsg);
 
                         } else {
@@ -1470,7 +1470,47 @@ function buildAST(astTokens) {
 
                 } else {
 
-                    errorMsg = "Type mismatch, expecting " + leftOfComp + " found " + rightOfComp;
+                    // Left and right of expression are not of the same type
+
+                    // Determine exact type of both sides for consistent error reporting
+
+                    if (leftOfComp.match(asToken.Kind.IntExpression.pattern)) {
+
+                        leftOfComp = "int";
+
+                    } else if (leftOfComp.match(asToken.Kind.StringExpression.pattern)) {
+
+                        leftOfComp = "string";
+
+                    } else if (leftOfComp.match(asToken.Kind.BooleanExpression.pattern)) {
+
+                        leftOfComp = "boolean";
+
+                    } else if (leftOfComp.match(asToken.Kind.BoolvalExpression.pattern)) {
+
+                        leftOfComp = "boolean";
+
+                    }
+
+                    if (rightOfComp.match(asToken.Kind.IntExpression.pattern)) {
+
+                        rightOfComp = "int";
+
+                    } else if (rightOfComp.match(asToken.Kind.StringExpression.pattern)) {
+
+                        rightOfComp = "string";
+
+                    } else if (rightOfComp.match(asToken.Kind.BooleanExpression.pattern)) {
+
+                        rightOfComp = "boolean";
+
+                    } else if (rightOfComp.match(asToken.Kind.BoolvalExpression.pattern)) {
+
+                        rightOfComp = "boolean";
+
+                    }
+
+                    errorMsg = "Type Mismatch: Expected " + leftOfComp + ", Found " + rightOfComp;
 
                     saError(errorMsg);
 

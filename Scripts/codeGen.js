@@ -143,7 +143,21 @@ function codeGen(ir, st) {
                 buildVarDecl(node);
 
             } else if (node.data.match(asToken.Kind.WhileStatement.pattern)) {
+
+                codeGen.target.buildJumpEntry();
+
                 buildWhileStatement(node);
+
+                codeGen.target.buildInstruction('D0');
+                codeGen.target.buildInstruction(holdCurrentJump);
+
+                var holdCurrentAddress = codeGen.target.currentAddress;
+
+                buildBlock(node.children[1]);
+
+                var jumpVal = (codeGen.target.currentAddress - holdCurrentAddress) + 1;
+
+                codeGen.target.jumpTable[holdCurrentJump] = jumpVal;
 
             } else if (node.data.match(asToken.Kind.IfStatement.pattern)) {
 
@@ -196,34 +210,41 @@ function codeGen(ir, st) {
                 TODO: Remember to revisit this...
                 checkHeap(string);*/
 
-                codeGen.target.buildInstruction('AD');
-                codeGen.target.buildInstruction(address);
+                /*codeGen.target.buildInstruction('AD');
+                codeGen.target.buildInstruction(address);*/
 
                 codeGen.target.buildInstruction('A0');
                 codeGen.target.buildInstruction(address.substring(0, 2));
 
-                codeGen.target.buildInstruction('8D');
-                codeGen.target.buildInstruction(codeGen.target.temp1);
+                /*codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.temp1);*/
 
                 codeGen.target.buildInstruction('A2');
                 codeGen.target.buildInstruction('02');
 
             } else if (firstChild.name.match(/^[a-z]$/)) {
 
-                /*TODO: This depends on the value stored... */
-
                 var address = getAddress(firstChild);
                 var key = getKey(firstChild);
 
                 if (symbolTable[key][0] == "string") {
-                    /*TODO: string id*/
+
+                    codeGen.target.buildInstruction('AC');
+                    codeGen.target.buildInstruction(address);
+
+                    codeGen.target.buildInstruction('A2');
+                    codeGen.target.buildInstruction('02');
 
                 } else if (symbolTable[key][0] == "boolean") {
-                    /*TODO: boolean id*/
+
+                    codeGen.target.buildInstruction('AC');
+                    codeGen.target.buildInstruction(address);
+
+                    codeGen.target.buildInstruction('A2');
+                    codeGen.target.buildInstruction('01');
 
                 } else if (symbolTable[key][0] == "int") {
 
-                    /*TODO: int id*/
                     codeGen.target.buildInstruction('AC');
                     codeGen.target.buildInstruction(address);
 
@@ -424,6 +445,9 @@ function codeGen(ir, st) {
                     codeGen.target.buildInstruction('A2');
                     codeGen.target.buildInstruction('01');
 
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
                 } else {
 
                     codeGen.target.buildInstruction('A9');
@@ -434,9 +458,13 @@ function codeGen(ir, st) {
                     codeGen.target.buildInstruction('A2');
                     codeGen.target.buildInstruction('02');
 
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
                 }
 
             } else {
+
                 var leftSide = firstChild.children[0];
                 var rightSide = firstChild.children[1];
 
@@ -598,6 +626,9 @@ function codeGen(ir, st) {
                     codeGen.target.buildInstruction('AD');
                     var address = getAddress(node);
                     codeGen.target.buildInstruction(address);
+
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
 
                 } else {
 
