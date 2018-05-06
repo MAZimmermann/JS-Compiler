@@ -420,6 +420,23 @@ function parse(tokensFromLex) {
         // WHILE already matched
         cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
+        if (match(tokens[iter], Token.Kind.BOOLVAL)) {
+
+            // Add BoolvalExpression to astTokens
+            newToken = asToken.build(asToken.Kind.BoolvalExpression, "BoolvalExpression", depth)
+            astTokens.push(newToken);
+
+            // call parseBoolval
+            cst.addNode("Boolval", "Boolval", "branch");
+            parseBoolval();
+            cst.endChildren();
+
+            // Add EndExpression to astTokens
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            astTokens.push(newToken);
+
+        } else {
+
         // call parseBooleanExpression
         cst.addNode("BooleanExpression", "BooleanExpression", "branch")
 
@@ -434,6 +451,8 @@ function parse(tokensFromLex) {
         newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth)
         astTokens.push(newToken);
 
+        }
+
         // call parseBlock
         cst.addNode("Block", "Block", "branch");
 
@@ -445,6 +464,7 @@ function parse(tokensFromLex) {
 
         parseBlock();
         cst.endChildren();
+
     }
 
 
@@ -460,19 +480,38 @@ function parse(tokensFromLex) {
         // IF already matched
         cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
-        // call parseBooleanExpression
-        cst.addNode("BooleanExpression", "BooleanExpression", "branch");
+        if (match(tokens[iter], Token.Kind.BOOLVAL)) {
 
-        // Add BooleanExpression to astTokens
-        newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth)
-        astTokens.push(newToken);
+            // Add BoolvalExpression to astTokens
+            newToken = asToken.build(asToken.Kind.BoolvalExpression, "BoolvalExpression", depth)
+            astTokens.push(newToken);
 
-        parseBooleanExpression();
-        cst.endChildren();
+            // call parseBoolval
+            cst.addNode("Boolval", "Boolval", "branch");
+            parseBoolval();
+            cst.endChildren();
 
-        // Add EndBooleanExpression to astTokens
-        newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth)
-        astTokens.push(newToken);
+            // Add EndExpression to astTokens
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            astTokens.push(newToken);
+
+        } else {
+
+            // call parseBooleanExpression
+            cst.addNode("BooleanExpression", "BooleanExpression", "branch");
+
+            // Add BooleanExpression to astTokens
+            newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth)
+            astTokens.push(newToken);
+
+            parseBooleanExpression();
+            cst.endChildren();
+
+            // Add EndBooleanExpression to astTokens
+            newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth)
+            astTokens.push(newToken);
+
+        }
 
         // call parseBlock
         cst.addNode("Block", "Block", "branch");
@@ -485,6 +524,7 @@ function parse(tokensFromLex) {
 
         parseBlock();
         cst.endChildren();
+
     }
 
 

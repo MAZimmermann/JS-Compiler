@@ -316,8 +316,9 @@ function buildAST(astTokens) {
                                 // continue
                                 level--;
                             } else {
-                                var declaredAs = stack[level].retrieve(holdToken.value)[1];
-                                var declaredAt = level;
+                                var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                                var declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
+                                var declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
                                 found = true;
                                 break;
                             }
@@ -331,7 +332,7 @@ function buildAST(astTokens) {
                             * HERE MARCUS
                             * *****/
 
-                            var data = holdToken.value.concat(declaredAt, levelInstance);
+                            var data = holdToken.value.concat(declaredAtLevel, declaredAtInstance);
 
                             ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
@@ -441,8 +442,9 @@ function buildAST(astTokens) {
                             // continue
                             level--;
                         } else {
-                            var declaredAs = stack[level].retrieve(holdToken.value)[1];
-                            var declaredAt = level;
+                            var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                            var declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
+                            var declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
                             found = true;
                             break;
                         }
@@ -455,7 +457,7 @@ function buildAST(astTokens) {
                          * HERE MARCUS
                          * *****/
 
-                        var data = holdToken.value.concat(declaredAt, levelInstance);
+                        var data = holdToken.value.concat(declaredAtLevel, declaredAtInstance);
 
                         ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
@@ -713,8 +715,9 @@ function buildAST(astTokens) {
                                 // continue
                                 level--;
                             } else {
-                                var declaredAs = stack[level].retrieve(intExprId.value)[1];
-                                var declaredAt = level;
+                                var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                                var declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
+                                var declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];;
                                 found = true;
                                 break;
                             }
@@ -732,7 +735,7 @@ function buildAST(astTokens) {
 
                                 ast.addNode(tokens[iter + 1].value, tokens[iter + 1].value, "branch");
                                 ast.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++; iter++; iter++;
-                                ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
+                                ast.addNode(tokens[iter].value, tokens[iter].value + declaredAtLevel + declaredAtInstance, "leaf"); iter++;
 
                             } else {
 
@@ -1498,7 +1501,8 @@ function buildAST(astTokens) {
                     level--;
                 } else {
                     var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
-                    var declaredAt = level;
+                    var declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
+                    var declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
                     found = true;
                     break;
                 }
@@ -1508,7 +1512,7 @@ function buildAST(astTokens) {
 
             if (found) {
 
-                ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
+                ast.addNode(tokens[iter].value, tokens[iter].value + declaredAtLevel + declaredAtInstance, "leaf"); iter++;
 
             } else {
 
