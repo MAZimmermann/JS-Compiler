@@ -144,31 +144,62 @@ function codeGen(ir, st) {
 
             } else if (node.data.match(asToken.Kind.WhileStatement.pattern)) {
 
+                var returnToHere = codeGen.target.currentAddress;
+
+                var skipWhile = codeGen.target.currentJumpAddress;
+                codeGen.target.buildJumpEntry();
+
+                var returnToWhile = codeGen.target.currentJumpAddress;
                 codeGen.target.buildJumpEntry();
 
                 buildWhileStatement(node);
 
                 codeGen.target.buildInstruction('D0');
-                codeGen.target.buildInstruction(holdCurrentJump);
+                codeGen.target.buildInstruction(skipWhile);
 
-                var holdCurrentAddress = codeGen.target.currentAddress;
+                var skipFromHere = codeGen.target.currentAddress;
 
                 buildBlock(node.children[1]);
 
-                var jumpVal = (codeGen.target.currentAddress - holdCurrentAddress) + 1;
+                // unconditional jump to the top of the loop
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('00');
 
-                codeGen.target.jumpTable[holdCurrentJump] = jumpVal;
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                codeGen.target.buildInstruction('A2');
+                codeGen.target.buildInstruction('01');
+
+                codeGen.target.buildInstruction('EC');
+                codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                codeGen.target.buildInstruction('D0');
+                codeGen.target.buildInstruction(returnToWhile);
+
+                var jumpVal = (codeGen.target.currentAddress - skipFromHere) + 1;
+
+                codeGen.target.jumpTable[skipWhile] = jumpVal;
+
+                var returnVal = (256 - codeGen.target.currentAddress) + returnToHere;
+
+                codeGen.target.jumpTable[returnToWhile] = returnVal;
+
+                /*alert("JumpVal: " + jumpVal + "; returnVal: " + returnVal);
+                alert("returnToHere: " + returnToHere + "; skipFromHere: " + skipFromHere);*/
+
+                /*alert("returnToHere: " + returnToHere + "; currentAddress: " + codeGen.target.currentAddress + "; returnVal:" + returnVal);*/
 
             } else if (node.data.match(asToken.Kind.IfStatement.pattern)) {
 
-                var holdCurrentJump = codeGen.target.currentJumpAddress;
+                var skipIf = codeGen.target.currentJumpAddress;
 
                 codeGen.target.buildJumpEntry();
 
                 buildIfStatement(node);
 
                 codeGen.target.buildInstruction('D0');
-                codeGen.target.buildInstruction(holdCurrentJump);
+                codeGen.target.buildInstruction(skipIf);
 
                 var holdCurrentAddress = codeGen.target.currentAddress;
 
@@ -176,7 +207,7 @@ function codeGen(ir, st) {
 
                 var jumpVal = (codeGen.target.currentAddress - holdCurrentAddress) + 1;
 
-                codeGen.target.jumpTable[holdCurrentJump] = jumpVal;
+                codeGen.target.jumpTable[skipIf] = jumpVal;
 
             }
         }
@@ -422,6 +453,230 @@ function codeGen(ir, st) {
          ***********/
         function buildWhileStatement() {
 
+            var firstChild = node.children[0];
+
+            if (firstChild.name.match(/^(true|false)$/)) {
+
+                if (firstChild.name.match(/^(true)$/)) {
+
+                    codeGen.target.buildInstruction('A9');
+                    codeGen.target.buildInstruction('01');
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    codeGen.target.buildInstruction('A2');
+                    codeGen.target.buildInstruction('01');
+
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                } else {
+
+                    codeGen.target.buildInstruction('A9');
+                    codeGen.target.buildInstruction('02');
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    codeGen.target.buildInstruction('A2');
+                    codeGen.target.buildInstruction('02');
+
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                }
+
+            } else {
+
+                var leftSide = firstChild.children[0];
+                var rightSide = firstChild.children[1];
+
+                if (leftSide.name.match(/^[0-9]$/) && rightSide.name.match(/^[0-9]$/)) {
+
+                    codeGen.target.buildInstruction('A9');
+                    value = ("0000" + leftSide.data.toString(16)).substr(-2);
+                    codeGen.target.buildInstruction(value);
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+                    codeGen.target.buildInstruction('A2');
+                    value = ("0000" + rightSide.data.toString(16)).substr(-2);
+                    codeGen.target.buildInstruction(value);
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                } else if (leftSide.name.match(/^\+$/) && rightSide.name.match(/^[0-9]$/)) {
+
+                    buildIntExpression(leftSide);
+
+                    codeGen.target.buildInstruction('A2');
+                    value = ("0000" + rightSide.data.toString(16)).substr(-2);
+                    codeGen.target.buildInstruction(value);
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                } else if (leftSide.name.match(/^[0-9]$/) && rightSide.name.match(/^\+$/)) {
+
+                    buildIntExpression(rightSide);
+
+                    codeGen.target.buildInstruction('A2');
+                    value = ("0000" + leftSide.data.toString(16)).substr(-2);
+                    codeGen.target.buildInstruction(value);
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                } else if (leftSide.name.match(/^\+$/) && rightSide.name.match(/^\+$/)) {
+
+                    buildIntExpression(leftSide);
+
+                    /*
+                    * CREATE NEW TEMPORARY MEMORY LOCATION FOR THIS COMPARISON
+                    * */
+
+                    codeGen.target.buildInstruction('AD');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(codeGen.target.temp3);
+
+                    buildIntExpression(leftSide);
+
+                    codeGen.target.buildInstruction('A2');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp3);
+
+                } else {
+
+                    if (leftSide.name.match("string")) {
+
+                        /*TODO: Come back to strings... */
+
+                        var string = leftSide.data.join('');
+                        var address = codeGen.target.buildString(string);
+
+                    } else if (leftSide.name.match(/^[a-z]$/)) {
+
+                        var address = getAddress(leftSide);
+                        codeGen.target.buildInstruction('AD');
+                        codeGen.target.buildInstruction(address);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        if (rightSide.name.match("string")) {
+
+                        } else if (rightSide.name.match(/^[a-z]$/)) {
+
+                            var address = getAddress(rightSide);
+                            codeGen.target.buildInstruction('AD');
+                            codeGen.target.buildInstruction(address);
+
+                            codeGen.target.buildInstruction('8D');
+                            codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                            codeGen.target.buildInstruction('AE');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                        } else if (rightSide.name.match(/^\+$/)) {
+
+                        } else if (rightSide.name.match(/^[0-9]$/)) {
+
+
+
+                            /*HERE*/
+
+
+
+                            codeGen.target.buildInstruction('A9');
+                            value = ("0000" + leftSide.data.toString(16)).substr(-2);
+                            codeGen.target.buildInstruction(value);
+
+                            codeGen.target.buildInstruction('8D');
+                            codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                            codeGen.target.buildInstruction('AE');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                        } else if (rightSide.name.match(/^(true|false)$/)) {
+
+                        }
+
+                    }  else if (leftSide.name.match(/^(true|false)$/)) {
+
+                        if (leftSide.name.match(/^(true)$/)) {
+
+                            codeGen.target.buildInstruction('A9');
+                            codeGen.target.buildInstruction('01');
+                            codeGen.target.buildInstruction('8D');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                            if (rightSide.name.match(/^(true)$/)) {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('01');
+
+                            } else {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('00');
+
+                            }
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        } else {
+
+                            codeGen.target.buildInstruction('A9');
+                            codeGen.target.buildInstruction('00');
+                            codeGen.target.buildInstruction('8D');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                            if (rightSide.name.match(/^(true)$/)) {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('01');
+
+                            } else {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('00');
+
+                            }
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        }
+
+                    }
+
+                }
+
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('00');
+
+                codeGen.target.buildInstruction('D0');
+                codeGen.target.buildInstruction('02');
+
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('01');
+
+                codeGen.target.buildInstruction('A2');
+                codeGen.target.buildInstruction('00');
+
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                codeGen.target.buildInstruction('EC');
+                codeGen.target.buildInstruction(codeGen.target.temp1);
+
+            }
+
         }
 
 
@@ -531,8 +786,6 @@ function codeGen(ir, st) {
                         var address = codeGen.target.buildString(string);
 
                     } else if (leftSide.name.match(/^[a-z]$/)) {
-
-                        /*TODO: Come back to strings IDs... */
 
                         var address = getAddress(leftSide);
                         codeGen.target.buildInstruction('AE');

@@ -106,11 +106,11 @@ Code.prototype.formatProgram = function() {
 
         var jumpVal = this.jumpTable[key];
 
-        jumpVal = '0' + jumpVal;;
+        var newJumpVal = ('0000' + jumpVal.toString(16)).substr(-2).toUpperCase();
 
         for (var j = 0; j < this.currentAddress; j++) {
             if (this.opCodes[j].match(key)) {
-                this.opCodes[j] = jumpVal;
+                this.opCodes[j] = newJumpVal;
             }
         }
     }
