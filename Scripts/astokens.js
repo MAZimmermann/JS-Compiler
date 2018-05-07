@@ -14,17 +14,18 @@
 /********** ********** ********** ********** **********
  * asToken constructor
  **********/
-function asToken(kind, value, depth) {
+function asToken(kind, value, depth, line) {
     this.kind = kind;
     this.value = value;
     this.depth = depth;
+    this.line = line;
 }
 
 /********** ********** ********** ********** **********
  * asToken build function
  **********/
-asToken.build = function(kind, value, depth) {
-    return new asToken(kind, value, depth);
+asToken.build = function(kind, value, depth, line) {
+    return new asToken(kind, value, depth, line);
 }
 
 /********** ********** ********** ********** **********

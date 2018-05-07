@@ -49,6 +49,9 @@ function parse(tokensFromLex) {
     cst.endChildren();
 
     document.getElementById("compStatus").value += "Found 0 warning(s)" + "\n";
+
+    document.getElementById("compStatus").value += "\n";
+
     document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
 
     var parseReturns = {
@@ -80,7 +83,11 @@ function parse(tokensFromLex) {
     ***********/
     function parseError(errorMsg) {
 
-        document.getElementById("compStatus").value += "Found error \n";
+        // As soon as we detect an error, we will quit parse
+        // So, there will aways be only 1 error to report
+        // However, we will use the same format used in Lex for consistency
+
+        document.getElementById("compStatus").value += "Found " + 1 + " error(s) \n";
         document.getElementById("compStatus").value += errorMsg + "\n";
 
         running = false;
@@ -108,7 +115,7 @@ function parse(tokensFromLex) {
         cst.addNode("Block", "Block", "branch");
 
         // Add Block to astTokens
-        newToken = asToken.build(asToken.Kind.Block, "Block", depth)
+        newToken = asToken.build(asToken.Kind.Block, "Block", depth, tokens[iter].line);
         astTokens.push(newToken);
 
         depth++;
@@ -125,7 +132,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected EOP
              ***********/
-            parseProgramError = "PARSER: ERROR: Expected EOP, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseProgramError = /*"PARSER: ERROR: */"Expected EOP, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseProgramError;
             parseError(parseProgramError);
 
@@ -160,7 +167,7 @@ function parse(tokensFromLex) {
                 /**********
                  * ERROR Expected R_BRACE... ParseStatement should catch this, here for consistency
                  ***********/
-                parseBlockError = "PARSER: ERROR: Expected R_BRACE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                parseBlockError = /*"PARSER: ERROR: */"Expected R_BRACE, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
                 document.getElementById("parseOutput").value += parseBlockError;
                 parseError(parseBlockError);
 
@@ -171,7 +178,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected L_BRACE
              ***********/
-            parseBlockError = "PARSER: ERROR: Expected L_BRACE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseBlockError = /*"PARSER: ERROR:*/"Expected L_BRACE, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseBlockError;
             parseError(parseBlockError);
 
@@ -217,7 +224,7 @@ function parse(tokensFromLex) {
             cst.addNode("PrintStatement", "PrintStatement", "branch");
 
             // Add PrintStatement to astTokens
-            newToken = asToken.build(asToken.Kind.PrintStatement, "PrintStatement", depth)
+            newToken = asToken.build(asToken.Kind.PrintStatement, "PrintStatement", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             parsePrintStatement();
@@ -229,7 +236,7 @@ function parse(tokensFromLex) {
             cst.addNode("AssignmentStatement", "AssignmentStatement", "branch");
 
             // Add AssignmentStatement to astTokens
-            newToken = asToken.build(asToken.Kind.AssignmentStatement, "AssignmentStatement", depth)
+            newToken = asToken.build(asToken.Kind.AssignmentStatement, "AssignmentStatement", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             parseAssignmentStatement();
@@ -241,7 +248,7 @@ function parse(tokensFromLex) {
             cst.addNode("VarDecl", "VarDecl", "branch");
 
             // Add VarDecl to astTokens
-            newToken = asToken.build(asToken.Kind.VarDecl, "VarDecl", depth)
+            newToken = asToken.build(asToken.Kind.VarDecl, "VarDecl", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             parseVarDecl();
@@ -253,7 +260,7 @@ function parse(tokensFromLex) {
             cst.addNode("WhileStatement", "WhileStatement", "branch");
 
             // Add WhileStatement to astTokens
-            newToken = asToken.build(asToken.Kind.WhileStatement, "WhileStatement", depth)
+            newToken = asToken.build(asToken.Kind.WhileStatement, "WhileStatement", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             parseWhileStatement();
@@ -265,7 +272,7 @@ function parse(tokensFromLex) {
             cst.addNode("IfStatement", "IfStatement", "branch");
 
             // Add IfStatement to astTokens
-            newToken = asToken.build(asToken.Kind.IfStatement, "IfStatement", depth)
+            newToken = asToken.build(asToken.Kind.IfStatement, "IfStatement", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             parseIfStatement();
@@ -277,7 +284,7 @@ function parse(tokensFromLex) {
             cst.addNode("Block", "Block", "branch");
 
             // Add Block to astTokens
-            newToken = asToken.build(asToken.Kind.Block, "Block", depth)
+            newToken = asToken.build(asToken.Kind.Block, "Block", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             depth++;
@@ -294,7 +301,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected Valid Start to Statement or R_BRACE
              ***********/
-            parseStatementError = "PARSER: ERROR: Expected Valid Start to Statement or R_BRACE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseStatementError = /*"PARSER: ERROR: */"Expected valid start to Statement or R_BRACE, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseStatementError;
             parseError(parseStatementError);
 
@@ -332,7 +339,7 @@ function parse(tokensFromLex) {
                 /**********
                  * ERROR Expected R_PAREN
                  ***********/
-                parsePrintStatementError = "PARSER: ERROR: Expected R_PAREN, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                parsePrintStatementError = /*"PARSER: ERROR: */"Expected R_PAREN, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
                 document.getElementById("parseOutput").value += parsePrintStatementError;
                 parseError(parsePrintStatementError);
 
@@ -343,7 +350,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected L_PAREN
              ***********/
-            parsePrintStatementError = "PARSER: ERROR: Expected L_PAREN, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parsePrintStatementError = /*"PARSER: ERROR: */"Expected L_PAREN, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parsePrintStatementError;
             parseError(parsePrintStatementError);
 
@@ -379,7 +386,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected ASSIGNOP
              ***********/
-            parseAssignmentStatementError = "PARSER: ERROR: Expected ASSIGNOP, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseAssignmentStatementError = /*"PARSER: ERROR: */"Expected ASSIGNOP, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseAssignmentStatementError;
             parseError(parseAssignmentStatementError);
 
@@ -423,7 +430,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.BOOLVAL)) {
 
             // Add BoolvalExpression to astTokens
-            newToken = asToken.build(asToken.Kind.BoolvalExpression, "BoolvalExpression", depth)
+            newToken = asToken.build(asToken.Kind.BoolvalExpression, "BoolvalExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             // call parseBoolval
@@ -432,7 +439,7 @@ function parse(tokensFromLex) {
             cst.endChildren();
 
             // Add EndExpression to astTokens
-            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
         } else {
@@ -441,14 +448,14 @@ function parse(tokensFromLex) {
         cst.addNode("BooleanExpression", "BooleanExpression", "branch")
 
         // Add BooleanExpression to astTokens
-        newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth)
+        newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth, tokens[iter].line);
         astTokens.push(newToken);
 
         parseBooleanExpression();
         cst.endChildren();
 
         // Add EndBooleanExpression to astTokens
-        newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth)
+        newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth, tokens[iter].line);
         astTokens.push(newToken);
 
         }
@@ -457,7 +464,7 @@ function parse(tokensFromLex) {
         cst.addNode("Block", "Block", "branch");
 
         // Add Block to astTokens
-        newToken = asToken.build(asToken.Kind.Block, "Block", depth)
+        newToken = asToken.build(asToken.Kind.Block, "Block", depth, tokens[iter].line);
         astTokens.push(newToken);
 
         depth++;
@@ -483,7 +490,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.BOOLVAL)) {
 
             // Add BoolvalExpression to astTokens
-            newToken = asToken.build(asToken.Kind.BoolvalExpression, "BoolvalExpression", depth)
+            newToken = asToken.build(asToken.Kind.BoolvalExpression, "BoolvalExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             // call parseBoolval
@@ -492,7 +499,7 @@ function parse(tokensFromLex) {
             cst.endChildren();
 
             // Add EndExpression to astTokens
-            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
         } else {
@@ -501,14 +508,14 @@ function parse(tokensFromLex) {
             cst.addNode("BooleanExpression", "BooleanExpression", "branch");
 
             // Add BooleanExpression to astTokens
-            newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth)
+            newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             parseBooleanExpression();
             cst.endChildren();
 
             // Add EndBooleanExpression to astTokens
-            newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth)
+            newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
         }
@@ -517,7 +524,7 @@ function parse(tokensFromLex) {
         cst.addNode("Block", "Block", "branch");
 
         // Add Block to astTokens
-        newToken = asToken.build(asToken.Kind.Block, "Block", depth)
+        newToken = asToken.build(asToken.Kind.Block, "Block", depth, tokens[iter].line);
         astTokens.push(newToken);
 
         depth++;
@@ -543,14 +550,14 @@ function parse(tokensFromLex) {
             cst.addNode("IntExpression", "IntExpression", "branch");
 
             // Add IntExpression to astTokens
-            newToken = asToken.build(asToken.Kind.IntExpression, "IntExpression", depth)
+            newToken = asToken.build(asToken.Kind.IntExpression, "IntExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             parseIntExpression();
             cst.endChildren();
 
             // Add EndExpression to astTokens
-            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
         } else if (match(tokens[iter], Token.Kind.QUOTE)) {
@@ -559,14 +566,14 @@ function parse(tokensFromLex) {
             cst.addNode("StringExpression", "StringExpression", "branch");
 
             // Add StringExpression to astTokens
-            newToken = asToken.build(asToken.Kind.StringExpression, "StringExpression", depth)
+            newToken = asToken.build(asToken.Kind.StringExpression, "StringExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             parseStringExpression();
             cst.endChildren();
 
             // Add EndExpression to astTokens
-            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
         } else if (match(tokens[iter], Token.Kind.L_PAREN)) {
@@ -575,20 +582,20 @@ function parse(tokensFromLex) {
             cst.addNode("BooleanExpression", "BooleanExpression", "branch");
 
             // Add BooleanExpression to astTokens
-            newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth)
+            newToken = asToken.build(asToken.Kind.BooleanExpression, "BooleanExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             parseBooleanExpression();
             cst.endChildren();
 
             // Add EndBooleanExpression to astTokens
-            newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth)
+            newToken = asToken.build(asToken.Kind.EndBooleanExpression, "EndBooleanExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
         } else if (match(tokens[iter], Token.Kind.BOOLVAL)) {
 
             // Add BoolvalExpression to astTokens
-            newToken = asToken.build(asToken.Kind.BoolvalExpression, "BoolvalExpression", depth)
+            newToken = asToken.build(asToken.Kind.BoolvalExpression, "BoolvalExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             // call parseBoolval
@@ -597,13 +604,13 @@ function parse(tokensFromLex) {
             cst.endChildren();
 
             // Add EndExpression to astTokens
-            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
         } else if (match(tokens[iter], Token.Kind.CHAR)) {
 
             // Add IdExpression to astTokens
-            newToken = asToken.build(asToken.Kind.IdExpression, "IdExpression", depth)
+            newToken = asToken.build(asToken.Kind.IdExpression, "IdExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
             // call parseId
@@ -612,7 +619,7 @@ function parse(tokensFromLex) {
             cst.endChildren();
 
             // Add EndExpression to astTokens
-            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth)
+            newToken = asToken.build(asToken.Kind.EndExpression, "EndExpression", depth, tokens[iter].line);
             astTokens.push(newToken);
 
         } else {
@@ -620,7 +627,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected Expression
              ***********/
-            parseExpressiontError = "PARSER: ERROR: Expected Expression, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseExpressiontError = /*"PARSER: ERROR: */"Expected Expression, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseExpressiontError;
             parseError(parseExpressiontError);
 
@@ -693,7 +700,7 @@ function parse(tokensFromLex) {
                 /**********
                  * ERROR Expected closing QUOTE
                  ***********/
-                parseStringExpressionError = "PARSER: ERROR: Expected closing QUOTE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                parseStringExpressionError = /*"PARSER: ERROR: */"Expected closing QUOTE, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
                 document.getElementById("parseOutput").value += parseStringExpressionError;
                 parseError(parseStringExpressionError);
 
@@ -704,7 +711,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected opening QUOTE
              ***********/
-            parseStringExpressionError = "PARSER: ERROR: Expected opening QUOTE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseStringExpressionError = /*"PARSER: ERROR: */"Expected opening QUOTE, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseStringExpressionError;
             parseError(parseStringExpressionError);
 
@@ -749,7 +756,7 @@ function parse(tokensFromLex) {
                 /**********
                  * ERROR Expected R_PAREN
                  ***********/
-                parseBooleanExpressionError = "PARSER: ERROR: Expected R_PAREN, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                parseBooleanExpressionError = /*"PARSER: ERROR: */"Expected R_PAREN, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
                 document.getElementById("parseOutput").value += parseBooleanExpressionError;
                 parseError(parseBooleanExpressionError);
 
@@ -760,7 +767,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected L_PAREN
              ***********/
-            parseBooleanExpressionError = "PARSER: ERROR: Expected L_PAREN, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseBooleanExpressionError = /*"PARSER: ERROR: */"Expected L_PAREN, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseBooleanExpressionError;
             parseError(parseBooleanExpressionError);
 
@@ -780,7 +787,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.CHAR)) {
 
             // Add Id (char) to astTokens
-            newToken = asToken.build(asToken.Kind.Char, tokens[iter].value, depth)
+            newToken = asToken.build(asToken.Kind.Char, tokens[iter].value, depth, tokens[iter].line);
             astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
@@ -790,7 +797,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected CHAR (ID)
              ***********/
-            parseIdError = "PARSER: ERROR: Expected CHAR (ID), found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseIdError = /*"PARSER: ERROR: */"Expected CHAR (ID), Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseIdError;
             parseError(parseIdError);
 
@@ -839,7 +846,7 @@ function parse(tokensFromLex) {
                         /**********
                          * ERROR Expected CHAR, SPACE, or closing QUOTE
                          ***********/
-                        parseCharListError = "PARSER: ERROR: Expected CHAR, SPACE, or closing QUOTE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                        parseCharListError = /*"PARSER: ERROR: */"Expected CHAR, SPACE, or closing QUOTE, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
                         document.getElementById("parseOutput").value += parseCharListError;
                         parseError(parseCharListError);
 
@@ -878,7 +885,7 @@ function parse(tokensFromLex) {
                         /**********
                          * ERROR Expected CHAR, SPACE, or closing QUOTE
                          ***********/
-                        parseCharListError = "PARSER: ERROR: Expected CHAR, SPACE, or closing QUOTE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                        parseCharListError = /*"PARSER: ERROR: */"Expected CHAR, SPACE, or closing QUOTE, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
                         document.getElementById("parseOutput").value += parseCharListError;
                         parseError(parseCharListError);
 
@@ -895,7 +902,7 @@ function parse(tokensFromLex) {
                     /**********
                      * ERROR Expected CHAR, SPACE, or closing QUOTE
                      ***********/
-                    parseCharListError = "PARSER: ERROR: Expected CHAR, SPACE, or closing QUOTE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+                    parseCharListError = /*"PARSER: ERROR: */"Expected CHAR, SPACE, or closing QUOTE, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
                     document.getElementById("parseOutput").value += parseCharListError;
                     parseError(parseCharListError);
 
@@ -917,7 +924,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.TYPE)) {
 
             // Add Type to astTokens
-            newToken = asToken.build(asToken.Kind.TYPE, tokens[iter].value, depth)
+            newToken = asToken.build(asToken.Kind.TYPE, tokens[iter].value, depth, tokens[iter].line);
             astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
@@ -927,7 +934,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected TYPE
              ***********/
-            parseTypeError = "PARSER: ERROR: Expected TYPE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseTypeError = /*"PARSER: ERROR: */"Expected TYPE, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseTypeError;
             parseError(parseTypeError);
 
@@ -947,7 +954,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.CHAR)) {
 
             // Add Char to astTokens
-            newToken = asToken.build(asToken.Kind.Char, tokens[iter].value, depth)
+            newToken = asToken.build(asToken.Kind.Char, tokens[iter].value, depth, tokens[iter].line);
             astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
@@ -957,7 +964,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected CHAR
              ***********/
-            parseCharError = "PARSER: ERROR: Expected CHAR, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseCharError = /*"PARSER: ERROR: */"Expected CHAR, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseCharError;
             parseError(parseCharError);
 
@@ -977,7 +984,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.SPACE)) {
 
             // Add Space to astTokens
-            newToken = asToken.build(asToken.Kind.Space, tokens[iter].value, depth)
+            newToken = asToken.build(asToken.Kind.Space, tokens[iter].value, depth, tokens[iter].line);
             astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
@@ -987,7 +994,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected SPACE
              ***********/
-            parseSpaceError = "PARSER: ERROR: Expected SPACE, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseSpaceError = /*"PARSER: ERROR: */"Expected SPACE, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseSpaceError;
             parseError(parseSpaceError);
 
@@ -1007,7 +1014,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.DIGIT)) {
 
             // Add Digit to astTokens
-            newToken = asToken.build(asToken.Kind.Digit, tokens[iter].value, depth)
+            newToken = asToken.build(asToken.Kind.Digit, tokens[iter].value, depth, tokens[iter].line);
             astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
@@ -1017,7 +1024,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected DIGIT
              ***********/
-            parseDigitError = "PARSER: ERROR: Expected DIGIT, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseDigitError = /*"PARSER: ERROR: */"Expected DIGIT, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseDigitError;
             parseError(parseDigitError);
 
@@ -1037,7 +1044,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.BOOLOP)) {
 
             // Add Boolop to astTokens
-            newToken = asToken.build(asToken.Kind.Boolop, tokens[iter].value, depth)
+            newToken = asToken.build(asToken.Kind.Boolop, tokens[iter].value, depth, tokens[iter].line);
             astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
@@ -1047,7 +1054,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected BOOLOP
              ***********/
-            parseBoolopError = "PARSER: ERROR: Expected BOOLOP, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseBoolopError = /*"PARSER: ERROR: */"Expected BOOLOP, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseBoolopError;
             parseError(parseBoolopError);
 
@@ -1067,7 +1074,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.BOOLVAL)) {
 
             // Add Boolval to astTokens
-            newToken = asToken.build(asToken.Kind.Boolval, tokens[iter].value, depth)
+            newToken = asToken.build(asToken.Kind.Boolval, tokens[iter].value, depth, tokens[iter].line);
             astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
@@ -1077,7 +1084,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected BOOLVAL
              ***********/
-            parseBoolvalError = "PARSER: ERROR: Expected BOOLVAL, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseBoolvalError = /*"PARSER: ERROR: */"Expected BOOLVAL, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseBoolvalError;
             parseError(parseBoolvalError);
 
@@ -1097,7 +1104,7 @@ function parse(tokensFromLex) {
         if (match(tokens[iter], Token.Kind.INTOP)) {
 
             // Add Intop to astTokens
-            newToken = asToken.build(asToken.Kind.Intop, tokens[iter].value, depth)
+            newToken = asToken.build(asToken.Kind.Intop, tokens[iter].value, depth, tokens[iter].line);
             astTokens.push(newToken);
 
             cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
@@ -1107,7 +1114,7 @@ function parse(tokensFromLex) {
             /**********
              * ERROR Expected INTOP
              ***********/
-            parseIntopError = "PARSER: ERROR: Expected INTOP, found [" + tokens[iter].value + "] on line " + tokens[iter].line
+            parseIntopError = /*"PARSER: ERROR: */"Expected INTOP, Found [" + tokens[iter].value + "] on line " + tokens[iter].line;
             document.getElementById("parseOutput").value += parseIntopError;
             parseError(parseIntopError);
 

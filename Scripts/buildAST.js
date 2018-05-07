@@ -93,8 +93,14 @@ function buildAST(astTokens) {
     if (errorCount == 0) {
 
         for (key in symbolTable) {
-            if (symbolTable[key][4] == 0) {
-                warningMsg = "Symbol " + symbolTable[key][1] + " declared but never initialized";
+            var symbol = symbolTable[key][1] + "@" + symbolTable[key][2] + symbolTable[key][3];
+            if (symbolTable[key][4] == 0 && symbolTable[key][5] == 0) {
+                warningMsg = "Symbol " + symbol + " declared but never initialized or used";
+                warnings.push(warningMsg);
+                warningCount++;
+            }
+            if (symbolTable[key][4] != 0 && symbolTable[key][5] == 0) {
+                warningMsg = "Symbol " + symbol + " declared and initialized but never used";
                 warnings.push(warningMsg);
                 warningCount++;
             }
@@ -103,11 +109,14 @@ function buildAST(astTokens) {
         if (warningCount == 0) {
             document.getElementById("compStatus").value += "Found 0 warning(s)" + "\n";
         } else {
+            document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
             for (var k = 0; k < warnings.length; k++) {
-                document.getElementById("compStatus").value += "Warning: ";
+                /*document.getElementById("compStatus").value += "Warning: ";*/
                 document.getElementById("compStatus").value += warnings[k]+ "\n";
             }
         }
+
+        document.getElementById("compStatus").value += "\n";
 
         document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
         document.getElementById("saOutputTree").value += tree + "\n";
@@ -327,6 +336,12 @@ function buildAST(astTokens) {
                                 // continue
                                 level--;
                             } else {
+
+                                var holdLevel = stack[level].retrieve(holdToken.value)[2];
+                                var holdInstance = stack[level].retrieve(holdToken.value)[3];
+                                var key = holdToken.value.concat("@", holdLevel, holdInstance);
+                                symbolTable[key][5] = "used";
+
                                 found = true;
                                 break;
                             }
@@ -341,7 +356,7 @@ function buildAST(astTokens) {
                             * *****/
 
                             var key = tokens[iter].value.concat("@", declaredAtLevel, declaredAtInstance);
-                            symbolTable[key][4] = 1;
+                            symbolTable[key][4] = "initialized";
 
                             var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);
 
@@ -457,6 +472,12 @@ function buildAST(astTokens) {
                             // continue
                             level--;
                         } else {
+
+                            var holdLevel = stack[level].retrieve(holdToken.value)[2];
+                            var holdInstance = stack[level].retrieve(holdToken.value)[3];
+                            var key = holdToken.value.concat("@", holdLevel, holdInstance);
+                            symbolTable[key][5] = "used";
+
                             found = true;
                             break;
                         }
@@ -471,7 +492,7 @@ function buildAST(astTokens) {
                          * *****/
 
                         var key = tokens[iter].value.concat("@", declaredAtLevel, declaredAtInstance);
-                        symbolTable[key][4] = 1;
+                        symbolTable[key][4] = "initialized";
 
                         var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);
 
@@ -520,7 +541,7 @@ function buildAST(astTokens) {
             if (!added) {
 
                 var key = tokens[iter].value.concat("@", declaredAtLevel, declaredAtInstance);
-                symbolTable[key][4] = 1;
+                symbolTable[key][4] = "initialized";
 
                 var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);
 
@@ -571,7 +592,7 @@ function buildAST(astTokens) {
 
             // Add new variable to the symbol table
             var key = tokens[iter].value.concat("@", level, levelInstance);
-            symbolTable[key] = [type, tokens[iter].value, level, levelInstance, 0];
+            symbolTable[key] = [type, tokens[iter].value, level, levelInstance, 0, 0];
 
             ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
 
@@ -737,7 +758,11 @@ function buildAST(astTokens) {
                             } else {
                                 var declaredAs = stack[level].retrieve(intExprId.value)[1];
                                 var declaredAtLevel = stack[level].retrieve(intExprId.value)[2];
-                                var declaredAtInstance = stack[level].retrieve(intExprId.value)[3];;
+                                var declaredAtInstance = stack[level].retrieve(intExprId.value)[3];
+
+                                var key = intExprId.value.concat("@", declaredAtLevel, declaredAtInstance);
+                                symbolTable[key][5] = "used";
+
                                 found = true;
                                 break;
                             }
@@ -777,7 +802,11 @@ function buildAST(astTokens) {
                     } else {
 
                         var declaredAs = stack[level].retrieve(intExprId.value)[1];
-                        var declaredAt = level;
+                        var declaredAtLevel = level;
+                        var declaredAtInstance = levelInstance;
+
+                        var key = intExprId.value.concat("@", declaredAtLevel, declaredAtInstance);
+                        symbolTable[key][5] = "used";
 
                         if (declaredAs == "int") {
 
@@ -1567,6 +1596,10 @@ function buildAST(astTokens) {
                     declaredAs = stack[level].retrieve(tokens[iter].value)[1];
                     declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
                     declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
+
+                    var key = tokens[iter].value.concat("@", declaredAtLevel, declaredAtInstance);
+                    symbolTable[key][5] = "used";
+
                     found = true;
                     break;
                 }
@@ -1595,6 +1628,9 @@ function buildAST(astTokens) {
             declaredAs = stack[level].retrieve(tokens[iter].value)[1];
             declaredAtLevel = level;
             declaredAtInstance = levelInstance;
+
+            var key = tokens[iter].value.concat("@", declaredAtLevel, declaredAtInstance);
+            symbolTable[key][5] = "used";
 
             var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);
 

@@ -386,8 +386,15 @@ function lex() {
                                      ***********/
 
                                     document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
-                                    for (var a = 0; a < warningCount; a++) {
-                                        document.getElementById("compStatus").value += warnings[a] + "\n";
+                                    if (warningCount == 0) {
+                                        document.getElementById("compStatus").value += "\n";
+                                    } else {
+                                        for (var a = 0; a < warningCount; a++) {
+                                            document.getElementById("compStatus").value += warnings[a] + "\n";
+                                        }
+
+                                        document.getElementById("compStatus").value += "\n";
+
                                     }
 
                                     document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
@@ -433,8 +440,15 @@ function lex() {
                                      ***********/
 
                                     document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
-                                    for (var i = a; a < warningCount; a++) {
-                                        document.getElementById("compStatus").value += warnings[a] + "\n";
+                                    if (warningCount == 0) {
+                                        document.getElementById("compStatus").value += "\n";
+                                    } else {
+                                        for (var a = 0; a < warningCount; a++) {
+                                            document.getElementById("compStatus").value += warnings[a] + "\n";
+                                        }
+
+                                        document.getElementById("compStatus").value += "\n";
+
                                     }
 
                                     document.getElementById("compStatus").value += "Found " + errorCount + " error(s)" + "\n";
@@ -514,14 +528,24 @@ function lex() {
 
             if (errorCount == 0) {
 
-                document.getElementById("compStatus").value += "\n";
-                document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
+                /********** ********** ********** ********** **********
+                 * No errors, report any warnings and move onto parse
+                 ***********/
 
-                for (var a = 0; a < warningCount; a++) {
-                    document.getElementById("compStatus").value += warnings[a] + "\n";
+                /*document.getElementById("compStatus").value += "\n";*/
+                document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
+                if (warningCount == 0) {
+                    document.getElementById("compStatus").value += "\n";
+                } else {
+                    for (var a = 0; a < warningCount; a++) {
+                        document.getElementById("compStatus").value += warnings[a] + "\n";
+                    }
+
+                    document.getElementById("compStatus").value += "\n";
+
                 }
 
-                document.getElementById("compStatus").value += "Found 0 error(s)" + "\n" + "\n";
+                document.getElementById("compStatus").value += "Found 0 error(s)" + "\n" /*+ "\n"*/;
 
                 var parseReturns = parse(tokens, programCount);
                 var tree = parseReturns.tree.toString();
@@ -536,12 +560,21 @@ function lex() {
 
             } else {
 
-                // Lex errors detected, move to next program
-                document.getElementById("compStatus").value += "\n";
-                document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
+                /********** ********** ********** ********** **********
+                 * Lex errors detected, move to next program
+                 ***********/
 
-                for (var a = 0; a < warningCount; a++) {
-                    document.getElementById("compStatus").value += warnings[a] + "\n";
+                /*document.getElementById("compStatus").value += "\n";*/
+                document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
+                if (warningCount == 0) {
+                    document.getElementById("compStatus").value += "\n";
+                } else {
+                    for (var a = 0; a < warningCount; a++) {
+                        document.getElementById("compStatus").value += warnings[a] + "\n";
+                    }
+
+                    document.getElementById("compStatus").value += "\n";
+
                 }
 
                 document.getElementById("compStatus").value += "\n";
