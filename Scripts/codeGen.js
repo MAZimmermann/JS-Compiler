@@ -110,20 +110,13 @@ function codeGen(ir, st) {
 
         // If there are no children (i.e., leaf nodes)...
         if (!node.children || node.children.length === 0) {
-            // We've hit a leaf node
 
-            /*TODO: Do I want to assess children up here? Separately?*/
+            // There are no children (we've hit a leaf node)
 
-            if (node.name.match("string")) {
-                buildString(node);
+            // This should never happen because we assess each non-terminal (inner node)
+            //  all the way through its corresponding subtree to the leaves
 
-            } else if (node.name.match(/^[a-z]$/)) {
-
-            }  else if (node.name.match(/^(true|false)$/)) {
-
-            } else if (node.name.match(/^[0-9]$/)) {
-
-            }
+            // Exception is empty an block, which we don't generate code for
 
         } else {
 
@@ -161,7 +154,7 @@ function codeGen(ir, st) {
 
                 buildBlock(node.children[1]);
 
-                // unconditional jump to the top of the loop
+                // unconditional jump to the top of the while loop
                 codeGen.target.buildInstruction('A9');
                 codeGen.target.buildInstruction('00');
 
@@ -177,18 +170,13 @@ function codeGen(ir, st) {
                 codeGen.target.buildInstruction('D0');
                 codeGen.target.buildInstruction(returnToWhile);
 
-                var jumpVal = (codeGen.target.currentAddress - skipFromHere) + 1;
+                var jumpVal = (codeGen.target.currentAddress - skipFromHere);
 
                 codeGen.target.jumpTable[skipWhile] = jumpVal;
 
                 var returnVal = (256 - codeGen.target.currentAddress) + returnToHere;
 
                 codeGen.target.jumpTable[returnToWhile] = returnVal;
-
-                /*alert("JumpVal: " + jumpVal + "; returnVal: " + returnVal);
-                alert("returnToHere: " + returnToHere + "; skipFromHere: " + skipFromHere);*/
-
-                /*alert("returnToHere: " + returnToHere + "; currentAddress: " + codeGen.target.currentAddress + "; returnVal:" + returnVal);*/
 
             } else if (node.data.match(asToken.Kind.IfStatement.pattern)) {
 
@@ -201,11 +189,11 @@ function codeGen(ir, st) {
                 codeGen.target.buildInstruction('D0');
                 codeGen.target.buildInstruction(skipIf);
 
-                var holdCurrentAddress = codeGen.target.currentAddress;
+                var skipFromHere = codeGen.target.currentAddress;
 
                 buildBlock(node.children[1]);
 
-                var jumpVal = (codeGen.target.currentAddress - holdCurrentAddress) + 1;
+                var jumpVal = (codeGen.target.currentAddress - skipFromHere) + 1;
 
                 codeGen.target.jumpTable[skipIf] = jumpVal;
 
@@ -582,14 +570,8 @@ function codeGen(ir, st) {
 
                         } else if (rightSide.name.match(/^[0-9]$/)) {
 
-
-
-                            /*HERE*/
-
-
-
                             codeGen.target.buildInstruction('A9');
-                            value = ("0000" + leftSide.data.toString(16)).substr(-2);
+                            value = ("0000" + rightSide.data.toString(16)).substr(-2);
                             codeGen.target.buildInstruction(value);
 
                             codeGen.target.buildInstruction('8D');
