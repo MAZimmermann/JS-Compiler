@@ -13,9 +13,6 @@
  *  ex: "Declared but never used"
  *  ex: "Declared and used but not initialized"
  *
- * TODO: Add more details to errors
- *  ex: "Type Mismatch: Expected __, Found __"
- *
  **********/
 
 function buildAST(astTokens) {
@@ -95,10 +92,19 @@ function buildAST(astTokens) {
 
     if (errorCount == 0) {
 
+        for (key in symbolTable) {
+            if (symbolTable[key][4] == 0) {
+                warningMsg = "Symbol " + symbolTable[key][1] + " declared but never initialized";
+                warnings.push(warningMsg);
+                warningCount++;
+            }
+        }
+
         if (warningCount == 0) {
             document.getElementById("compStatus").value += "Found 0 warning(s)" + "\n";
         } else {
             for (var k = 0; k < warnings.length; k++) {
+                document.getElementById("compStatus").value += "Warning: ";
                 document.getElementById("compStatus").value += warnings[k]+ "\n";
             }
         }
@@ -252,6 +258,10 @@ function buildAST(astTokens) {
             var holdToken = tokens[iter + 2];
         }
 
+        var declaredAs;
+        var declaredAtLevel;
+        var declaredAtInstance;
+
         if (stack[stack.length-1].retrieve(tokens[iter].value) == undefined) {
 
             // Symbol not declared in scope
@@ -263,8 +273,9 @@ function buildAST(astTokens) {
                     // continue
                     level--;
                 } else {
-                    var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
-                    var declaredAt = level;
+                    declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                    declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
+                    declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
                     found = true;
                     break;
                 }
@@ -316,9 +327,6 @@ function buildAST(astTokens) {
                                 // continue
                                 level--;
                             } else {
-                                var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
-                                var declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
-                                var declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
                                 found = true;
                                 break;
                             }
@@ -332,7 +340,10 @@ function buildAST(astTokens) {
                             * HERE MARCUS
                             * *****/
 
-                            var data = holdToken.value.concat(declaredAtLevel, declaredAtInstance);
+                            var key = tokens[iter].value.concat("@", declaredAtLevel, declaredAtInstance);
+                            symbolTable[key][4] = 1;
+
+                            var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);
 
                             ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
@@ -354,7 +365,7 @@ function buildAST(astTokens) {
 
                     } else {
 
-                        var leftOfAssign = stack[level].retrieve(tokens[iter].value)[1];
+                        var leftOfAssign = stack[declaredAtLevel].retrieve(tokens[iter].value)[1];
                         var rightOfAssign = stack[level].retrieve(holdToken.value)[1];
 
                         if (leftOfAssign == rightOfAssign) {
@@ -378,7 +389,10 @@ function buildAST(astTokens) {
 
                 if (!added) {
 
-                    var data = tokens[iter].value.concat(declaredAt, levelInstance);
+                    var key = tokens[iter].value.concat("@", declaredAtLevel, declaredAtInstance);
+                    symbolTable[key][4] = 1;
+
+                    var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);
 
                     ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
@@ -398,8 +412,9 @@ function buildAST(astTokens) {
 
         } else {
 
-            var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
-            var declaredAt = level;
+            declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+            declaredAtLevel = level;
+            declaredAtInstance = levelInstance;
 
             if (holdType.match(asToken.Kind.IntExpression.pattern)) {
                 if (!(declaredAs == "int")) {
@@ -442,22 +457,23 @@ function buildAST(astTokens) {
                             // continue
                             level--;
                         } else {
-                            var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
-                            var declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
-                            var declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
                             found = true;
                             break;
                         }
                     }
 
                     if (found) {
+
                         // Move onto type checking
 
                         /*****
                          * HERE MARCUS
                          * *****/
 
-                        var data = holdToken.value.concat(declaredAtLevel, declaredAtInstance);
+                        var key = tokens[iter].value.concat("@", declaredAtLevel, declaredAtInstance);
+                        symbolTable[key][4] = 1;
+
+                        var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);
 
                         ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
@@ -466,6 +482,7 @@ function buildAST(astTokens) {
                         added = true;
 
                     } else {
+
                         // Symbol not declared at all
 
                         errorMsg = "Symbol [" + holdToken.value + "] used before being declared";
@@ -478,7 +495,7 @@ function buildAST(astTokens) {
 
                 } else {
 
-                    var leftOfAssign = stack[level].retrieve(tokens[iter].value)[1];
+                    var leftOfAssign = stack[declaredAtLevel].retrieve(tokens[iter].value)[1];
                     var rightOfAssign = stack[level].retrieve(holdToken.value)[1];
 
                     if (leftOfAssign == rightOfAssign) {
@@ -502,7 +519,10 @@ function buildAST(astTokens) {
 
             if (!added) {
 
-                var data = tokens[iter].value.concat(declaredAt, levelInstance);
+                var key = tokens[iter].value.concat("@", declaredAtLevel, declaredAtInstance);
+                symbolTable[key][4] = 1;
+
+                var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);
 
                 ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
@@ -1529,6 +1549,10 @@ function buildAST(astTokens) {
      ***********/
     function checkIdExpression() {
 
+        var declaredAs;
+        var declaredAtLevel;
+        var declaredAtInstance;
+
         if (stack[stack.length-1].retrieve(tokens[iter].value) == undefined) {
 
             // Symbol not declared in scope
@@ -1540,9 +1564,9 @@ function buildAST(astTokens) {
                     // continue
                     level--;
                 } else {
-                    var declaredAs = stack[level].retrieve(tokens[iter].value)[1];
-                    var declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
-                    var declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
+                    declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+                    declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
+                    declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
                     found = true;
                     break;
                 }
@@ -1552,7 +1576,9 @@ function buildAST(astTokens) {
 
             if (found) {
 
-                ast.addNode(tokens[iter].value, tokens[iter].value + declaredAtLevel + declaredAtInstance, "leaf"); iter++;
+                var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);
+
+                ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
             } else {
 
@@ -1566,7 +1592,13 @@ function buildAST(astTokens) {
 
         } else {
 
-            ast.addNode(tokens[iter].value, tokens[iter].value + level + levelInstance, "leaf"); iter++;
+            declaredAs = stack[level].retrieve(tokens[iter].value)[1];
+            declaredAtLevel = level;
+            declaredAtInstance = levelInstance;
+
+            var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);
+
+            ast.addNode(tokens[iter].value, data, "leaf"); iter++;
 
         }
 

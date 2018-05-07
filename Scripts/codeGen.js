@@ -32,10 +32,22 @@ function codeGen(ir, st) {
     // Format the generated code
     codeGen.target.formatProgram();
 
+    var breakAt = 0;
+
     // Print output to the codeGen textarea
     for (var i = 0; i < codeGen.target.output.length; i++) {
 
         document.getElementById("codeGen").value += codeGen.target.output[i];
+        if (breakAt == 15) {
+            if (i == 255) {
+                // Do nothing, end of image
+            } else {
+                document.getElementById("codeGen").value += "\n";
+                breakAt = 0;
+            }
+        } else {
+            breakAt++;
+        }
 
     }
 
@@ -343,14 +355,11 @@ function codeGen(ir, st) {
 
                 var secondAddress = getAddress(secondChild);
 
-                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('AD');
                 codeGen.target.buildInstruction(secondAddress);
 
                 codeGen.target.buildInstruction('8D');
                 codeGen.target.buildInstruction(address);
-
-                var key = getKey(firstChild);
-                codeGen.target.staticTable[key][0] = secondAddress;
 
             }  else if (secondChild.name.match(/^(true|false)$/)) {
 

@@ -40,11 +40,11 @@ TODO: Consider consolidating text areas (tabbed for display alteration)
         <br>
 
         <div class="row linedwrap">
-            <div class="six columns linedtextarea" height="250px">
+            <div class="six columns linedtextarea">
                 <label for="taInput">Source Program</label> <!-- Source Program Textarea -->
                 <textarea id="taInput" class="lined u-full-width" placeholder="Enter source program..."></textarea>
             </div>
-            <div class="six columns" height="250px">
+            <div class="six columns">
                 <label for="compStatus">Compilation Status</label> <!-- Compilation Status Textarea -->
                 <textarea id="compStatus" class="u-full-width" readonly></textarea>
             </div>
@@ -53,12 +53,12 @@ TODO: Consider consolidating text areas (tabbed for display alteration)
         <br>
 
         <div class="row">
-            <div class="six columns" height="250px">
+            <div class="six columns">
                 <label for="lexOutput">Lexer Output</label> <!-- Lex Output Textarea -->
                 <textarea id="lexOutput" class="u-full-width" placeholder="" readonly></textarea>
             </div>
 
-            <div class="six columns" height="250px">
+            <div class="six columns">
                 <label for="parseOutput">Parser Output</label> <!-- Parse Output Textarea -->
                 <textarea id="parseOutput" class="u-full-width" placeholder="" readonly></textarea>
             </div>
@@ -67,7 +67,7 @@ TODO: Consider consolidating text areas (tabbed for display alteration)
         <br>
 
         <div class="row">
-            <div class="six columns" height="250px">
+            <div class="six columns">
                 <label for="saOutputTable">SA Output (Symbol Table)</label> <!-- SA Output Table -->
                 <table id="saOutputTable" class="u-full-width" placeholder="" readonly>
                     <thead>
@@ -83,7 +83,7 @@ TODO: Consider consolidating text areas (tabbed for display alteration)
                 </table>
             </div>
 
-            <div class="six columns" height="250px">
+            <div class="six columns">
                 <label for="saOutputTree">SA Output (AST)</label> <!-- SA Output Textarea (AST) -->
                 <textarea id="saOutputTree" class="u-full-width" placeholder="" readonly></textarea>
             </div>
@@ -91,12 +91,15 @@ TODO: Consider consolidating text areas (tabbed for display alteration)
 
         <br>
 
-        <div class="row">
-            <div class="twelve columns" height="350px">
-                <label for="codeGen">6502a Code</label> <!-- 6502a Code -->
-                <textarea id="codeGen" class="u-full-width" placeholder="" readonly style="font-family:Courier;"></textarea>
+
+        <container>
+            <div class="row">
+                <div class="six columns">
+                    <label for="codeGen">6502a Code</label> <!-- 6502a Code -->
+                    <textarea id="codeGen" class="u-full-width" placeholder="" readonly style="font-family:Courier;"></textarea>
+                </div>
             </div>
-        </div>
+        </container>
 
         <br>
 
