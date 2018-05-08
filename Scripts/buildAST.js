@@ -116,7 +116,6 @@ function buildAST(astTokens) {
         } else {
             document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
             for (var k = 0; k < warnings.length; k++) {
-                /*document.getElementById("compStatus").value += "Warning: ";*/
                 document.getElementById("compStatus").value += warnings[k]+ "\n";
             }
         }
@@ -144,11 +143,13 @@ function buildAST(astTokens) {
      ***********/
     function saError(errorMsg) {
 
+        errors.push(errorMsg);
         errorCount++;
 
         if (warningCount == 0) {
             document.getElementById("compStatus").value += "Found 0 warning(s)" + "\n";
         } else {
+            document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
             for (var k = 0; k < warnings.length; k++) {
                 document.getElementById("compStatus").value += warnings[k]+ "\n";
             }
@@ -287,11 +288,14 @@ function buildAST(astTokens) {
                     // continue
                     level--;
                 } else {
+
                     declaredAs = stack[level].retrieve(tokens[iter].value)[1];
                     declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
                     declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
+
                     found = true;
                     break;
+
                 }
             }
 
@@ -344,13 +348,17 @@ function buildAST(astTokens) {
 
                                 var holdLevel = stack[level].retrieve(holdToken.value)[2];
                                 var holdInstance = stack[level].retrieve(holdToken.value)[3];
+
                                 var key = holdToken.value.concat("@", holdLevel, holdInstance);
                                 symbolTable[key][5] = "used";
 
                                 found = true;
                                 break;
+
                             }
                         }
+
+                        level = lvl;
 
                         if (found) {
 
@@ -380,8 +388,6 @@ function buildAST(astTokens) {
                             saError(errorMsg);
 
                         }
-
-                        level = lvl;
 
                     } else {
 
@@ -480,13 +486,17 @@ function buildAST(astTokens) {
 
                             var holdLevel = stack[level].retrieve(holdToken.value)[2];
                             var holdInstance = stack[level].retrieve(holdToken.value)[3];
+
                             var key = holdToken.value.concat("@", holdLevel, holdInstance);
                             symbolTable[key][5] = "used";
 
                             found = true;
                             break;
+
                         }
                     }
+
+                    level = lvl;
 
                     if (found) {
 
@@ -516,8 +526,6 @@ function buildAST(astTokens) {
                         saError(errorMsg);
 
                     }
-
-                    level = lvl;
 
                 } else {
 
@@ -770,6 +778,7 @@ function buildAST(astTokens) {
 
                                 found = true;
                                 break;
+
                             }
                         }
 
@@ -1594,10 +1603,12 @@ function buildAST(astTokens) {
             var lvl = level; level--; found = false;
 
             while (level >= 0) {
+
                 if (stack[level].retrieve(tokens[iter].value) == undefined) {
                     // continue
                     level--;
                 } else {
+
                     declaredAs = stack[level].retrieve(tokens[iter].value)[1];
                     declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
                     declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
@@ -1607,6 +1618,7 @@ function buildAST(astTokens) {
 
                     found = true;
                     break;
+
                 }
             }
 

@@ -222,7 +222,7 @@ Code.prototype.buildString = function(string) {
     this.heapAddress -= string.length + 1;
 
     var address = ('0000' + (this.heapAddress).toString(16)).substr(-2).toUpperCase();
-    address = address + '00';
+    address = address /*+ '00'*/;
 
     return address;
 
