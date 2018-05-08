@@ -27,11 +27,6 @@ function codeGen(ir, st) {
     // Declare new instance of code to be generated (target program)
     codeGen.target = new Code();
 
-/*    // Array containing list of errors
-    var errors = []; var errorCount = 0;
-    // Array containing list of warnings
-    var warnings = []; var warningCount = 0;*/
-
     // Set the current node to the root
     var root = ir.getRoot();
 
@@ -153,28 +148,31 @@ function codeGen(ir, st) {
 
             // For handling Blocks and Statements
             if (node.data.match(asToken.Kind.Block.pattern)) {
-                buildBlock(node);
+                generateBlock(node);
 
             } else if (node.data.match(asToken.Kind.PrintStatement.pattern)) {
 
                 /********** ********** ********** ********** **********
                  * Generate code for print statement
                  ***********/
-                buildPrintStatement(node);
+
+                generatePrintStatement(node);
 
             } else if (node.data.match(asToken.Kind.AssignmentStatement.pattern)) {
 
                 /********** ********** ********** ********** **********
                  * Generate code for assignment statement
                  ***********/
-                buildAssignmentStatement(node);
+
+                generateAssignmentStatement(node);
 
             } else if (node.data.match(asToken.Kind.VarDecl.pattern)) {
 
                 /********** ********** ********** ********** **********
                  * Generate code for variable declaration
                  ***********/
-                buildVarDecl(node);
+
+                generateVarDecl(node);
 
             } else if (node.data.match(asToken.Kind.WhileStatement.pattern)) {
 
@@ -190,14 +188,40 @@ function codeGen(ir, st) {
                 var returnToWhile = codeGen.target.currentJumpAddress;
                 codeGen.target.buildJumpEntry();
 
-                buildWhileStatement(node);
+                /********** ********** ********** ********** **********
+                 * Generate code for boolean expression
+                 ***********/
+
+                generateBooleanExpression(node.children[0]);
+
+                /*codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('00');
+
+                codeGen.target.buildInstruction('D0');
+                codeGen.target.buildInstruction('02');
+
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('01');
+
+                codeGen.target.buildInstruction('A2');
+                codeGen.target.buildInstruction('00');
+
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                codeGen.target.buildInstruction('EC');
+                codeGen.target.buildInstruction(codeGen.target.temp1);*/
 
                 codeGen.target.buildInstruction('D0');
                 codeGen.target.buildInstruction(skipWhile);
 
                 var skipFromHere = codeGen.target.currentAddress;
 
-                buildBlock(node.children[1]);
+                /********** ********** ********** ********** **********
+                 * Generate code for block
+                 ***********/
+
+                generateBlock(node.children[1]);
 
                 // unconditional jump to the top of the while loop
                 codeGen.target.buildInstruction('A9');
@@ -218,7 +242,7 @@ function codeGen(ir, st) {
                 if ((codeGen.target.currentAddress - skipFromHere) == 0) {
                     var jumpVal = 0;
                 } else {
-                    var jumpVal = (codeGen.target.currentAddress - skipFromHere) + 1;
+                    var jumpVal = (codeGen.target.currentAddress - skipFromHere);
                 }
 
                 codeGen.target.jumpTable[skipWhile] = jumpVal;
@@ -237,19 +261,27 @@ function codeGen(ir, st) {
 
                 codeGen.target.buildJumpEntry();
 
-                buildIfStatement(node);
+                /********** ********** ********** ********** **********
+                 * Generate code for boolean expression
+                 ***********/
+
+                generateBooleanExpression(node.children[0]);
 
                 codeGen.target.buildInstruction('D0');
                 codeGen.target.buildInstruction(skipIf);
 
                 var skipFromHere = codeGen.target.currentAddress;
 
-                buildBlock(node.children[1]);
+                /********** ********** ********** ********** **********
+                 * Generate code for block
+                 ***********/
+
+                generateBlock(node.children[1]);
 
                 if ((codeGen.target.currentAddress - skipFromHere) == 0) {
                     var jumpVal = 0;
                 } else {
-                    var jumpVal = (codeGen.target.currentAddress - skipFromHere) + 1;
+                    var jumpVal = (codeGen.target.currentAddress - skipFromHere);
                 }
 
                 codeGen.target.jumpTable[skipIf] = jumpVal;
@@ -260,9 +292,9 @@ function codeGen(ir, st) {
 
 
         /********** ********** ********** ********** **********
-         * buildBlock()
+         * generateBlock()
          ***********/
-        function buildBlock(node) {
+        function generateBlock(node) {
             for (var i = 0; i < node.children.length; i++) {
                 traverse(node.children[i]);
             }
@@ -271,9 +303,9 @@ function codeGen(ir, st) {
 
 
         /********** ********** ********** ********** **********
-         * buildPrintStatement()
+         * generatePrintStatement()
          ***********/
-        function buildPrintStatement(node){
+        function generatePrintStatement(node){
 
             var firstChild = node.children[0];
 
@@ -357,13 +389,18 @@ function codeGen(ir, st) {
 
             } else if (firstChild.name.match(/^\+$/)) {
 
-                buildIntExpression(firstChild);
+                generateIntExpression(firstChild);
 
                 codeGen.target.buildInstruction('AC');
                 codeGen.target.buildInstruction(codeGen.target.temp2);
 
                 codeGen.target.buildInstruction('A2');
                 codeGen.target.buildInstruction('01');
+
+            } else if (firstChild.name.match(/^(==|!=)$/)) {
+
+                /* We've hit a boolean expression... */
+                generateBooleanExpression(firstChild);
 
             }
 
@@ -374,9 +411,9 @@ function codeGen(ir, st) {
 
 
         /********** ********** ********** ********** **********
-         * buildAssignmentStatement()
+         * generateAssignmentStatement()
          ***********/
-        function buildAssignmentStatement(node) {
+        function generateAssignmentStatement(node) {
 
             var firstChild = node.children[0];
             var secondChild = node.children[1];
@@ -435,7 +472,24 @@ function codeGen(ir, st) {
 
             } else if (secondChild.name.match(/^\+$/)) {
 
-                buildIntExpression(secondChild);
+                generateIntExpression(secondChild);
+
+                codeGen.target.buildInstruction('8D');
+                codeGen.target.buildInstruction(address);
+
+            } else if (secondChild.name.match(/^(==|!=)$/)) {
+
+                /* We've hit a boolean expression... */
+                generateBooleanExpression(secondChild);
+
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('00');
+
+                codeGen.target.buildInstruction('D0');
+                codeGen.target.buildInstruction('02');
+
+                codeGen.target.buildInstruction('A9');
+                codeGen.target.buildInstruction('01');
 
                 codeGen.target.buildInstruction('8D');
                 codeGen.target.buildInstruction(address);
@@ -447,9 +501,9 @@ function codeGen(ir, st) {
 
 
         /********** ********** ********** ********** **********
-         * buildVarDecl()
+         * generateVarDecl()
          ***********/
-        function buildVarDecl(node) {
+        function generateVarDecl(node) {
 
             var firstChild = node.children[0];
 
@@ -493,365 +547,7 @@ function codeGen(ir, st) {
          ***********/
         function buildWhileStatement() {
 
-            var firstChild = node.children[0];
-
-            if (firstChild.name.match(/^(true|false)$/)) {
-
-                /* First child, and only child, is boolval */
-
-                if (firstChild.name.match(/^(true)$/)) {
-
-                    codeGen.target.buildInstruction('A9');
-                    codeGen.target.buildInstruction('01');
-                    codeGen.target.buildInstruction('8D');
-                    codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    codeGen.target.buildInstruction('A2');
-                    codeGen.target.buildInstruction('01');
-
-                    codeGen.target.buildInstruction('EC');
-                    codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                } else {
-
-                    codeGen.target.buildInstruction('A9');
-                    codeGen.target.buildInstruction('02');
-                    codeGen.target.buildInstruction('8D');
-                    codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    codeGen.target.buildInstruction('A2');
-                    codeGen.target.buildInstruction('02');
-
-                    codeGen.target.buildInstruction('EC');
-                    codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                }
-
-            } else {
-
-                /* Otherwise we have a boolean operator */
-                var leftSide = firstChild.children[0];
-                var rightSide = firstChild.children[1];
-
-                if (leftSide.name.match(/^(==|!=)$/) || rightSide.name.match(/^(==|!=)$/)) {
-                    /* if boolean operators are present, through an error */
-
-                    errorMsg = "Nested booleans detected, will not compile...";
-                    codeGen.target.errors.push(errorMsg);
-                    codeGen.target.errorCount++;
-
-                } else if (leftSide.name.match(/^[a-z]$/)) {
-
-                    /* Handle IDs */
-
-                    /* Left side is an ID */
-
-                    if (rightSide.name.match("string")) {
-                        /* Variable to string literal comparison */
-
-                        errorMsg = "Comparison includes string literal, will not compile...";
-                        codeGen.target.errors.push(errorMsg);
-                        codeGen.target.errorCount++;
-
-                    } else if (rightSide.name.match(/^[a-z]$/)) {
-                        /* Variable to variable comparison */
-
-                        /* TODO: need to reassess type here? */
-
-                        var lAddress = getAddress(leftSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(lAddress);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        var rAddress = getAddress(rightSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(rAddress);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                    } else if (rightSide.name.match(/^\+$/)) {
-                        /* Variable to integer expression comparison */
-
-                        buildIntExpression(rightSide);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        var address = getAddress(leftSide);
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    } else if (rightSide.name.match(/^[0-9]$/)) {
-                        /* Variable to integer comparison */
-
-                        var address = getAddress(leftSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('A9');
-                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                    } else if (rightSide.name.match(/^(true|false)$/)) {
-                        /* Variable to boolval comparison */
-
-                        var address = getAddress(leftSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        if (rightSide.name.match(/^(true)$/)) {
-
-                            codeGen.target.buildInstruction('A2');
-                            codeGen.target.buildInstruction('01');
-
-                        } else {
-
-                            codeGen.target.buildInstruction('A2');
-                            codeGen.target.buildInstruction('00');
-
-                        }
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                    }
-                } else if (rightSide.name.match(/^[a-z]$/)) {
-
-                    /* Right side is an id */
-
-                    if (leftSide.name.match("string")) {
-                        /* Variable to string literal comparison */
-
-                        errorMsg = "Comparison includes string literal, will not compile...";
-                        codeGen.target.errors.push(errorMsg);
-                        codeGen.target.errorCount++;
-
-                    } else if (leftSide.name.match(/^\+$/)) {
-                        /* Variable to integer expression comparison */
-
-                        buildIntExpression(leftSide);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        var address = getAddress(rightSide);
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    } else if (leftSide.name.match(/^[0-9]$/)) {
-                        /* Variable to integer comparison */
-
-                        var address = getAddress(rightSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('A9');
-                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                    } else if (leftSide.name.match(/^(true|false)$/)) {
-                        /* Variable to boolval comparison */
-
-                        var address = getAddress(rightSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        if (leftSide.name.match(/^(true)$/)) {
-
-                            codeGen.target.buildInstruction('A2');
-                            codeGen.target.buildInstruction('01');
-
-                        } else {
-
-                            codeGen.target.buildInstruction('A2');
-                            codeGen.target.buildInstruction('00');
-
-                        }
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                    }
-                } else {
-
-                    /* No IDs present in the comparison */
-
-                    if (leftSide.name.match(/^[0-9]$/) && rightSide.name.match(/^[0-9]$/)) {
-
-                        codeGen.target.buildInstruction('A9');
-                        value = ("0000" + leftSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('A2');
-                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    } else if (leftSide.name.match(/^\+$/) && rightSide.name.match(/^[0-9]$/)) {
-
-                        buildIntExpression(leftSide);
-
-                        codeGen.target.buildInstruction('A2');
-                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    } else if (leftSide.name.match(/^[0-9]$/) && rightSide.name.match(/^\+$/)) {
-
-                        buildIntExpression(rightSide);
-
-                        codeGen.target.buildInstruction('A2');
-                        value = ("0000" + leftSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    } else if (leftSide.name.match(/^\+$/) && rightSide.name.match(/^\+$/)) {
-
-                        buildIntExpression(leftSide);
-
-                        /*
-                        * CREATE NEW TEMPORARY MEMORY LOCATION FOR THIS COMPARISON
-                        * */
-
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp3);
-
-                        buildIntExpression(leftSide);
-
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp3);
-
-                    } else if (leftSide.name.match(/^(true|false)$/) && rightSide.name.match(/^(true|false)$/)) {
-
-                        /* compare boolvals */
-
-                        if (leftSide.name.match(/^(true)$/)) {
-
-                            codeGen.target.buildInstruction('A9');
-                            codeGen.target.buildInstruction('01');
-                            codeGen.target.buildInstruction('8D');
-                            codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                            if (rightSide.name.match(/^(true)$/)) {
-
-                                codeGen.target.buildInstruction('A2');
-                                codeGen.target.buildInstruction('01');
-
-                            } else {
-
-                                codeGen.target.buildInstruction('A2');
-                                codeGen.target.buildInstruction('00');
-
-                            }
-
-                            codeGen.target.buildInstruction('EC');
-                            codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        } else {
-
-                            codeGen.target.buildInstruction('A9');
-                            codeGen.target.buildInstruction('00');
-                            codeGen.target.buildInstruction('8D');
-                            codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                            if (rightSide.name.match(/^(true)$/)) {
-
-                                codeGen.target.buildInstruction('A2');
-                                codeGen.target.buildInstruction('01');
-
-                            } else {
-
-                                codeGen.target.buildInstruction('A2');
-                                codeGen.target.buildInstruction('00');
-
-                            }
-
-                            codeGen.target.buildInstruction('EC');
-                            codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        }
-
-                    }
-
-                }
-
-                codeGen.target.buildInstruction('A9');
-                codeGen.target.buildInstruction('00');
-
-                codeGen.target.buildInstruction('D0');
-                codeGen.target.buildInstruction('02');
-
-                codeGen.target.buildInstruction('A9');
-                codeGen.target.buildInstruction('01');
-
-                codeGen.target.buildInstruction('A2');
-                codeGen.target.buildInstruction('00');
-
-                codeGen.target.buildInstruction('8D');
-                codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                codeGen.target.buildInstruction('EC');
-                codeGen.target.buildInstruction(codeGen.target.temp1);
-
-            }
+            /* Modularized code, boolean expressions handled in own method */
 
         }
 
@@ -862,357 +558,19 @@ function codeGen(ir, st) {
          ***********/
         function buildIfStatement() {
 
-            var firstChild = node.children[0];
+            /* Modularized code, boolean expressions handled in own method */
 
-            if (firstChild.name.match(/^(true|false)$/)) {
-
-                /* First child, and only child, is boolval */
-
-                if (firstChild.name.match(/^(true)$/)) {
-
-                    codeGen.target.buildInstruction('A9');
-                    codeGen.target.buildInstruction('01');
-                    codeGen.target.buildInstruction('8D');
-                    codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    codeGen.target.buildInstruction('A2');
-                    codeGen.target.buildInstruction('01');
-
-                    codeGen.target.buildInstruction('EC');
-                    codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                } else {
-
-                    codeGen.target.buildInstruction('A9');
-                    codeGen.target.buildInstruction('02');
-                    codeGen.target.buildInstruction('8D');
-                    codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    codeGen.target.buildInstruction('A2');
-                    codeGen.target.buildInstruction('02');
-
-                    codeGen.target.buildInstruction('EC');
-                    codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                }
-
-            } else {
-
-                /* Otherwise we have a boolean operator */
-                var leftSide = firstChild.children[0];
-                var rightSide = firstChild.children[1];
-
-                if (leftSide.name.match(/^(==|!=)$/) || rightSide.name.match(/^(==|!=)$/)) {
-                    /* if boolean operators are present, through an error */
-
-                    errorMsg = "Nested booleans detected, will not compile...";
-                    codeGen.target.errors.push(errorMsg);
-                    codeGen.target.errorCount++;
-
-                } else if (leftSide.name.match(/^[a-z]$/)) {
-
-                    /* Handle IDs */
-
-                    /* Left side is an ID */
-
-                    if (rightSide.name.match("string")) {
-                        /* Variable to string literal comparison */
-
-                        errorMsg = "Comparison includes string literal, will not compile...";
-                        codeGen.target.errors.push(errorMsg);
-                        codeGen.target.errorCount++;
-
-                    } else if (rightSide.name.match(/^[a-z]$/)) {
-                        /* Variable to variable comparison */
-
-                        /* TODO: need to reassess type here? */
-
-                        var lAddress = getAddress(leftSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(lAddress);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        var rAddress = getAddress(rightSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(rAddress);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                    } else if (rightSide.name.match(/^\+$/)) {
-                        /* Variable to integer expression comparison */
-
-                        buildIntExpression(rightSide);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        var address = getAddress(leftSide);
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    } else if (rightSide.name.match(/^[0-9]$/)) {
-                        /* Variable to integer comparison */
-
-                        var address = getAddress(leftSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('A9');
-                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                    } else if (rightSide.name.match(/^(true|false)$/)) {
-                        /* Variable to boolval comparison */
-
-                        var address = getAddress(leftSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        if (rightSide.name.match(/^(true)$/)) {
-
-                            codeGen.target.buildInstruction('A2');
-                            codeGen.target.buildInstruction('01');
-
-                        } else {
-
-                            codeGen.target.buildInstruction('A2');
-                            codeGen.target.buildInstruction('00');
-
-                        }
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                    }
-                } else if (rightSide.name.match(/^[a-z]$/)) {
-
-                    /* Right side is an id */
-
-                    if (leftSide.name.match("string")) {
-                        /* Variable to string literal comparison */
-
-                        errorMsg = "Comparison includes string literal, will not compile...";
-                        codeGen.target.errors.push(errorMsg);
-                        codeGen.target.errorCount++;
-
-                    } else if (leftSide.name.match(/^\+$/)) {
-                        /* Variable to integer expression comparison */
-
-                        buildIntExpression(leftSide);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        var address = getAddress(rightSide);
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    } else if (leftSide.name.match(/^[0-9]$/)) {
-                        /* Variable to integer comparison */
-
-                        var address = getAddress(rightSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('A9');
-                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                    } else if (leftSide.name.match(/^(true|false)$/)) {
-                        /* Variable to boolval comparison */
-
-                        var address = getAddress(rightSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        if (leftSide.name.match(/^(true)$/)) {
-
-                            codeGen.target.buildInstruction('A2');
-                            codeGen.target.buildInstruction('01');
-
-                        } else {
-
-                            codeGen.target.buildInstruction('A2');
-                            codeGen.target.buildInstruction('00');
-
-                        }
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                    }
-                } else {
-
-                    /* No IDs present in the comparison */
-
-                    if (leftSide.name.match(/^[0-9]$/) && rightSide.name.match(/^[0-9]$/)) {
-
-                        codeGen.target.buildInstruction('A9');
-                        value = ("0000" + leftSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('A2');
-                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    } else if (leftSide.name.match(/^\+$/) && rightSide.name.match(/^[0-9]$/)) {
-
-                        buildIntExpression(leftSide);
-
-                        codeGen.target.buildInstruction('A2');
-                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    } else if (leftSide.name.match(/^[0-9]$/) && rightSide.name.match(/^\+$/)) {
-
-                        buildIntExpression(rightSide);
-
-                        codeGen.target.buildInstruction('A2');
-                        value = ("0000" + leftSide.data.toString(16)).substr(-2);
-                        codeGen.target.buildInstruction(value);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                    } else if (leftSide.name.match(/^\+$/) && rightSide.name.match(/^\+$/)) {
-
-                        buildIntExpression(leftSide);
-
-                        /*
-                        * CREATE NEW TEMPORARY MEMORY LOCATION FOR THIS COMPARISON
-                        * */
-
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp3);
-
-                        buildIntExpression(leftSide);
-
-                        codeGen.target.buildInstruction('AE');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        codeGen.target.buildInstruction('EC');
-                        codeGen.target.buildInstruction(codeGen.target.temp3);
-
-                    } else if (leftSide.name.match(/^(true|false)$/) && rightSide.name.match(/^(true|false)$/)) {
-
-                        /* compare boolvals */
-
-                        if (leftSide.name.match(/^(true)$/)) {
-
-                            codeGen.target.buildInstruction('A9');
-                            codeGen.target.buildInstruction('01');
-                            codeGen.target.buildInstruction('8D');
-                            codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                            if (rightSide.name.match(/^(true)$/)) {
-
-                                codeGen.target.buildInstruction('A2');
-                                codeGen.target.buildInstruction('01');
-
-                            } else {
-
-                                codeGen.target.buildInstruction('A2');
-                                codeGen.target.buildInstruction('00');
-
-                            }
-
-                            codeGen.target.buildInstruction('EC');
-                            codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        } else {
-
-                            codeGen.target.buildInstruction('A9');
-                            codeGen.target.buildInstruction('00');
-                            codeGen.target.buildInstruction('8D');
-                            codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                            if (rightSide.name.match(/^(true)$/)) {
-
-                                codeGen.target.buildInstruction('A2');
-                                codeGen.target.buildInstruction('01');
-
-                            } else {
-
-                                codeGen.target.buildInstruction('A2');
-                                codeGen.target.buildInstruction('00');
-
-                            }
-
-                            codeGen.target.buildInstruction('EC');
-                            codeGen.target.buildInstruction(codeGen.target.temp2);
-
-                        }
-
-                    }
-
-                }
-            }
         }
 
 
 
         /********** ********** ********** ********** **********
-         * buildIntExpression()
+         * generateIntExpression()
          ***********/
-        function buildIntExpression(node) {
+        function generateIntExpression(node) {
             if (node.name.match(/^\+$/)) {
 
-                buildIntExpression(node.children[1]);
+                generateIntExpression(node.children[1]);
 
                 codeGen.target.buildInstruction('A9');
                 value = ("0000" + node.children[0].data.toString(16)).substr(-2);
@@ -1257,43 +615,415 @@ function codeGen(ir, st) {
 
 
         /********** ********** ********** ********** **********
-         * buildStringExpression()
+         * generateBooleanExpression()
          ***********/
-        function buildStringExpression() {
+        function generateBooleanExpression(node) {
 
+            /*var firstChild = node.children[0];
+
+            alert(firstChild.name);*/
+
+            if (node.name.match(/^(true|false)$/)) {
+
+                /* First child, and only child, is boolval */
+
+                if (node.name.match(/^(true)$/)) {
+
+                    codeGen.target.buildInstruction('A9');
+                    codeGen.target.buildInstruction('01');
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    codeGen.target.buildInstruction('A2');
+                    codeGen.target.buildInstruction('01');
+
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                } else {
+
+                    codeGen.target.buildInstruction('A9');
+                    codeGen.target.buildInstruction('00');
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    codeGen.target.buildInstruction('A2');
+                    codeGen.target.buildInstruction('00');
+
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                }
+
+            } else {
+
+                /* Otherwise we have a boolean operator */
+                var leftSide = node.children[0];
+                var rightSide = node.children[1];
+
+                if (leftSide.name.match(/^(==|!=)$/) || rightSide.name.match(/^(==|!=)$/)) {
+                    /* if boolean operators are present, through an error */
+
+                    errorMsg = "Nested boolean detected, will not compile...";
+                    codeGen.target.errors.push(errorMsg);
+                    codeGen.target.errorCount++;
+
+                } else if (leftSide.name.match(/^[a-z]$/)) {
+
+                    /* Handle IDs */
+
+                    /* Left side is an ID */
+
+                    if (rightSide.name.match("string")) {
+                        /* Variable to string literal comparison */
+
+                        errorMsg = "Comparison includes variable and string literal, will not compile...";
+                        codeGen.target.errors.push(errorMsg);
+                        codeGen.target.errorCount++;
+
+                    } else if (rightSide.name.match(/^[a-z]$/)) {
+                        /* Variable to variable comparison */
+
+                        var lAddress = getAddress(leftSide);
+                        codeGen.target.buildInstruction('AD');
+                        codeGen.target.buildInstruction(lAddress);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        var rAddress = getAddress(rightSide);
+                        codeGen.target.buildInstruction('AD');
+                        codeGen.target.buildInstruction(rAddress);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                        codeGen.target.buildInstruction('AE');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp1);
+
+
+                    } else if (rightSide.name.match(/^\+$/)) {
+                        /* Variable to integer expression comparison */
+
+                        generateIntExpression(rightSide);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        var address = getAddress(leftSide);
+                        codeGen.target.buildInstruction('AE');
+                        codeGen.target.buildInstruction(address);
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    } else if (rightSide.name.match(/^[0-9]$/)) {
+                        /* Variable to integer comparison */
+
+                        var address = getAddress(leftSide);
+                        codeGen.target.buildInstruction('AD');
+                        codeGen.target.buildInstruction(address);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        codeGen.target.buildInstruction('A9');
+                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
+                        codeGen.target.buildInstruction(value);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                        codeGen.target.buildInstruction('AE');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                    } else if (rightSide.name.match(/^(true|false)$/)) {
+                        /* Variable to boolval comparison */
+
+                        var address = getAddress(leftSide);
+                        codeGen.target.buildInstruction('AD');
+                        codeGen.target.buildInstruction(address);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        if (rightSide.name.match(/^(true)$/)) {
+
+                            codeGen.target.buildInstruction('A2');
+                            codeGen.target.buildInstruction('01');
+
+                        } else {
+
+                            codeGen.target.buildInstruction('A2');
+                            codeGen.target.buildInstruction('00');
+
+                        }
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    }
+
+                    if (node.name.match(/^(!=)$/)) {
+                        /* Extra step needed for not equals */
+
+                        codeGen.target.buildInstruction('A2');
+                        codeGen.target.buildInstruction('00');
+
+                        codeGen.target.buildInstruction('D0');
+                        codeGen.target.buildInstruction('02');
+
+                        codeGen.target.buildInstruction('A2');
+                        codeGen.target.buildInstruction('01');
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction('FF');
+                        codeGen.target.buildInstruction('00');
+
+                    }
+
+                } else if (rightSide.name.match(/^[a-z]$/)) {
+
+                    /* Right side is an id */
+
+                    if (leftSide.name.match("string")) {
+                        /* Variable to string literal comparison */
+
+                        errorMsg = "Comparison includes variable and string literal, will not compile...";
+                        codeGen.target.errors.push(errorMsg);
+                        codeGen.target.errorCount++;
+
+                    } else if (leftSide.name.match(/^\+$/)) {
+                        /* Variable to integer expression comparison */
+
+                        generateIntExpression(leftSide);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        var address = getAddress(rightSide);
+                        codeGen.target.buildInstruction('AE');
+                        codeGen.target.buildInstruction(address);
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    } else if (leftSide.name.match(/^[0-9]$/)) {
+                        /* Variable to integer comparison */
+
+                        var address = getAddress(rightSide);
+                        codeGen.target.buildInstruction('AD');
+                        codeGen.target.buildInstruction(address);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        codeGen.target.buildInstruction('A9');
+                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
+                        codeGen.target.buildInstruction(value);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                        codeGen.target.buildInstruction('AE');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp1);
+
+                    } else if (leftSide.name.match(/^(true|false)$/)) {
+                        /* Variable to boolval comparison */
+
+                        var address = getAddress(rightSide);
+                        codeGen.target.buildInstruction('AD');
+                        codeGen.target.buildInstruction(address);
+
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        if (leftSide.name.match(/^(true)$/)) {
+
+                            codeGen.target.buildInstruction('A2');
+                            codeGen.target.buildInstruction('01');
+
+                        } else {
+
+                            codeGen.target.buildInstruction('A2');
+                            codeGen.target.buildInstruction('00');
+
+                        }
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    }
+
+                    if (node.name.match(/^(!=)$/)) {
+                        /* Extra step needed for not equals */
+
+                        codeGen.target.buildInstruction('A2');
+                        codeGen.target.buildInstruction('00');
+
+                        codeGen.target.buildInstruction('D0');
+                        codeGen.target.buildInstruction('02');
+
+                        codeGen.target.buildInstruction('A2');
+                        codeGen.target.buildInstruction('01');
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction('FF');
+                        codeGen.target.buildInstruction('00');
+
+                    }
+
+                } else {
+
+                    /* No IDs present in the comparison */
+
+                    if (leftSide.name.match(/^[0-9]$/) && rightSide.name.match(/^[0-9]$/)) {
+
+                        codeGen.target.buildInstruction('A9');
+                        value = ("0000" + leftSide.data.toString(16)).substr(-2);
+                        codeGen.target.buildInstruction(value);
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        codeGen.target.buildInstruction('A2');
+                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
+                        codeGen.target.buildInstruction(value);
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    } else if (leftSide.name.match(/^\+$/) && rightSide.name.match(/^[0-9]$/)) {
+
+                        generateIntExpression(leftSide);
+
+                        codeGen.target.buildInstruction('A2');
+                        value = ("0000" + rightSide.data.toString(16)).substr(-2);
+                        codeGen.target.buildInstruction(value);
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    } else if (leftSide.name.match(/^[0-9]$/) && rightSide.name.match(/^\+$/)) {
+
+                        generateIntExpression(rightSide);
+
+                        codeGen.target.buildInstruction('A2');
+                        value = ("0000" + leftSide.data.toString(16)).substr(-2);
+                        codeGen.target.buildInstruction(value);
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    } else if (leftSide.name.match(/^\+$/) && rightSide.name.match(/^\+$/)) {
+
+                        generateIntExpression(leftSide);
+
+                        /*
+                        * CREATE NEW TEMPORARY MEMORY LOCATION FOR THIS COMPARISON
+                        * */
+
+                        codeGen.target.buildInstruction('AD');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+                        codeGen.target.buildInstruction('8D');
+                        codeGen.target.buildInstruction(codeGen.target.temp3);
+
+                        generateIntExpression(leftSide);
+
+                        codeGen.target.buildInstruction('AE');
+                        codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction(codeGen.target.temp3);
+
+                    } else if (leftSide.name.match(/^(true|false)$/) && rightSide.name.match(/^(true|false)$/)) {
+
+                        /* compare boolvals */
+
+                        if (node.name.match(/^(==)$/)) {
+
+                            if (leftSide.name.match(/^(true)$/) && rightSide.name.match(/^(true)$/)) {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('00');
+
+                            } else if (leftSide.name.match(/^(false)$/) && rightSide.name.match(/^(false)$/)) {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('00');
+
+                            } else {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('01');
+
+                            }
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction('FF');
+                            codeGen.target.buildInstruction('00');
+
+                        } else {
+
+                            if (leftSide.name.match(/^(true)$/) && rightSide.name.match(/^(true)$/)) {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('01');
+
+                            } else if (leftSide.name.match(/^(false)$/) && rightSide.name.match(/^(false)$/)) {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('01');
+
+                            } else {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('00');
+
+                            }
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction('FF');
+                            codeGen.target.buildInstruction('00');
+
+                        }
+
+                    }
+
+                    if (!leftSide.name.match(/^(true|false)$/) && !rightSide.name.match(/^(true|false)$/)){
+
+                        if (node.name.match(/^(!=)$/)) {
+                            /* Extra step needed for not equals */
+
+                            codeGen.target.buildInstruction('A2');
+                            codeGen.target.buildInstruction('00');
+
+                            codeGen.target.buildInstruction('D0');
+                            codeGen.target.buildInstruction('02');
+
+                            codeGen.target.buildInstruction('A2');
+                            codeGen.target.buildInstruction('01');
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction('FF');
+                            codeGen.target.buildInstruction('00');
+
+                        }
+
+                    }
+
+                }
+            }
         }
-
-
-
-        /********** ********** ********** ********** **********
-         * buildBooleanExpression()
-         ***********/
-        function buildBooleanExpression() {
-
-        }
-
-
-
-        /********** ********** ********** ********** **********
-         * buildBoolvalExpression()
-         ***********/
-        function buildBoolvalExpression() {
-
-        }
-
-
-
-        /********** ********** ********** ********** **********
-         * buildIdExpression()
-         ***********/
-        function buildIdExpression() {
-
-        }
-
-
 
     }
-
-
 
 }

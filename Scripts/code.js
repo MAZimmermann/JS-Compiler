@@ -77,6 +77,13 @@ function Code() {
  **********/
 Code.prototype.formatProgram = function() {
 
+    /* Last error check */
+    if (this.currentAddress > this.heapAddress) {
+        errorMsg = "Nested booleans detected, will not compile...";
+        this.errors.push(errorMsg);
+        this.errorCount++;
+    }
+
     if (this.errorCount == 0) {
 
         /* TODO: Decide where to place warning/error iterations */
@@ -223,9 +230,9 @@ Code.prototype.formatProgram = function() {
 
         }
 
-        document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
-        for (var k = 0; k < this.warnings.length; k++) {
-            document.getElementById("compStatus").value += warnings[k]+ "\n";
+        document.getElementById("compStatus").value += "Found " + this.errorCount + " errors(s)" + "\n";
+        for (var k = 0; k < this.errors.length; k++) {
+            document.getElementById("compStatus").value += this.errors[k]+ "\n";
         }
 
     }
