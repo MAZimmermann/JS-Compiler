@@ -17,16 +17,20 @@
 
 function codeGen(ir, st) {
 
+    // Display CODE GEN
+    document.getElementById("compStatus").value += "\n";
+    document.getElementById("compStatus").value += "CODE GEN \n";
+
     // Grab symbol table from AST
     var symbolTable = st;
 
     // Declare new instance of code to be generated (target program)
     codeGen.target = new Code();
 
-    // Array containing list of errors
+/*    // Array containing list of errors
     var errors = []; var errorCount = 0;
     // Array containing list of warnings
-    var warnings = []; var warningCount = 0;
+    var warnings = []; var warningCount = 0;*/
 
     // Set the current node to the root
     var root = ir.getRoot();
@@ -36,25 +40,6 @@ function codeGen(ir, st) {
 
     // Format the generated code
     codeGen.target.formatProgram();
-
-    var breakAt = 0;
-
-    // Print output to the codeGen textarea
-    for (var i = 0; i < codeGen.target.output.length; i++) {
-
-        document.getElementById("codeGen").value += codeGen.target.output[i];
-        if (breakAt == 15) {
-            if (i == 255) {
-                // Do nothing, end of image
-            } else {
-                document.getElementById("codeGen").value += "\n";
-                breakAt = 0;
-            }
-        } else {
-            breakAt++;
-        }
-
-    }
 
 
 
@@ -95,22 +80,49 @@ function codeGen(ir, st) {
      * checkHeap
      ***********/
     function checkHeap(string) {
-        var heapToString = codeGen.target.heap.toString();
 
-        /*TODO: Finish writing this function*/
-
-        heapToString = heapToString.replace(',', '');
-
-        var stringToHex = "";
-
-        for (var i = string.length - 1; i >= 0; i--) {
-            var currentLetter = string[i];
-            currentLetter = ("0000" + currentLetter.charCodeAt(0).toString(16)).substr(-2).toUpperCase();
-            stringToHex = stringToHex + currentLetter;
+        if (codeGen.target.heapAddress == 256) {
+            return null;
         }
 
-        /*alert(heapToString);
-        alert(stringToHex);*/
+        var found = false;
+
+        var stringToHex = [];
+
+        for (var i = 0; i < string.length; i++) {
+            var currentLetter = string[i];
+            currentLetter = ("0000" + currentLetter.charCodeAt(0).toString(16)).substr(-2).toUpperCase();
+            stringToHex.push(currentLetter);
+        }
+
+        var temp = [];
+
+        var start = codeGen.target.heap[0];
+        var startHex = codeGen.target.heapAddress + 0;
+
+        for (var i = 0; i < codeGen.target.heap.length; i++) {
+            if (codeGen.target.heap[i] == '00') {
+
+                if (temp.toString() == stringToHex.toString()) {
+                    found = true;
+                    break;
+                } else {
+                    var start = codeGen.target.heap[i + 1];
+                    startHex = codeGen.target.heapAddress + i + 1;
+                }
+
+            } else {
+                temp.push(codeGen.target.heap[i]);
+            }
+        }
+
+        var address = ('0000' + (startHex).toString(16)).substr(-2).toUpperCase();
+
+        if (found) {
+            return address;
+        } else {
+            return null;
+        }
 
     }
 
@@ -268,14 +280,18 @@ function codeGen(ir, st) {
             if (firstChild.name.match("string")) {
 
                 var string = firstChild.data.join('');
-                var address = codeGen.target.buildString(string);
 
-                /*
-                TODO: Remember to revisit this...
-                checkHeap(string);*/
+                var address = checkHeap(string);
+
+                if (address == null) {
+                    address = codeGen.target.buildString(string);
+                } else {
+                    // Heap already contains this string
+                    // Use the address that was returned
+                }
 
                 codeGen.target.buildInstruction('A0');
-                codeGen.target.buildInstruction(address.substring(0, 2));
+                codeGen.target.buildInstruction(address);
 
                 codeGen.target.buildInstruction('A2');
                 codeGen.target.buildInstruction('02');
@@ -521,8 +537,8 @@ function codeGen(ir, st) {
                     /* if boolean operators are present, through an error */
 
                     errorMsg = "Nested booleans detected, will not compile...";
-                    errors.push(errorMsg);
-                    errorCount++;
+                    codeGen.target.errors.push(errorMsg);
+                    codeGen.target.errorCount++;
 
                 } else if (leftSide.name.match(/^[a-z]$/)) {
 
@@ -534,8 +550,8 @@ function codeGen(ir, st) {
                         /* Variable to string literal comparison */
 
                         errorMsg = "Comparison includes string literal, will not compile...";
-                        errors.push(errorMsg);
-                        errorCount++;
+                        codeGen.target.errors.push(errorMsg);
+                        codeGen.target.errorCount++;
 
                     } else if (rightSide.name.match(/^[a-z]$/)) {
                         /* Variable to variable comparison */
@@ -634,8 +650,8 @@ function codeGen(ir, st) {
                         /* Variable to string literal comparison */
 
                         errorMsg = "Comparison includes string literal, will not compile...";
-                        errors.push(errorMsg);
-                        errorCount++;
+                        codeGen.target.errors.push(errorMsg);
+                        codeGen.target.errorCount++;
 
                     } else if (leftSide.name.match(/^\+$/)) {
                         /* Variable to integer expression comparison */
@@ -890,8 +906,8 @@ function codeGen(ir, st) {
                     /* if boolean operators are present, through an error */
 
                     errorMsg = "Nested booleans detected, will not compile...";
-                    errors.push(errorMsg);
-                    errorCount++;
+                    codeGen.target.errors.push(errorMsg);
+                    codeGen.target.errorCount++;
 
                 } else if (leftSide.name.match(/^[a-z]$/)) {
 
@@ -903,8 +919,8 @@ function codeGen(ir, st) {
                         /* Variable to string literal comparison */
 
                         errorMsg = "Comparison includes string literal, will not compile...";
-                        errors.push(errorMsg);
-                        errorCount++;
+                        codeGen.target.errors.push(errorMsg);
+                        codeGen.target.errorCount++;
 
                     } else if (rightSide.name.match(/^[a-z]$/)) {
                         /* Variable to variable comparison */
@@ -1003,8 +1019,8 @@ function codeGen(ir, st) {
                         /* Variable to string literal comparison */
 
                         errorMsg = "Comparison includes string literal, will not compile...";
-                        errors.push(errorMsg);
-                        errorCount++;
+                        codeGen.target.errors.push(errorMsg);
+                        codeGen.target.errorCount++;
 
                     } else if (leftSide.name.match(/^\+$/)) {
                         /* Variable to integer expression comparison */

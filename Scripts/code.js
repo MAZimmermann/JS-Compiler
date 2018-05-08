@@ -54,13 +54,19 @@ function Code() {
     this.currentJumpAddress = 'J0';
 
     /********** ********** ********** ********** **********
-     * TODO: Figure use of temporary addresses in int calculations
+     * Temporary memory locations used for comparisons and
+     *  integer expression calculations
      **********/
     this.temp1 = 'TMP1';
     this.temp2 = 'TMP2';
 
     /* Added for ( intExpr == | != intExpr ) */
     this.temp3 = 'TMP3';
+
+    // Array containing list of errors
+    this.errors = []; this.errorCount = 0;
+    // Array containing list of warnings
+    this.warnings = []; this.warningCount = 0;
 
 }
 
@@ -71,108 +77,158 @@ function Code() {
  **********/
 Code.prototype.formatProgram = function() {
 
-    // System call
-    this.buildInstruction('00');
+    if (this.errorCount == 0) {
 
-    // this.currentAddress is incremented every time we build an instruction,
-    //  so the beginning of the static area should be... TODO: finish/phrase better?
-    var staticStart = this.currentAddress;
+        /* TODO: Decide where to place warning/error iterations */
 
-    // Replaces all temporary variable memory locations with the actual location
-    for (var key in this.staticTable) {
+        document.getElementById("compStatus").value += "Found " + this.warningCount + " warning(s)" + "\n";
+        if (this.warningCount == 0) {
+            document.getElementById("compStatus").value += "\n";
+        } else {
+            for (var a = 0; a < this.warningCount; a++) {
+                document.getElementById("compStatus").value += this.warnings[a] + "\n";
+            }
 
-        var staticAddressOffset = this.staticTable[key][4];
+            document.getElementById("compStatus").value += "\n";
 
-        var position = staticStart + staticAddressOffset;
+        }
 
-        var temporaryAddress = this.staticTable[key][0];
+        document.getElementById("compStatus").value += "Found 0 error(s)" + "\n";
 
-        var newAddress = ('0000' + position.toString(16)).substr(-2).toUpperCase();
+        // System call
+        this.buildInstruction('00');
+
+        // this.currentAddress is incremented every time we build an instruction,
+        //  so the beginning of the static area should be... TODO: finish/phrase better?
+        var staticStart = this.currentAddress;
+
+        // Replaces all temporary variable memory locations with the actual location
+        for (var key in this.staticTable) {
+
+            var staticAddressOffset = this.staticTable[key][4];
+
+            var position = staticStart + staticAddressOffset;
+
+            var temporaryAddress = this.staticTable[key][0];
+
+            var newAddress = ('0000' + position.toString(16)).substr(-2).toUpperCase();
+
+            for (var j = 0; j < this.currentAddress; j++) {
+                if (this.opCodes[j].match(/^T[0-9]$/)) {
+                    var cur = this.opCodes[j].concat(this.opCodes[j + 1]);
+
+                    if (cur.match(temporaryAddress)) {
+                        this.opCodes[j] = newAddress;
+                        this.opCodes[j + 1] = '00';
+                    }
+                }
+            }
+        }
+
+        // Replaces all temporary jump variables with the actual jump value
+        for (var key in this.jumpTable) {
+
+            var jumpVal = this.jumpTable[key];
+
+            var newJumpVal = ('0000' + jumpVal.toString(16)).substr(-2).toUpperCase();
+
+            for (var j = 0; j < this.currentAddress; j++) {
+                if (this.opCodes[j].match(key)) {
+                    this.opCodes[j] = newJumpVal;
+                }
+            }
+        }
+
+        // currentStaticOffset will have been incremented from the last static data table entry
+        var temp1Position = staticStart + this.currentStaticOffset;
+        var newTemp1 = ('0000' + temp1Position.toString(16)).substr(-2).toUpperCase();
+        this.temp1 = newTemp1;
+
+        var temp2Position = staticStart + this.currentStaticOffset + 1;
+        var newTemp2 = ('0000' + temp2Position.toString(16)).substr(-2).toUpperCase();
+        this.temp2 = newTemp2;
+
+        var temp3Position = staticStart + this.currentStaticOffset + 2;
+        var newTemp3 = ('0000' + temp3Position.toString(16)).substr(-2).toUpperCase();
+        this.temp3 = newTemp3;
+
+        this.opCodes[temp1Position] = this.temp1;
+        this.opCodes[temp2Position] = this.temp2;
+        this.opCodes[temp3Position] = this.temp3;
 
         for (var j = 0; j < this.currentAddress; j++) {
-            if (this.opCodes[j].match(/^T[0-9]$/)) {
+            if (this.opCodes[j].match(/^TM$/)) {
                 var cur = this.opCodes[j].concat(this.opCodes[j + 1]);
-
-                if (cur.match(temporaryAddress)) {
-                    this.opCodes[j] = newAddress;
+                if (cur.match(/^TMP1$/)) {
+                    this.opCodes[j] = this.temp1;
+                    this.opCodes[j + 1] = '00';
+                } else if (cur.match(/^TMP2$/)) {
+                    this.opCodes[j] = this.temp2;
+                    this.opCodes[j + 1] = '00';
+                } else if (cur.match(/^TMP3$/)) {
+                    this.opCodes[j] = this.temp3;
                     this.opCodes[j + 1] = '00';
                 }
             }
         }
-    }
 
-    // Replaces all temporary jump variables with the actual jump value
-    for (var key in this.jumpTable) {
-
-        var jumpVal = this.jumpTable[key];
-
-        var newJumpVal = ('0000' + jumpVal.toString(16)).substr(-2).toUpperCase();
-
-        for (var j = 0; j < this.currentAddress; j++) {
-            if (this.opCodes[j].match(key)) {
-                this.opCodes[j] = newJumpVal;
-            }
+        // add space following each op code
+        for (var k = 0; k < this.currentAddress; k++) {
+            this.opCodes[k] = this.opCodes[k] + ' ';
+            this.output[k] = this.opCodes[k];
         }
-    }
 
-    // currentStaticOffset will have been incremented from the last static data table entry
-    var temp1Position = staticStart + this.currentStaticOffset;
-    var newTemp1 = ('0000' + temp1Position.toString(16)).substr(-2).toUpperCase();
-    this.temp1 = newTemp1;
-
-    var temp2Position = staticStart + this.currentStaticOffset + 1;
-    var newTemp2 = ('0000' + temp2Position.toString(16)).substr(-2).toUpperCase();
-    this.temp2 = newTemp2;
-
-    var temp3Position = staticStart + this.currentStaticOffset + 2;
-    var newTemp3 = ('0000' + temp3Position.toString(16)).substr(-2).toUpperCase();
-    this.temp3 = newTemp3;
-
-    this.opCodes[temp1Position] = this.temp1;
-    this.opCodes[temp2Position] = this.temp2;
-    this.opCodes[temp3Position] = this.temp3;
-
-    for (var j = 0; j < this.currentAddress; j++) {
-        if (this.opCodes[j].match(/^TM$/)) {
-            var cur = this.opCodes[j].concat(this.opCodes[j + 1]);
-            if (cur.match(/^TMP1$/)) {
-                this.opCodes[j] = this.temp1;
-                this.opCodes[j + 1] = '00';
-            } else if (cur.match(/^TMP2$/)) {
-                this.opCodes[j] = this.temp2;
-                this.opCodes[j + 1] = '00';
-            } else if (cur.match(/^TMP3$/)) {
-                this.opCodes[j] = this.temp3;
-                this.opCodes[j + 1] = '00';
-            }
+        // fill space between current address and current heap address with 00
+        for (var l = this.currentAddress; l < this.heapAddress; l++) {
+            this.output[l] = '00' + ' ';
         }
-    }
 
-    // add space following each op code
-    for (var k = 0; k < this.currentAddress; k++) {
-        this.opCodes[k] = this.opCodes[k] + ' ';
-        this.output[k] = this.opCodes[k];
-    }
+        // add space following each entry in the heap
+        for (var m = 0; m < this.heap.length; m++) {
+            this.heap[m] = this.heap[m] + ' ';
+            this.output[this.heapAddress] = this.heap[m];
+            this.heapAddress++;
+        }
 
-    // fill space between current address and current heap address with 00
-    for (var l = this.currentAddress; l < this.heapAddress; l++) {
-        this.output[l] = '00' + ' ';
-    }
+        var breakAt = 0;
 
-    // add space following each entry in the heap
-    for (var m = 0; m < this.heap.length; m++) {
-        this.heap[m] = this.heap[m] + ' ';
-        this.output[this.heapAddress] = this.heap[m];
-        this.heapAddress++;
-    }
+        // Print output to the codeGen textarea
+        for (var i = 0; i < this.output.length; i++) {
 
-    /********** ********** ********** ********** **********
-     *
-     * TODO: Implement error check for memory collisions
-     *
-     * TODO: Potential meme here...
-     *
-     **********/
+            document.getElementById("codeGen").value += this.output[i];
+            if (breakAt == 15) {
+                if (i == 255) {
+                    // Do nothing, end of image
+                } else {
+                    document.getElementById("codeGen").value += "\n";
+                    breakAt = 0;
+                }
+            } else {
+                breakAt++;
+            }
+
+        }
+
+    } else {
+
+        document.getElementById("compStatus").value += "Found " + this.warningCount + " warning(s)" + "\n";
+        if (this.warningCount == 0) {
+            document.getElementById("compStatus").value += "\n";
+        } else {
+            for (var a = 0; a < this.warningCount; a++) {
+                document.getElementById("compStatus").value += this.warnings[a] + "\n";
+            }
+
+            document.getElementById("compStatus").value += "\n";
+
+        }
+
+        document.getElementById("compStatus").value += "Found " + warningCount + " warning(s)" + "\n";
+        for (var k = 0; k < this.warnings.length; k++) {
+            document.getElementById("compStatus").value += warnings[k]+ "\n";
+        }
+
+    }
 
 }
 
