@@ -104,6 +104,11 @@ function buildAST(astTokens) {
                 warnings.push(warningMsg);
                 warningCount++;
             }
+            if (symbolTable[key][4] == 0 && symbolTable[key][5] != 0) {
+                warningMsg = "Symbol " + symbol + " declared and used but never initialized";
+                warnings.push(warningMsg);
+                warningCount++;
+            }
         }
 
         if (warningCount == 0) {

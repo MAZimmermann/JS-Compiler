@@ -494,9 +494,11 @@ function codeGen(ir, st) {
                     codeGen.target.buildInstruction(value);
                     codeGen.target.buildInstruction('8D');
                     codeGen.target.buildInstruction(codeGen.target.temp2);
+
                     codeGen.target.buildInstruction('A2');
                     value = ("0000" + rightSide.data.toString(16)).substr(-2);
                     codeGen.target.buildInstruction(value);
+
                     codeGen.target.buildInstruction('EC');
                     codeGen.target.buildInstruction(codeGen.target.temp2);
 
@@ -507,6 +509,7 @@ function codeGen(ir, st) {
                     codeGen.target.buildInstruction('A2');
                     value = ("0000" + rightSide.data.toString(16)).substr(-2);
                     codeGen.target.buildInstruction(value);
+
                     codeGen.target.buildInstruction('EC');
                     codeGen.target.buildInstruction(codeGen.target.temp2);
 
@@ -517,6 +520,7 @@ function codeGen(ir, st) {
                     codeGen.target.buildInstruction('A2');
                     value = ("0000" + leftSide.data.toString(16)).substr(-2);
                     codeGen.target.buildInstruction(value);
+
                     codeGen.target.buildInstruction('EC');
                     codeGen.target.buildInstruction(codeGen.target.temp2);
 
@@ -535,10 +539,41 @@ function codeGen(ir, st) {
 
                     buildIntExpression(leftSide);
 
-                    codeGen.target.buildInstruction('A2');
+                    codeGen.target.buildInstruction('AE');
                     codeGen.target.buildInstruction(codeGen.target.temp2);
+
                     codeGen.target.buildInstruction('EC');
                     codeGen.target.buildInstruction(codeGen.target.temp3);
+
+                } else if (leftSide.name.match(/^[0-9]$/) && rightSide.name.match(/^[a-z]$/)) {
+
+                    codeGen.target.buildInstruction('A9');
+                    value = ("0000" + leftSide.data.toString(16)).substr(-2);
+                    codeGen.target.buildInstruction(value);
+
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    var address = getAddress(rightSide);
+                    codeGen.target.buildInstruction('AE');
+                    codeGen.target.buildInstruction(address);
+
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                } else if (leftSide.name.match(/^\+$/) && rightSide.name.match(/^[a-z]$/)) {
+
+                    buildIntExpression(leftSide);
+
+                    codeGen.target.buildInstruction('8D');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                    var address = getAddress(rightSide);
+                    codeGen.target.buildInstruction('AE');
+                    codeGen.target.buildInstruction(address);
+
+                    codeGen.target.buildInstruction('EC');
+                    codeGen.target.buildInstruction(codeGen.target.temp2);
 
                 } else {
 
@@ -551,20 +586,20 @@ function codeGen(ir, st) {
 
                     } else if (leftSide.name.match(/^[a-z]$/)) {
 
-                        var address = getAddress(leftSide);
-                        codeGen.target.buildInstruction('AD');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('8D');
-                        codeGen.target.buildInstruction(codeGen.target.temp2);
-
                         if (rightSide.name.match("string")) {
 
                         } else if (rightSide.name.match(/^[a-z]$/)) {
 
-                            var address = getAddress(rightSide);
+                            var lAddress = getAddress(leftSide);
                             codeGen.target.buildInstruction('AD');
-                            codeGen.target.buildInstruction(address);
+                            codeGen.target.buildInstruction(lAddress);
+
+                            codeGen.target.buildInstruction('8D');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                            var rAddress = getAddress(rightSide);
+                            codeGen.target.buildInstruction('AD');
+                            codeGen.target.buildInstruction(rAddress);
 
                             codeGen.target.buildInstruction('8D');
                             codeGen.target.buildInstruction(codeGen.target.temp1);
@@ -577,7 +612,26 @@ function codeGen(ir, st) {
 
                         } else if (rightSide.name.match(/^\+$/)) {
 
+                            buildIntExpression(rightSide);
+
+                            codeGen.target.buildInstruction('8D');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                            var address = getAddress(leftSide);
+                            codeGen.target.buildInstruction('AE');
+                            codeGen.target.buildInstruction(address);
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
+
                         } else if (rightSide.name.match(/^[0-9]$/)) {
+
+                            var address = getAddress(leftSide);
+                            codeGen.target.buildInstruction('AD');
+                            codeGen.target.buildInstruction(address);
+
+                            codeGen.target.buildInstruction('8D');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
 
                             codeGen.target.buildInstruction('A9');
                             value = ("0000" + rightSide.data.toString(16)).substr(-2);
@@ -593,6 +647,28 @@ function codeGen(ir, st) {
                             codeGen.target.buildInstruction(codeGen.target.temp1);
 
                         } else if (rightSide.name.match(/^(true|false)$/)) {
+
+                            var address = getAddress(leftSide);
+                            codeGen.target.buildInstruction('AD');
+                            codeGen.target.buildInstruction(address);
+
+                            codeGen.target.buildInstruction('8D');
+                            codeGen.target.buildInstruction(codeGen.target.temp2);
+
+                            if (rightSide.name.match(/^(true)$/)) {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('01');
+
+                            } else {
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('00');
+
+                            }
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction(codeGen.target.temp1);
 
                         }
 
