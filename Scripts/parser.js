@@ -2,7 +2,7 @@
 * parser.js
 *
 * Includes
-*  Nonterminal Function for handling each nonterminal
+*  Nonterminal functions for handling each nonterminal
 *  Match function to assess current and expected tokens
 *  Error function for when parse is broken
 *
@@ -22,9 +22,13 @@ function parse(tokensFromLex) {
     // This will contain the tokens need for the AST
     var astTokens = [];
 
-/*    for (var z = 0; z < tokensFromLex.length; z++) {
+    /*for (var z = 0; z < tokensFromLex.length; z++) {
         alert(tokensFromLex[z].value)
     }*/
+
+    // Array containing list of warnings
+    // This won't ever actually be used...
+    var warnings = []; var warningCount = 0;
 
     // Keeps track of our position in the token array
     var iter = 0;
@@ -82,6 +86,20 @@ function parse(tokensFromLex) {
     * If ^match^ fails, throw parse error
     ***********/
     function parseError(errorMsg) {
+
+        // There aren't really any warnings to report during this phase
+        // Warnings section is only listed for consistency
+        document.getElementById("compStatus").value += "Found " + 0 + " warning(s)" + "\n";
+        if (warningCount == 0) {
+            document.getElementById("compStatus").value += "\n";
+        } else {
+            for (var a = 0; a < warningCount; a++) {
+                document.getElementById("compStatus").value += warnings[a] + "\n";
+            }
+
+            document.getElementById("compStatus").value += "\n";
+
+        }
 
         // As soon as we detect an error, we will quit parse
         // So, there will aways be only 1 error to report
@@ -732,7 +750,18 @@ function parse(tokensFromLex) {
 
             cst.addNode(tokens[iter].value, tokens[iter].value, "leaf"); iter++;
 
-            // cale parseExpression
+            if (match(tokens[iter], Token.Kind.L_PAREN)) {
+
+                /**********
+                 * ERROR Nested Boolean Detected
+                 ***********/
+                parseBooleanExpressionError = /*"PARSER: ERROR: */"Nested boolean detected on line " + tokens[iter].line;
+                document.getElementById("parseOutput").value += parseBooleanExpressionError;
+                parseError(parseBooleanExpressionError);
+
+            }
+
+            // call parseExpression
             cst.addNode("Expression", "Expression", "branch");
             parseExpression();
             cst.endChildren();
@@ -741,6 +770,17 @@ function parse(tokensFromLex) {
             cst.addNode("Boolop", "Boolop", "branch");
             parseBoolop();
             cst.endChildren();
+
+            if (match(tokens[iter], Token.Kind.L_PAREN)) {
+
+                /**********
+                 * ERROR Nested Boolean Detected
+                 ***********/
+                parseBooleanExpressionError = /*"PARSER: ERROR: */"Nested boolean detected on line " + tokens[iter].line;
+                document.getElementById("parseOutput").value += parseBooleanExpressionError;
+                parseError(parseBooleanExpressionError);
+
+            }
 
             // call parseExpression
             cst.addNode("Expression", "Expression", "branch");

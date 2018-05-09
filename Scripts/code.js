@@ -77,16 +77,16 @@ function Code() {
  **********/
 Code.prototype.formatProgram = function() {
 
+    var staticEnd = this.currentAddress + this.staticTable.length + 3;
+
     /* Last error check */
-    if (this.currentAddress > this.heapAddress) {
-        errorMsg = "Nested booleans detected, will not compile...";
+    if (staticEnd > this.heapAddress) {
+        errorMsg = "Memory exceeded 256 bytes, will not compile...";
         this.errors.push(errorMsg);
         this.errorCount++;
     }
 
     if (this.errorCount == 0) {
-
-        /* TODO: Decide where to place warning/error iterations */
 
         document.getElementById("compStatus").value += "Found " + this.warningCount + " warning(s)" + "\n";
         if (this.warningCount == 0) {

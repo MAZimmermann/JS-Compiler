@@ -1,17 +1,16 @@
 /********** ********** ********** ********** **********
  * codeGen.js
  *
- * Includes...
+ * Includes
+ *  Methods for generating code as we traverse our AST
  *
- * TODO: Better description for this file
+ *  Helper functions include getType, getAddress, getKey, and checkHeap
  *
  * TODO: Continue working with boolean values and comparisons
  *
  * TODO: Clean up and refactor / look for areas to consolidate
  *
  * TODO: Generate errors and warnings (memory collision, etc.)
- *
- * TODO: Format code output area
  *
  **********/
 
@@ -77,7 +76,10 @@ function codeGen(ir, st) {
     function checkHeap(string) {
 
         if (codeGen.target.heapAddress == 256) {
+            /* Heap is currently empty, return */
+
             return null;
+
         }
 
         var found = false;
@@ -92,7 +94,6 @@ function codeGen(ir, st) {
 
         var temp = [];
 
-        var start = codeGen.target.heap[0];
         var startHex = codeGen.target.heapAddress + 0;
 
         for (var i = 0; i < codeGen.target.heap.length; i++) {
@@ -102,7 +103,6 @@ function codeGen(ir, st) {
                     found = true;
                     break;
                 } else {
-                    var start = codeGen.target.heap[i + 1];
                     startHex = codeGen.target.heapAddress + i + 1;
                 }
 
@@ -114,9 +114,13 @@ function codeGen(ir, st) {
         var address = ('0000' + (startHex).toString(16)).substr(-2).toUpperCase();
 
         if (found) {
+
             return address;
+
         } else {
+
             return null;
+
         }
 
     }
@@ -148,6 +152,11 @@ function codeGen(ir, st) {
 
             // For handling Blocks and Statements
             if (node.data.match(asToken.Kind.Block.pattern)) {
+
+                /********** ********** ********** ********** **********
+                 * Generate code for block
+                 ***********/
+
                 generateBlock(node);
 
             } else if (node.data.match(asToken.Kind.PrintStatement.pattern)) {
@@ -193,24 +202,6 @@ function codeGen(ir, st) {
                  ***********/
 
                 generateBooleanExpression(node.children[0]);
-
-                /*codeGen.target.buildInstruction('A9');
-                codeGen.target.buildInstruction('00');
-
-                codeGen.target.buildInstruction('D0');
-                codeGen.target.buildInstruction('02');
-
-                codeGen.target.buildInstruction('A9');
-                codeGen.target.buildInstruction('01');
-
-                codeGen.target.buildInstruction('A2');
-                codeGen.target.buildInstruction('00');
-
-                codeGen.target.buildInstruction('8D');
-                codeGen.target.buildInstruction(codeGen.target.temp1);
-
-                codeGen.target.buildInstruction('EC');
-                codeGen.target.buildInstruction(codeGen.target.temp1);*/
 
                 codeGen.target.buildInstruction('D0');
                 codeGen.target.buildInstruction(skipWhile);
