@@ -439,8 +439,8 @@ function buildAST(astTokens) {
         } else {
 
             declaredAs = stack[level].retrieve(tokens[iter].value)[1];
-            declaredAtLevel = level;
-            declaredAtInstance = levelInstance;
+            declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
+            declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
 
             if (holdType.match(asToken.Kind.IntExpression.pattern)) {
                 if (!(declaredAs == "int")) {
@@ -816,8 +816,8 @@ function buildAST(astTokens) {
                     } else {
 
                         var declaredAs = stack[level].retrieve(intExprId.value)[1];
-                        var declaredAtLevel = level;
-                        var declaredAtInstance = levelInstance;
+                        var declaredAtLevel = stack[level].retrieve(intExprId.value)[2];
+                        var declaredAtInstance = stack[level].retrieve(intExprId.value)[3];
 
                         var key = intExprId.value.concat("@", declaredAtLevel, declaredAtInstance);
                         symbolTable[key][5] = "used";
@@ -1043,7 +1043,7 @@ function buildAST(astTokens) {
                             level--;
                         } else {
                             var declaredAs = stack[level].retrieve(tokens[holdExpressionStart + 1].value)[1];
-                            var declaredAt = level;
+                            var declaredAt = stack[level].retrieve(tokens[holdExpressionStart + 1].value)[2];
                             found = true;
                             break;
                         }
@@ -1211,7 +1211,7 @@ function buildAST(astTokens) {
                 } else {
 
                     var declaredAs = stack[level].retrieve(tokens[holdExpressionStart + 1].value)[1];
-                    var declaredAt = level;
+                    var declaredAt = stack[level].retrieve(tokens[holdExpressionStart + 1].value)[2];
 
                     if (tokens[iter].value.match(asToken.Kind.IntExpression.pattern)) {
                         if (!(declaredAs == "int")) {
@@ -1374,7 +1374,7 @@ function buildAST(astTokens) {
                             level--;
                         } else {
                             var declaredAs = stack[level].retrieve(tokens[iter + 1].value)[1];
-                            var declaredAt = level;
+                            var declaredAt = stack[level].retrieve(tokens[iter + 1].value)[2];
                             found = true;
                             break;
                         }
@@ -1451,7 +1451,7 @@ function buildAST(astTokens) {
                 } else {
 
                     var declaredAs = stack[level].retrieve(tokens[iter + 1].value)[1];
-                    var declaredAt = level;
+                    var declaredAt = stack[level].retrieve(tokens[iter + 1].value)[2];
 
                     if (tokens[holdExpressionStart].value.match(asToken.Kind.IntExpression.pattern)) {
                         if (!(declaredAs == "int")) {
@@ -1643,10 +1643,11 @@ function buildAST(astTokens) {
         } else {
 
             declaredAs = stack[level].retrieve(tokens[iter].value)[1];
-            declaredAtLevel = level;
-            declaredAtInstance = levelInstance;
+            declaredAtLevel = stack[level].retrieve(tokens[iter].value)[2];
+            declaredAtInstance = stack[level].retrieve(tokens[iter].value)[3];
 
             var key = tokens[iter].value.concat("@", declaredAtLevel, declaredAtInstance);
+
             symbolTable[key][5] = "used";
 
             var data = tokens[iter].value.concat(declaredAtLevel, declaredAtInstance);

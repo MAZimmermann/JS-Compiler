@@ -677,6 +677,26 @@ function codeGen(ir, st) {
                     if (rightSide.name.match("string")) {
                         /* Variable to string literal comparison */
 
+                        /*TODO: COME BACK TO THIS*/
+
+                        var string = firstChild.data.join('');
+
+                        var address = checkHeap(string);
+
+                        if (address == null) {
+                            address = codeGen.target.buildString(string);
+                        } else {
+                            // Heap already contains this string
+                            // Use the address that was returned
+                        }
+
+                        codeGen.target.buildInstruction('A0');
+                        codeGen.target.buildInstruction(address);
+
+                        codeGen.target.buildInstruction('A2');
+                        codeGen.target.buildInstruction('02');
+
+
                         errorMsg = "Comparison includes variable and string literal, will not compile...";
                         codeGen.target.errors.push(errorMsg);
                         codeGen.target.errorCount++;
@@ -794,6 +814,10 @@ function codeGen(ir, st) {
 
                     if (leftSide.name.match("string")) {
                         /* Variable to string literal comparison */
+
+
+                        /*TODO: COME BACK TO THIS*/
+
 
                         errorMsg = "Comparison includes variable and string literal, will not compile...";
                         codeGen.target.errors.push(errorMsg);
@@ -995,6 +1019,90 @@ function codeGen(ir, st) {
                             codeGen.target.buildInstruction('00');
 
                         }
+
+                    } else if (leftSide.name.match("string") && rightSide.name.match("string")) {
+
+                        var stringLeft = leftSide.data.join('');
+
+                        var stringRight = rightSide.data.join('');
+
+                        var addressLeft = checkHeap(stringLeft);
+
+                        var addressRight = checkHeap(stringRight);
+
+                        if (addressLeft == null) {
+
+                            if (addressRight == null) {
+
+                                addressLeft = codeGen.target.buildString(stringLeft);
+
+                                addressRight = checkHeap(stringRight);
+
+                                if (addressRight == null) {
+
+                                    /* addressLeft no longer null, but addressRight is
+                                    *  the strings are different */
+
+                                    codeGen.target.buildInstruction('A2');
+                                    codeGen.target.buildInstruction('01');
+
+                                } else {
+
+                                    /* addressLeft no longer null, and neither is addressRight
+                                     *  the strings are the same */
+
+                                    codeGen.target.buildInstruction('A2');
+                                    codeGen.target.buildInstruction('00');
+
+                                }
+
+                            } else {
+
+                                /* addressLeft returns null, but addressRight doesn't
+                                 *  the strings are different */
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('01');
+
+                            }
+
+                        } else {
+
+                            if (addressRight == null) {
+
+                                /* addressLeft returns not null, but addressRight doesn't
+                                 *  the strings are different */
+
+                                codeGen.target.buildInstruction('A2');
+                                codeGen.target.buildInstruction('01');
+
+                            } else {
+
+                                /* addressLeft and addressRight both returned not null */
+
+                                if (addressLeft == addressRight) {
+
+                                    /* They're the same */
+
+                                    codeGen.target.buildInstruction('A2');
+                                    codeGen.target.buildInstruction('00');
+
+                                } else {
+
+                                    /* They're NOT the same */
+
+                                    codeGen.target.buildInstruction('A2');
+                                    codeGen.target.buildInstruction('01');
+
+                                }
+
+                            }
+
+                        }
+
+                        codeGen.target.buildInstruction('EC');
+                        codeGen.target.buildInstruction('FF');
+                        codeGen.target.buildInstruction('00');
 
                     }
 
