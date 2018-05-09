@@ -1,0 +1,17 @@
+{
+ int a
+ a = 5
+ int b
+ b = 9
+ int m
+ while (a!=b) {
+  m = a
+  print(a)
+  while (m != b) {
+   m = 1 + m
+   print(m)
+  }
+  a = 1 + a
+  print("")
+ }
+}$

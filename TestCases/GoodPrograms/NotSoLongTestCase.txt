@@ -1,9 +1,11 @@
 {
  int a
  int b
+ b = 6
  a = 0
  while (a != 2) {
   a = 1 + a
+  print(b)
  }
 }
 $

@@ -1,8 +1,0 @@
-{
-string a
-a = "alan"
-{
-string k
-k = a
-}
-}$

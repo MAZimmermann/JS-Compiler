@@ -1,3 +1,5 @@
 /* Invalid Break Line in String */
-{"two
-lines"}$
+{{"two
+lines"}
+int a
+}$

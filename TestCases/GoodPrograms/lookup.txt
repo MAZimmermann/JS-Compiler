@@ -1,0 +1,13 @@
+{
+ int a
+ a = 5
+ if true {
+  int b
+  b = a
+  if true {
+   int c
+   c = b
+   print(c)
+  }
+ }
+}$

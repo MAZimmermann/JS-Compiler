@@ -4,15 +4,13 @@
  * Includes:
  *  Code class via code constructor
  *
- * TODO: Better description for this file
+ *  Static data table and jump table
  *
- * TODO: Continue working with boolean values and comparisons
+ *  Helper functions for instances of "code"
  *
- * TODO: Clean up and refactor / look for areas to consolidate
+ *  Helper functions for static data table and jump table
  *
- * TODO: Consider editing static data table format
- *
- * TODO: Generate errors and warnings (memory collision, etc.)
+ *  Format function to finalize output
  *
  **********/
 
@@ -105,8 +103,6 @@ Code.prototype.formatProgram = function() {
         // System call
         this.buildInstruction('00');
 
-        // this.currentAddress is incremented every time we build an instruction,
-        //  so the beginning of the static area should be... TODO: finish/phrase better?
         var staticStart = this.currentAddress;
 
         // Replaces all temporary variable memory locations with the actual location
@@ -217,6 +213,8 @@ Code.prototype.formatProgram = function() {
         }
 
     } else {
+
+        /* Errors found in code gen */
 
         document.getElementById("compStatus").value += "Found " + this.warningCount + " warning(s)" + "\n";
         if (this.warningCount == 0) {

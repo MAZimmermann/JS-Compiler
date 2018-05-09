@@ -1,9 +1,0 @@
-{
-    string s
-    string b
-    b = "test"
-    {
-        s = b
-        print(s)
-    }
-}$

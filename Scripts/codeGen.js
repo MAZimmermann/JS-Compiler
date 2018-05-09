@@ -6,12 +6,6 @@
  *
  *  Helper functions include getType, getAddress, getKey, and checkHeap
  *
- * TODO: Continue working with boolean values and comparisons
- *
- * TODO: Clean up and refactor / look for areas to consolidate
- *
- * TODO: Generate errors and warnings (memory collision, etc.)
- *
  **********/
 
 function codeGen(ir, st) {
@@ -639,7 +633,7 @@ function codeGen(ir, st) {
                     codeGen.target.buildInstruction(codeGen.target.temp2);
 
                     codeGen.target.buildInstruction('A2');
-                    codeGen.target.buildInstruction('00');
+                    codeGen.target.buildInstruction('01');
 
                     codeGen.target.buildInstruction('EC');
                     codeGen.target.buildInstruction(codeGen.target.temp2);
