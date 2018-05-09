@@ -1,0 +1,23 @@
+{
+ int a
+
+ a = 1
+ if("maz" == "maz") {
+  a = 1 + a
+  print("a now is two")
+ }
+ if(a != 1) {
+  a = 3 + 3
+  print("a now is six")
+ }
+ if(a == 6) {
+  a = 3
+  print("a is now three")
+ }
+ if true {
+  print("this will always be true")
+ }
+ if true {
+  print("this will always print")
+ }
+}$

@@ -1,0 +1,8 @@
+{
+ int m
+ string a
+ a = "me"
+ {
+  boolean z
+ }
+}$

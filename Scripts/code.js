@@ -193,13 +193,14 @@ Code.prototype.formatProgram = function() {
             this.heapAddress++;
         }
 
-        var breakAt = 0;
+        /*var breakAt = 0;*/
 
         // Print output to the codeGen textarea
         for (var i = 0; i < this.output.length; i++) {
 
             document.getElementById("codeGen").value += this.output[i];
-            if (breakAt == 15) {
+
+            /*if (breakAt == 15) {
                 if (i == 255) {
                     // Do nothing, end of image
                 } else {
@@ -208,7 +209,7 @@ Code.prototype.formatProgram = function() {
                 }
             } else {
                 breakAt++;
-            }
+            }*/
 
         }
 

@@ -1,0 +1,16 @@
+{
+ boolean m
+ m = true
+ 
+ string a
+ a = "does anybody really"
+ 
+ if true {
+  print(a)
+ }
+
+ if (m!=false) {
+  print("know what time it is")
+ }
+
+}$

@@ -1,0 +1,5 @@
+{
+ string p
+ p = "missing end of file tag"
+ print(p)
+}
