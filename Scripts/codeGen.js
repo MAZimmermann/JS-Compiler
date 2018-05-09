@@ -677,29 +677,28 @@ function codeGen(ir, st) {
                     if (rightSide.name.match("string")) {
                         /* Variable to string literal comparison */
 
-                        /*TODO: COME BACK TO THIS*/
+                        var stringRight = rightSide.data.join('');
 
-                        var string = firstChild.data.join('');
+                        var addressRight = checkHeap(stringRight);
 
-                        var address = checkHeap(string);
+                        if (addressRight == null) {
 
-                        if (address == null) {
-                            address = codeGen.target.buildString(string);
+                            /* this means that the heap does not contain the string on the
+                             *  right side of the comparison */
+
+                            /* therefore, the variable and string literal must not be equal */
+
                         } else {
-                            // Heap already contains this string
-                            // Use the address that was returned
+
+                            var lAddress = getAddress(leftSide);
+
+                            codeGen.target.buildInstruction('A2');
+                            codeGen.target.buildInstruction(addressRight);
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction(lAddress);
+
                         }
-
-                        codeGen.target.buildInstruction('A0');
-                        codeGen.target.buildInstruction(address);
-
-                        codeGen.target.buildInstruction('A2');
-                        codeGen.target.buildInstruction('02');
-
-
-                        errorMsg = "Comparison includes variable and string literal, will not compile...";
-                        codeGen.target.errors.push(errorMsg);
-                        codeGen.target.errorCount++;
 
                     } else if (rightSide.name.match(/^[a-z]$/)) {
                         /* Variable to variable comparison */
@@ -816,12 +815,28 @@ function codeGen(ir, st) {
                         /* Variable to string literal comparison */
 
 
-                        /*TODO: COME BACK TO THIS*/
+                        var stringLeft = leftSide.data.join('');
 
+                        var addressLeft = checkHeap(stringLeft);
 
-                        errorMsg = "Comparison includes variable and string literal, will not compile...";
-                        codeGen.target.errors.push(errorMsg);
-                        codeGen.target.errorCount++;
+                        if (addressLeft == null) {
+
+                            /* this means that the heap does not contain the string on the
+                             *  left side of the comparison */
+
+                            /* therefore, the variable and string literal must not be equal */
+
+                        } else {
+
+                            var rAddress = getAddress(rightSide);
+
+                            codeGen.target.buildInstruction('A2');
+                            codeGen.target.buildInstruction(addressLeft);
+
+                            codeGen.target.buildInstruction('EC');
+                            codeGen.target.buildInstruction(rAddress);
+
+                        }
 
                     } else if (leftSide.name.match(/^\+$/)) {
                         /* Variable to integer expression comparison */
